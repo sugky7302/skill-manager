@@ -1,0 +1,54 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        // {
+        //     "name": "Launch",
+        //     "type": "lua",
+        //     "request": "attach",
+        //     "stopOnEntry": false,
+        //     "ip": "127.0.0.1",
+        //     "port": 4278,
+        //     "preLaunchTask": "執行",
+        //     "sourceMaps": [
+        //         [
+        //             "src\\",
+        //             "${workspaceFolder}\\src\\"
+        //         ],
+        //         [
+        //             "lua\\",
+        //             "${workspaceFolder}\\map\\"
+        //         ]
+        //     ]
+        // },
+        // {
+        //     "name": "Attach",
+        //     "type": "lua",
+        //     "request": "attach",
+        //     "stopOnEntry": true,
+        //     "sourceCoding": "utf8",
+        //     "processName": "war3.exe",
+        //     "sourceMaps": [
+        //         [
+        //             "src\\",
+        //             "${workspaceFolder}\\src\\"
+        //         ],
+        //         [
+        //             "lua\\",
+        //             "${workspaceFolder}\\map\\"
+        //         ]
+        //     ]
+        // },
+        {
+            "name": "Launch Script",
+            "type": "lua",
+            "request": "launch",
+            "stopOnEntry": true,
+            "program": "${fileDirname}\\${fileBasenameNoExtension}.lua",
+            "cwd": "${workspaceFolder}",
+            "path": "${workspaceFolder}\\src\\?.lua",
+            "cpath": "${workspaceFolder}\\?.dll",
+            "arg": [],
+            "consoleCoding": "utf8"
+        }
+    ]
+}
