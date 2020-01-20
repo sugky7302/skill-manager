@@ -58,6 +58,16 @@ function Queue:size()
     return self._end_ - self._begin_
 end
 
+function Queue:loop(callback)
+    if not callback then
+        return false
+    end
+
+    for i = self._begin_, self._end_ do
+        callback(i, self[i])
+    end
+end
+
 function Queue:front()
     return self[self._begin_]
 end

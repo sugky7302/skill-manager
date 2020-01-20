@@ -15,7 +15,7 @@ endglobals
 //library Base:
     
     function Base__Init takes nothing returns nothing
-        call Cheat("exec-lua:base")
+        call Cheat("exec-lua:init")
     endfunction
     
 

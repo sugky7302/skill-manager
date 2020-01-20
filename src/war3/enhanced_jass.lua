@@ -1,7 +1,6 @@
 -- 自創的jass強化版，將command jass和自己新建的指令整合在一起，方便於lua依賴。
 
 local cj = require 'jass.common'
-local Debug = require 'jass.debug'
 local ascii = require 'std.ascii'
 
 local order_list = {
@@ -364,7 +363,7 @@ local ej = {
         return cj.StringHash(s)
     end,
     H2S = function(h)
-        return cj.I2S(H2I(h))
+        return cj.I2S(cj.GetHandleId(h))
     end,
     getPlayer = function(u)
         return cj.GetPlayerId(cj.GetOwningPlayer(u))

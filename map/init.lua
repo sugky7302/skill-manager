@@ -3,13 +3,13 @@ local require = require
 local Runtime = require 'jass.runtime'
 local Console = require 'jass.console'
 
-Base = {}
+Global = {}
 
 -- Debug模式
-Base.debug_mode = true
+Global.debug_mode = true
 
 -- 打開控制台
-Runtime.console = Base.debug_mode and true or false
+Runtime.console = Global.debug_mode and true or false
 
 -- 重載print，自動轉換編碼
 local print = Console.write
@@ -53,7 +53,7 @@ local abs_path = ';D:\\Program\\SkillManager\\src\\'
 -- 一定要絕對路徑，不然lua會找不到
 package.path = package.path .. abs_path .. '?.lua'
 
-function Base.addPath(dir)
+function Global.addPath(dir)
     if dir ~= '' then
         dir = dir .. [[\]]
     end
@@ -61,10 +61,10 @@ function Base.addPath(dir)
     package.path = package.path .. abs_path .. path
 end
 
--- Base.AddPath 'data'
--- Base.AddPath 'lib'
--- Base.AddPath 'war3'
--- Base.AddPath 'util'
+-- Global.AddPath 'data'
+-- Global.AddPath 'lib'
+-- Global.AddPath 'war3'
+-- Global.AddPath 'util'
 
 -- 進入主函數
 require 'main'
