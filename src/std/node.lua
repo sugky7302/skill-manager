@@ -1,6 +1,6 @@
 -- list的節點，提供API讓外部能夠讀取node的資料。
 
-local Node = require 'util.class'("Node")
+local Node = require 'std.class'("Node")
 
 function Node:_new(data)
     return {

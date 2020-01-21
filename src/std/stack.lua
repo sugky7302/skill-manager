@@ -2,7 +2,7 @@
 -- 依賴
 --   class
 
-local Stack = require 'util.class'("Stack")
+local Stack = require 'std.class'("Stack")
 
 -- default
 Stack._top_   = nil

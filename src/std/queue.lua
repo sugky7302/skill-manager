@@ -2,22 +2,21 @@
 -- 依賴
 --   class
 
-
-local Queue = require 'util.class'("Queue")
+local Queue = require 'std.class'('Queue')
 
 -- default
-Queue._begin_  = 1
-Queue._end_    = 1
+Queue._begin_ = 1
+Queue._end_ = 1
 
 function Queue:__tostring()
-    local print_str = {"["}
+    local print_str = {'['}
 
-    for i = self._begin_, self._end_ - 1 do 
+    for i = self._begin_, self._end_ - 1 do
         print_str[#print_str + 1] = self[i]
     end
 
-    print_str[#print_str + 1] = "]"
-    return table.concat(print_str, " ")
+    print_str[#print_str + 1] = ']'
+    return table.concat(print_str, ' ')
 end
 
 function Queue:push_back(data)
@@ -33,15 +32,15 @@ end
 
 function Queue:pop_front()
     -- 釋放空間
-    self[self._begin_] = nil 
+    self[self._begin_] = nil
 
     -- 調整首端索引
-    self._begin_ = self._begin_ + 1 
+    self._begin_ = self._begin_ + 1
 end
 
 -- O(length)的方法
 function Queue:clear()
-    for i = self._begin_, self._end_ - 1 do 
+    for i = self._begin_, self._end_ - 1 do
         self[i] = nil
     end
 
@@ -58,14 +57,12 @@ function Queue:size()
     return self._end_ - self._begin_
 end
 
-function Queue:loop(callback)
-    if not callback then
-        return false
-    end
+function Queue:begin()
+    return self._begin_
+end
 
-    for i = self._begin_, self._end_ do
-        callback(i, self[i])
-    end
+function Queue:end_()
+    return self._end_
 end
 
 function Queue:front()

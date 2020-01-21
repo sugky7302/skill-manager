@@ -12,6 +12,7 @@ function SkillTree:_new(root, object)
     local instance = self:super()._new(self)
     instance._root_ = root or SequenceNode:new()
     instance.object_ = object
+
     return instance
 end
 

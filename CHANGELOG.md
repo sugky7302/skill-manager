@@ -1,5 +1,18 @@
 # 更新日誌
 
+## 0.3.0 - 2020-01-21
+
+### Added:
+- **[std]** math加入gcf函數，能夠求最大公因數。
+
+### Changed:
+- **[std]**
+    - 完善Event類別。
+    - 調整RNG的數學依賴庫。
+
+### Todo:
+- 完善Listener和EventManager，並確定職責。
+
 ## 0.2.0 - 2020-01-20
 
 ### Added:

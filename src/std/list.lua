@@ -2,7 +2,7 @@
 
 -- package
 local require = require
-local List = require 'util.class'('List')
+local List = require 'std.class'('List')
 
 -- default
 List._VERSION = '1.1.0'

@@ -1,32 +1,35 @@
-local require = require
 local EventManager = require 'std.class'("EventManager")
-
-local GetEvents, GetEvent
 
 function EventManager:_new()
     if not self._instance_ then
         self._instance_ = {
-            _events_ = Array:new(),
+            _events_ = {},
         }
     end
 
     return self._instance_
 end
 
-function EventManager:addEvent(event_name, callback)
-    local event = require 'std.event':new(event_name, callback)
-    SaveEvent(self._events_, event)
-end
-
-SaveEvent = function(events, event)
-    local event_queue = events[event.name_]
+function EventManager:addEvent(event)
+    local event_queue = self._events_[event.name_]
     if not event_queue then
         event_queue = {}
-        event_queue[#event_queue+1] = event
-        events[event_name] = event_queue
+        self._events_[event.name_] = event_queue
     end
 
+    event_queue[#event_queue+1] = event
+
     return event
+end
+
+function EventManager:dispatch(event_name, ...)
+    if not self._events_[event_name] then
+        return false
+    end
+
+    for _, event in ipairs(self._events_[event_name]) do
+        event:dispatch(...)
+    end
 end
 
 return EventManager
