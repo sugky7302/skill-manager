@@ -23,29 +23,9 @@ Runtime.debugger = 4278
 -- 關閉等待
 Runtime.sleep = false
 
-local function traceback()
-    local level = 1
-    while true do
-        local info = debug.getinfo(level, 'Sl')
-        if not info then
-            break
-        end
-
-        if info.what == 'C' then
-            print(level, 'C function')
-        else
-            print(string.format('[%s]:%d', info.short_src, info.currentline))
-        end
-
-        level = level + 1
-    end
-end
-
 -- 錯誤匯報
 function Runtime.error_handle(msg)
-    print('---------------------------------------')
-    print(debug.traceback())
-    print('---------------------------------------')
+    print(string.format("[Error] %s", msg))
 end
 
 local abs_path = ';D:\\Program\\SkillManager\\src\\'

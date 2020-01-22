@@ -1,88 +1,71 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
-local Debug = require 'jass.debug'
-local Queue = require 'std.queue'
+local Trigger = require 'war3.trigger'
 
 local Listener = require 'std.class'('Listener')
-local trg = ej.CreateTrigger()
 
 local EVENTS = {
-    ["死亡"] = ej.EVENT_UNIT_DEATH,
+    ['單位-死亡'] = ej.EVENT_UNIT_DEATH,
+    ['單位-受到傷害'] = ej.EVENT_UNIT_DAMAGED,
+    ['單位-被選取'] = ej.EVENT_UNIT_SELECTED,
+    ['測試'] = 4
 }
 
-function Listener:_new(name, args)
-    local instance = {
-        _name_ = name,
-        _events_ = Queue:new(),
-        _event_manager_ = nil,
-        _args_ = args,
-    }
+function Listener:_new(event_manager)
+    if not self._instance_ then
+        self._instance_ = {
+            _events_ = event_manager,
+            _trigger_ = Trigger:new(
+                function()
+                    local pairs = pairs
 
-    -- 每種監聽器只存在一個
-    self[name] = instance
+                    local event_name = ''
+                    for k, v in pairs(EVENTS) do
+                        if v == ej.GetTriggerEventId() then
+                            event_name = k
+                            break
+                        end
 
-    return instance
+                        -- 搜尋不到就跳出
+                        return false
+                    end
+
+                    -- 將參數名轉成真正的參數
+                    local args = {}
+                    for _, v in pairs(self._instance_._events_:getArgs(event_name)) do
+                        args[#args + 1] = ej[v]()
+                    end
+
+                    -- 執行事件的處理方法
+                    self._instance_._events_:dispatch(event_name, table.unpack(args))
+
+                    return true
+                end
+            )
+        }
+    end
+
+    return self._instance_
 end
 
 function Listener:_remove()
-    self._events_:remove()
-
-    ej.TriggerRemoveCondition(self._condition_)
-    ej.DestroyCondtion(self._condition_func_)
-    ej.DestroyTrigger(self._trigger_)
-
-    -- 減少handle的引用
-    Debug.handle_unref(self._trigger_)
+    self._trigger_:remove()
 end
 
-function Listener:__call(name)
-    return self[name]
-end
-
-function Listener:getListenerByEvent(event_id)
-    for k, v in pairs(EVENTS) do
-        if v == event_id then
-            return k
-        end
+function Listener:__call(event_name)
+    return function(event_source)
+        self:_setSourceTriggerEvent(event_name, event_source)
     end
 end
 
-function Listener:addEvent(event)
-    self._events_:push_back(event)
-end
+function Listener:_setSourceTriggerEvent(event_name, event_source)
+    local event_type = string.match(event_name, '[^-]+')
 
-function Listener:setEventManager(event_manager)
-    self._event_manager_ = event_manager
-end
-
-function Listener:listen()
-    local args = {}
-    for arg_name in ipairs(self._args_) do
-        args[arg_name] = ej[arg_name]()
-    end
-
-    for i = self._events_:begin(), self._events_:end_() do
-        self._events_[i]:dispatch(args)
+    if event_type == '單位' then
+        ej.TriggerRegisterUnitEvent(self._trigger_:object(), event_source, EVENTS[event_name])
+    elseif event_type == '測試' then
+        ej.TriggerRegisterTimerEvent(self._trigger_:object(), 0, false)
     end
 end
-
-function Listener:setSource(event_source)
-    if self._name_ == '死亡' then
-        ej.TriggerRegisterUnitEvent(trg, event_source, EVENTS[self._name_])
-    elseif self._name_ == '被攻擊' then
-        ej.TriggerRegisterUnitEvent(trg, event_source, ej.EVENT_UNIT_DAMAGED)
-    end
-end
-
--- 放在這裡才能調用Listener
-ej.TriggerAddCondition(
-    trg,
-    ej.Condition(
-        function()
-            local listener = Listener:getListenerByEvent(ej.GetTriggerEventId)
-            listener:listen()
-        end
-    )
-)
 
 return Listener

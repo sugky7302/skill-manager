@@ -1,6 +1,7 @@
 # 注意事項
 ## VS Code
 - 可以在keyboard shortcut添加自定義快捷鍵，直接複製f5的設定就好，只要把args的值改成task.json裡的label的值，它就會呼叫。
+- 
 ## Git
 - 如果push失敗，就直接到資料夾去pull跟push。
 - 版本管理模型
@@ -10,6 +11,7 @@
     - [release] 測試版本分支。從develop分支出來，進行可產品化的環境下的測試，如果出現缺陷，就在此分支下修復。測試通過後，分別併入master和develop。
     - [hotfix] 緊急線上修復分支。若線上出現bug且特別緊急時，就可以從master拉出分支到這裡進行修復，完成後分別併入master和develop。
     - 圖片可見[敏捷開發下的版本管理][ref_url5]。
+
 ## Lua撰寫細則
 - function、table、userdata、thread是複製引用(call by reference)，所以A變量操作它們，B變量也會改變。
 - boolean、string、number是複製值(call by value)，所以A變量操作它們，B變量不會改變。
@@ -32,32 +34,45 @@
 - 如果table的string(hash)段有元素要刪除，使用nil即可。
 - 判斷table是否為nil要寫next(tb) == 0。
 - 使用string.gsub時，如果$在模式串的結尾，會有特殊的正則式作用，因此不要在結尾加$。
+
+## 程式
+- 如果是.lua，修改完直接執行即可。
+- 如果是.j，修改完要按一次obj再執行。
+
 ## 修改地圖
 - 如果要修改地圖，請開啟TheTiltedClockTower.w3x，不要開啟.w3x。
 - 修改完後要按Lni一次，vscode才會更新數據。
 - 再按obj一次再執行會比較好。
+
 ## 新增/修改/移除物編數據
 - 打開table資料夾。
 - 根據類型開啟相應的ini檔。
 - 直接修改儲存。注意，可使用"[=["和"]=]"把內容包括在裏頭，它會將enter鍵視為換行，空格鍵就空幾格，顏色照樣可以染。
 - 最後用vscode執行obj一次即可。
+
 ## 新增/修改mpq數據
 - map的資料夾下根據原目錄名創建資料夾。
 - 把檔案放入資料夾中。
+
 ## 導入檔案
 - 先把檔案放入resource裡面，根據檔案的類型放入不同資料夾。
 - 在imp.ini填入剛剛放入的資料夾的路徑。
+
 ## 導入音效
 - 先把檔案放入sound\war3mapImported裡面。
 - 在imp.ini填入路徑。
 - 要在war3map.j的globals設定全域變量**sound gg_snd_檔案名 = null**。
 - 再去找InitSound函數，根據格式來調用函數，將音效檔初始化。
+
 ## 通魔
 - 如果要播施法動作，請把施法持續時間和動作持續時間設定超過施法動作播一次的時間。
+
 ## 技能
 - 技能要做2個，一個是一般技能，另一個是暗圖標。
+
 ## 任務
 - 觸發物品的前綴一定是"[任務] "。
+
 ## 漂浮文字
 - 系統會自動刪除無法永久顯示的漂浮文字，且內建回收利用的機制。
 

@@ -1,6 +1,7 @@
 -- 自創的jass強化版，將command jass和自己新建的指令整合在一起，方便於lua依賴。
 
 local cj = require 'jass.common'
+local g = require 'jass.globals'
 local ascii = require 'std.ascii'
 
 local order_list = {
@@ -383,6 +384,10 @@ local ej = {
     O2Id = function(order)
         return order_list[order]
     end,
+    object = function(handle_name)
+        print("this object's id is", g[handle_name])
+        return g[handle_name]
+    end,
     print = function(msg)
         cj.DisplayTimedTextToPlayer(cj.Player(0), 0, 0, 5, msg)
     end,
@@ -400,8 +405,7 @@ local ej = {
         end
     end,
     sound = function(handle)
-        local gg = require 'jass.globals'
-        cj.StartSound(gg[handle])
+        cj.StartSound(g[handle])
     end,
     selectUnitRemoveForPlayer = function(unit, player)
         if cj.GetLocalPlayer() == player then
