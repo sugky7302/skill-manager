@@ -110,7 +110,7 @@ local function Class(name, ...)
                     return self._prototype[i]
                 end
             end
-        end
+        end,
     }
 
     setmetatable(object, object)

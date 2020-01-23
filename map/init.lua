@@ -28,6 +28,10 @@ function Runtime.error_handle(msg)
     print(string.format("[Error] %s", msg))
 end
 
+function Global.error_handle(msg)
+    Runtime.error_handle(msg)
+end
+
 local abs_path = ';D:\\Program\\SkillManager\\src\\'
 
 -- 一定要絕對路徑，不然lua會找不到

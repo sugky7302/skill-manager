@@ -18,7 +18,7 @@ function Array:__tostring()
 end
 
 -- 操作元素
-function Array:push_back(data)
+function Array:append(data)
     if not data then
         return false
     end

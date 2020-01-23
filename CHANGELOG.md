@@ -1,5 +1,31 @@
 # 更新日誌
 
+## 0.5.0 - 2020-01-23
+
+### Added:
+- **[init]** Global類別加入error_handle函數，讓lua腳本能直接調用報錯機制。
+- **[skill_tree]**
+  - 新增public資料夾，儲存共用的動作節點。資料夾內的所有節點統一由同層的init.lua註冊。
+  - public下新增test、test1兩個測試節點。
+- **[skill_tree/node]** 原先的註冊方式不正確，因此新增靜態方法register，讓繼承node的類別可以註冊進node_list。
+- **[war3]** 新增Group類別，強化war3內部的group功能，並加入鏈式語法，方便使用者操作。此外，開頭撰寫說明文件，便利使用此模塊的使用者，不需要翻閱所有程式碼才能使用模塊。
+
+### Changed:
+- **[std/array]** push_back函數更名為append。
+- **[std/event_manager]** dispatch函數在傳遞參數給event時，會順便把manager傳過去，方便使用者在事件內調用別的事件。
+- **[std/listener]** 事件名加入"*"後綴，會被listener辨識為一次性事件。
+- **[war3/trigger]** 
+  - 加入鏈式語法。
+  - 設定Condition的動作獨立成函數，讓使用者能夠從外部再設定，目前用於導入trigger實例。
+
+### Fixed:
+- **[skill_tree/random_node]** 修正success函數的_children_名稱錯誤的問題。
+- **[skill_tree/sequence_node]** 修正success函數的_children_名稱錯誤的問題。
+- **[war3/listener]** Trigger的條件函數修正第一次讀取不到事件就會跳出的問題。
+
+### Todo:
+- 規劃技能流程並開發技能動作節點。
+
 ## 0.4.0 - 2020-01-22
 
 ### Added:
@@ -8,11 +34,10 @@
     - enhanced_jass新增object函數，能夠獲得遊戲內的全域變數。
 
 ### Changed:
-- **[init.lua]** 調整錯誤追蹤的格式。
-- **[std]**
-    - 完善EventManager類別。
-    - Event的引數新增參數表，以字串+正則表達式呈現。
-- **[war3]** 完善Listener類別。
+- **[init]** 調整錯誤追蹤的格式。
+- **[std/event_manager]** 完善EventManager類別。
+- **[std/event]** Event的引數新增參數表，以字串+正則表達式呈現。
+- **[war3/listener]** 完善Listener類別。
 
 ### Todo:
 - 考慮一次性事件要如何加入監聽器。
@@ -23,9 +48,8 @@
 - **[std]** math加入gcf函數，能夠求最大公因數。
 
 ### Changed:
-- **[std]**
-    - 完善Event類別。
-    - 調整RNG的數學依賴庫。
+- **[std/event]** 完善Event類別。
+- **[std/random_number_generator]** 調整RNG的數學依賴庫。
 
 ### Todo:
 - 完善Listener和EventManager，並確定職責。

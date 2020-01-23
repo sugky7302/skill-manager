@@ -8,7 +8,7 @@ local NodeList = require 'skill_tree.node_list'
 NodeList:insert('seq', SequenceNode)
 NodeList:insert('rand', RandomNode)
 
-function SkillTree:_new(root, object)
+function SkillTree:_new(object, root)
     local instance = self:super()._new(self)
     instance._root_ = root or SequenceNode:new()
     instance.object_ = object
@@ -20,6 +20,7 @@ function SkillTree:run()
     self._root_.parent_ = self
     self._root_:start()
     self._root_:run()
+    return self
 end
 
 -- 資料強制要是「表」
@@ -28,6 +29,8 @@ function SkillTree:append(data)
     for _, v in ipairs(data) do
         self:_append(self._root_, v)
     end
+
+    return self
 end
 
 function SkillTree:_append(parent, data)

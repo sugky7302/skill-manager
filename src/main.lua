@@ -1,17 +1,32 @@
 local require = require
-local EventManager = require 'std.event_manager'
+local SkillTree = require 'skill_tree.skill_tree'
 local Event = require 'std.event'
+local EventManager = require 'std.event_manager'
 local Listener = require 'war3.listener'
-local ej = require 'war3.enhanced_jass'
+local Group = require 'war3.group'
+require 'skill_tree.public.init'
 
 local function Main()
-    local a = EventManager:new()
-    local listener = Listener:new(a)
-    a:addEvent(Event:new("測試", nil, function()
-        print("Hello World")
-    end))
-
-    listener("測試")(nil)
+    local e = EventManager:new()
+    local l = Listener:new(e)
+    e:addEvent(
+        Event:new(
+            '單位-施放技能',
+            'GetTriggerUnit',
+            function(_, source)
+                local sk = SkillTree:new(source)
+                sk:append(
+                    {
+                        'test',
+                        'test1'
+                    }
+                ):run()
+            end
+        )
+    )
+    Group:new():enumUnitsInRange(0, 0, 999999, "Nil"):loop(function(self, i)
+        l("單位-施放技能")(self.units_[i])
+    end)
 end
 
 Main()

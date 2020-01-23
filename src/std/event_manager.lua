@@ -57,7 +57,7 @@ function EventManager:dispatch(event_name, ...)
     end
 
     for _, event in ipairs(self._events_[event_name]) do
-        event:dispatch(...)
+        event:dispatch(self, ...)
     end
 end
 

@@ -10,7 +10,7 @@ function Sequence:success()
     self:super().success(self)
 
     self._index_ = self._index_ + 1
-    if self._index_ <= #self._children then
+    if self._index_ <= #self._children_ then
         self:_run()
     else
         self:super():super().success(self)
