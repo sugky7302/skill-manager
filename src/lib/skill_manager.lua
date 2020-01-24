@@ -17,6 +17,7 @@ function SkillManager:_new()
     return self._instance_
 end
 
+-- NOTE: 資料索引為檔案名，因此data資料夾下的所有腳本不得重名
 LoadSkillScript = function()
     local scripts = {}
     for _, folder in ipairs(skill_script_path) do
