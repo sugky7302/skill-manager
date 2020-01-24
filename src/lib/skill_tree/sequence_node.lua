@@ -1,6 +1,6 @@
 local require = require
 
-local Sequence = require 'std.class'("SequenceNode", require 'skill_tree.decider_node')
+local Sequence = require 'std.class'("SequenceNode", require 'lib.skill_tree.decider_node')
 
 function Sequence:_new()
     return self:super():_new()

@@ -1,5 +1,23 @@
 # 更新日誌
 
+## 0.6.0 - 2020-01-24
+
+### Added:
+- 新增lib資料夾，儲存開發魔獸地圖專用、沒調用jass的lua腳本。
+- 新增unit_test資料夾，儲存單元測試劇本。
+- 新增data資料夾，儲存由lua記錄的數據資料。
+- **[data]**
+  - skill_tree的public搬到skill子目錄內。
+  - 新增load_file函數讀取資料，並以table回傳。
+- **[lib]** 新增skill_manager類別，統一管理技能並生成副本。
+- **[std]** 新增Table類別，擴充原lua table的功能。
+- **[war3]** 新增Timer類別，採中心計時器分發，並整合jass計時器功能，方便使用。
+
+### Changed:
+- skill_tree資料夾搬到lib下。
+- **[lib/skill_tree]** 更改skill_tree下所有腳本的引用路徑。
+- **[std/event_manager]** 把可變參數和event_manager引用的位置調換，方便event的參數列表調用。
+
 ## 0.5.0 - 2020-01-23
 
 ### Added:

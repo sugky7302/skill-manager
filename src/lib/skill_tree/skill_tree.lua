@@ -1,9 +1,9 @@
 local require = require
 
-local SkillTree = require 'std.class'('SkillTree', require 'skill_tree.node')
-local SequenceNode = require 'skill_tree.sequence_node'
-local RandomNode = require 'skill_tree.random_node'
-local NodeList = require 'skill_tree.node_list'
+local SkillTree = require 'std.class'('SkillTree', require 'lib.skill_tree.node')
+local SequenceNode = require 'lib.skill_tree.sequence_node'
+local RandomNode = require 'lib.skill_tree.random_node'
+local NodeList = require 'lib.skill_tree.node_list'
 
 NodeList:insert('seq', SequenceNode)
 NodeList:insert('rand', RandomNode)

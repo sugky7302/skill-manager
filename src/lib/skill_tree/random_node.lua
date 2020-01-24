@@ -1,6 +1,6 @@
 local require = require
 
-local Random = require 'std.class'("RandomNode", require 'skill_tree.decider_node')
+local Random = require 'std.class'("RandomNode", require 'lib.skill_tree.decider_node')
 
 function Random:_new()
     return self:super():_new()
@@ -8,7 +8,7 @@ end
 
 function Random:start()
     if not self._is_child_running_ then
-        local Rand = require 'math_lib'.rand
+        local Rand = require 'std.math'.rand
         self._index_ = Rand(1, #self._children_)
     end
 end

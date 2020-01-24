@@ -37,18 +37,5 @@ local abs_path = ';D:\\Program\\SkillManager\\src\\'
 -- 一定要絕對路徑，不然lua會找不到
 package.path = package.path .. abs_path .. '?.lua'
 
-function Global.addPath(dir)
-    if dir ~= '' then
-        dir = dir .. [[\]]
-    end
-    local path = dir .. '?.lua'
-    package.path = package.path .. abs_path .. path
-end
-
--- Global.AddPath 'data'
--- Global.AddPath 'lib'
--- Global.AddPath 'war3'
--- Global.AddPath 'util'
-
 -- 進入主函數
 require 'main'

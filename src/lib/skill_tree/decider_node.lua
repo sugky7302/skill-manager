@@ -1,6 +1,6 @@
 local require = require
 
-local Decider = require 'std.class'("DeciderNode", require 'skill_tree.node')
+local Decider = require 'std.class'("DeciderNode", require 'lib.skill_tree.node')
 
 function Decider:_new()
     local instance = self:super():_new()

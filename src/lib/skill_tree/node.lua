@@ -1,13 +1,7 @@
 local require = require
-local NodeList = require 'skill_tree.node_list'
+local NodeList = require 'lib.skill_tree.node_list'
 
 local Node = require 'std.class'('Node')
-
-function Node.register(name, node)
-    if name then
-        NodeList:insert(name, node)
-    end
-end
 
 function Node:_new(name)
     local instance = {
@@ -16,6 +10,12 @@ function Node:_new(name)
     }
 
     return instance
+end
+
+function Node:register(name)
+    if name then
+        NodeList:insert(name, self)
+    end
 end
 
 function Node:condition()
