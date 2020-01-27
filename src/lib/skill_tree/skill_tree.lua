@@ -12,6 +12,8 @@ function SkillTree:_new(object, root)
     local instance = self:super()._new(self)
     instance._root_ = root or SequenceNode:new()
     instance.object_ = object
+    instance.is_finished_ = false
+    instance.period_ = 1
 
     return instance
 end
@@ -37,8 +39,8 @@ function SkillTree:_append(parent, data)
     local type = type
 
     -- 處理子結構
-    if type(data) == 'table' and data.decider then
-        local decider = NodeList:query(data.decider):new()
+    if type(data) == 'table' and data.type then
+        local decider = NodeList:query(data.type):new()
         parent:append(decider)
         decider.tree_ = self
 
@@ -47,14 +49,21 @@ function SkillTree:_append(parent, data)
         end
     -- 處理節點
     elseif type(data) == 'table' then
-        parent:append(data)
-        data.tree_ = self
-    -- 處理已記錄在NodeList的節點
-    elseif type(data) == 'string' then
-        local node = NodeList:query(data):new()
+        local node
+        if type(data.id) == "string" then
+            node = NodeList:query(data.id):new(data.args)
+        else
+            node = data.id:new(data.args)
+        end
+
         parent:append(node)
         node.tree_ = self
     end
+end
+
+function SkillTree:setPeriod(period)
+    self.period_ = period
+    return self
 end
 
 return SkillTree

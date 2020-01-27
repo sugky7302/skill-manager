@@ -6,7 +6,7 @@ local Node = require 'std.class'('Node')
 function Node:_new(name)
     local instance = {
         parent_ = nil,
-        tree_ = nil
+        tree_ = nil,
     }
 
     return instance

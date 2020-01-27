@@ -58,6 +58,11 @@ end
 ProcessOrder = function(order)
     order:run()
 
+    -- 如果執行run時，order將自身所有資料刪除，這裡直接跳出避免報錯
+    if not order.count_ then
+        return false
+    end
+
     -- 如果count_是-1，表示無窮迴圈，因此不用遞減
     if order.count_ > 0 then
         order.count_ = order.count_ - 1
