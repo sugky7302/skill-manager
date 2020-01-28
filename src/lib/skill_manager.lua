@@ -34,6 +34,11 @@ function SkillManager:get(skill_name, source, target)
     local skill = Table.copy(self._data_[skill_name])
     skill.source = source
     skill.target = target or source
+
+    -- 裝飾器渲染
+    local decorator = require 'lib.skill_decorator':new()
+    decorator:wrap(skill)
+
     return skill
 end
 

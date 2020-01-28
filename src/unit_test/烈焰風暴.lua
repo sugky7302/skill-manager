@@ -14,8 +14,8 @@ e:addEvent(
         '單位-施放技能',
         'GetTriggerUnit GetSpellAbilityId',
         function(_, source, ability)
-            local skill = SkillManager:new():get('烈焰風暴')
-            local skill_tree = SkillTree:new(skill.source):append(skill.scripts):setPeriod(0.01):run()
+            local skill = SkillManager:new():get('烈焰風暴', source)
+            local skill_tree = SkillTree:new(skill):append(skill.scripts):setPeriod(0.01):run()
             Timer:new(
                 0.01,
                 -1,
