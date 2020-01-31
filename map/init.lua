@@ -26,6 +26,7 @@ Runtime.sleep = false
 -- 錯誤匯報
 function Runtime.error_handle(msg)
     print(string.format("[Error] %s", msg))
+    print(debug.traceback())
 end
 
 function Global.error_handle(msg)

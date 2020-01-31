@@ -1,19 +1,29 @@
 # 更新日誌
 
-# 0.8.0 - 2020-01-28
+## 0.9.0 - 2020-01-31
 
 ### Added:
-- [lib] 新增SkillDecorator類別，裝飾技能樹的動作節點，達到跟Heros of the storm的天賦一樣的功能，目前尚未完成。
-- [lib/skill_manager] get函數加入裝飾器包裝技能的功能。
+- **[lib/skill_decorator]** 完善。
+- **[lib/skill_manager]** 現在註冊劇本會順便註冊裝飾器。
+- **[lib/skill_tree/skill_tree]** 生成樹時，會搜尋每一個節點，查詢是否需要裝飾。
 
-# 0.7.0 - 2020-01-27
+### Changed:
+- **[lib/skill_tree/node]** 現在註冊節點會順便讓節點記錄名字，好讓裝飾器能夠辨認是哪個節點。
+
+## 0.8.0 - 2020-01-28
 
 ### Added:
-- [data/skill/public] 新增烈焰風暴腳本。
-- [lib/skill_tree/skill_tree] 腳本加入參數功能，新建節點會讀取參數供內部使用。
+- **[lib]** 新增SkillDecorator類別，裝飾技能樹的動作節點，達到跟Heros of the storm的天賦一樣的功能，目前尚未完成。
+- **[lib/skill_manager]** get函數加入裝飾器包裝技能的功能。
+
+## 0.7.0 - 2020-01-27
+
+### Added:
+- **[data/skill/public]** 新增烈焰風暴腳本。
+- **[lib/skill_tree/skill_tree]** 腳本加入參數功能，新建節點會讀取參數供內部使用。
 
 ### Fixed:
-- [war3/timer] 修正執行函數時，調用刪除函數，會導致序列處理報錯的問題。
+- **[war3/timer]** 修正執行函數時，調用刪除函數，會導致序列處理報錯的問題。
 
 ## Todo:
 - [x] 實現烈焰風暴的技能流程。

@@ -19,12 +19,34 @@ end
 
 -- NOTE: 資料索引為檔案名，因此data資料夾下的所有腳本不得重名
 LoadSkillScript = function()
-    local scripts = {}
+    local skill_decorator = require 'lib.skill_decorator':new()
+    local ipairs = ipairs
+    local scripts, data = {}
+
     for _, folder in ipairs(skill_script_path) do
-        Table.merge(
-            scripts,
-            select(2, xpcall(require, function(err) print(err) end, Table.concat({'data.skill.', folder, '.init'})))
+        data =
+            select(
+            2,
+            xpcall(
+                require,
+                function(err)
+                    print(err)
+                    print(debug.traceback())
+                end,
+                Table.concat({'data.skill.', folder, '.init'})
+            )
         )
+
+        -- 註冊裝飾器
+        for _, skill in pairs(data) do
+            if skill.decorators then
+                for _, t in ipairs(skill.decorators) do
+                    skill_decorator:setDecorator(t[1], t[2])
+                end
+            end
+        end
+
+        Table.merge(scripts, data)
     end
 
     return scripts
@@ -34,10 +56,6 @@ function SkillManager:get(skill_name, source, target)
     local skill = Table.copy(self._data_[skill_name])
     skill.source = source
     skill.target = target or source
-
-    -- 裝飾器渲染
-    local decorator = require 'lib.skill_decorator':new()
-    decorator:wrap(skill)
 
     return skill
 end

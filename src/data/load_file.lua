@@ -1,5 +1,6 @@
 local function ErrorHandler(err)
     print(string.format("[Error] %s", err))
+    print(debug.traceback())
 end
 
 return function(path, file_names)

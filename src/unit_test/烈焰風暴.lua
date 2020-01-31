@@ -3,17 +3,17 @@ local SkillManager = require 'lib.skill_manager'
 local SkillTree = require 'lib.skill_tree.skill_tree'
 local Timer = require 'war3.timer'
 local Event = require 'lib.event'
-local EventManager = require 'lib.event_manager'
-local Listener = require 'war3.listener'
 local Group = require 'war3.group'
 
-local e = EventManager:new()
-local l = Listener:new(e)
+local d = require 'lib.skill_decorator':new()
+local e = require 'lib.event_manager':new()
+local l = require 'war3.listener':new(e)
 e:addEvent(
     Event:new(
         '單位-施放技能',
         'GetTriggerUnit GetSpellAbilityId',
         function(_, source, ability)
+            d:append(source, "烈焰風暴-火焰強化")
             local skill = SkillManager:new():get('烈焰風暴', source)
             local skill_tree = SkillTree:new(skill):append(skill.scripts):setPeriod(0.01):run()
             Timer:new(

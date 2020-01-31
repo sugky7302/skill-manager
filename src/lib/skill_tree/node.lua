@@ -3,10 +3,11 @@ local NodeList = require 'lib.skill_tree.node_list'
 
 local Node = require 'std.class'('Node')
 
-function Node:_new(name)
+function Node:_new()
     local instance = {
         parent_ = nil,
         tree_ = nil,
+        _name_ = nil,
     }
 
     return instance
@@ -15,6 +16,7 @@ end
 function Node:register(name)
     if name then
         NodeList:insert(name, self)
+        self._name_ = name
     end
 end
 
@@ -47,6 +49,10 @@ function Node:running()
     if self.parent_ then
         self.parent_:running()
     end
+end
+
+function Node:getName()
+    return self._name_
 end
 
 return Node

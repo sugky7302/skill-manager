@@ -15,8 +15,6 @@ function SpellStart:start()
 end
 
 function SpellStart:run()
-    print('remain: ' .. self.remaining_)
-
     if self.remaining_ <= 0 then
         self:success()
         return
@@ -41,10 +39,21 @@ function FlameStrike:run()
     self:success()
 end
 
+local function EnhanceFire(node)
+    local run = node.run
+    node.run = function(self)
+        run(self)
+        print("hihi")
+    end
+end
+
 return {
     name = '烈焰風暴',
     scripts = {
         {id = '詠唱', args = {2}},
         {id = '烈焰風暴'}
+    },
+    decorators = {
+        {"烈焰風暴-火焰強化", EnhanceFire}
     }
 }
