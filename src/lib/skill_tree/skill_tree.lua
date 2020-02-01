@@ -9,10 +9,10 @@ local skill_decorator = require 'lib.skill_decorator':new()
 NodeList:insert('seq', SequenceNode)
 NodeList:insert('rand', RandomNode)
 
-function SkillTree:_new(object, root)
+function SkillTree:_new(skill, root)
     local instance = self:super()._new(self)
     instance._root_ = root or SequenceNode:new()
-    instance.object_ = object
+    instance.skill_ = skill
     instance.is_finished_ = false
     instance.period_ = 1
 
@@ -41,6 +41,7 @@ function SkillTree:_append(parent, data)
 
     -- 處理子結構
     if type(data) == 'table' and data.type then
+        -- 處理節點
         local decider = NodeList:query(data.type):new()
         parent:append(decider)
         decider.tree_ = self
@@ -48,10 +49,9 @@ function SkillTree:_append(parent, data)
         for _, v in ipairs(data) do
             self:_append(decider, v)
         end
-    -- 處理節點
     elseif type(data) == 'table' then
         local node
-        if type(data.id) == "string" then
+        if type(data.id) == 'string' then
             node = NodeList:query(data.id):new(data.args)
         else
             node = data.id:new(data.args)
@@ -59,9 +59,9 @@ function SkillTree:_append(parent, data)
 
         parent:append(node)
         node.tree_ = self
-        
+
         -- 裝飾節點
-        skill_decorator:wrap(self.object_, node)
+        skill_decorator:wrap(self.skill_, node)
     end
 end
 
