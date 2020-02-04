@@ -1,5 +1,19 @@
 # 更新日誌
 
+## 0.11.0 - 2020-02-04
+
+### Added:
+- **[std/Table]** 新增isNil函數，可以檢查table是否為空。
+
+### Changed:
+- **[std/array]** exist函數現在回傳值會有兩個(索引、值)。
+- **[std/list]** 修改iterator和reverseIterator的寫法。
+
+## 0.10.0 - 2020-02-02
+
+### Added:
+- **[lib]** 新增EffectManager，為外部統一操作效果的窗口。
+
 ## 0.9.0 - 2020-01-31
 
 ### Added:

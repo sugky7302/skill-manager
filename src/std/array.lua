@@ -74,7 +74,7 @@ function Array:exist(data, comparison)
 
     for i = 1, self._end_ - 1 do
         if comparison(self[i], data) then
-            return i
+            return i, self[i]
         end
     end
 

@@ -29,10 +29,7 @@ LoadSkillScript = function()
             2,
             xpcall(
                 require,
-                function(err)
-                    print(err)
-                    print(debug.traceback())
-                end,
+                debug.traceback,
                 Table.concat({'data.skill.', folder, '.init'})
             )
         )

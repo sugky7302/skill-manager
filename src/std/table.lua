@@ -54,4 +54,8 @@ function Table.merge(tb1, tb2)
     return tb1
 end
 
+function Table.isNil(tb)
+    return tb == nil or next(tb) == nil
+end
+
 return Table

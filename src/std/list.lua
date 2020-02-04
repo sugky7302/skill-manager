@@ -2,10 +2,13 @@
 
 -- package
 local require = require
+local Table = require 'std.table'
 local List = require 'std.class'('List')
 
--- default
-List._VERSION = '1.1.0'
+List._VERSION = '1.2.0'
+
+local DeleteBeginNode, DeleteEndNode, DeleteMidNode, DeleteSingleNode, DeleteNode
+local InsertNodeToBegin, InsertNodeToEmptyList, InsertNodeToEnd, InsertNodeFrontOfThePosition
 
 function List:_new()
     return {
@@ -15,16 +18,41 @@ function List:_new()
     }
 end
 
+-- 獲取私有成員變量
+function List:isEmpty()
+    return self._size_ == 0
+end
+
+function List:size()
+    return self._size_
+end
+
+function List:getBegin()
+    return self._begin_
+end
+
+function List:getEnd()
+    return self._end_
+end
+
+function List:front()
+    return self._begin_:getData()
+end
+
+function List:back()
+    return self._end_:getData()
+end
+
 function List:__tostring()
     local print_str = {'['}
 
-    for node in self:iterator() do
+    for _, node in self:iterator() do
         print_str[#print_str + 1] = node:getData()
     end
 
     print_str[#print_str + 1] = ']'
 
-    return table.concat(print_str, ' ')
+    return Table.concat(print_str, ' ')
 end
 
 function List:clear()
@@ -37,16 +65,33 @@ end
 
 -- O(self._size_)的方法
 function List:_delete()
-    for node in self:reverseIterator() do
+    for _, node in self:reverseIterator() do
         self:delete(node)
     end
 end
 
 function List:erase(data)
-    for node in self:reverseIterator() do
+    for _, node in self:reverseIterator() do
         if node:getData() == data then
             self:delete(node)
         end
+    end
+end
+
+-- O(self._size_)的迭代器方法
+function List:reverseIterator()
+    local i = 0
+    local node = nil
+    return function()
+        i = i + 1
+        node = Table.isNil(node) and self._end_ or node.prev_
+
+        -- 檢查是否到最末端
+        if Table.isNil(node) then
+            return nil
+        end
+
+        return i, node
     end
 end
 
@@ -57,8 +102,6 @@ end
 function List:pop_back()
     self:delete(self._end_)
 end
-
-local DeleteBeginNode, DeleteEndNode, DeleteMidNode, DeleteSingleNode
 
 function List:delete(node)
     if not node then
@@ -81,8 +124,6 @@ function List:delete(node)
 
     return true
 end
-
-local DeleteNode
 
 DeleteSingleNode = function(self, node)
     DeleteNode(self, node)
@@ -123,37 +164,35 @@ DeleteNode = function(self, node)
 end
 
 function List:merge(other_list)
-    for node in other_list:iterator() do
+    for _, node in other_list:iterator() do
         self:push_back(node:getData())
     end
 
     other_list:remove()
 end
 
-function List:push_front(data)
-    self:insert(data, self._begin_)
-end
-
 function List:push_back(data)
-    self:insert(data, nil)
+    self:insert(nil, data)
 end
 
-local ListEnd
-local InsertNodeToBegin, InsertNodeToEmptyList, InsertNodeToEnd, InsertNodeFrontOfThePosition
+function List:push_front(data)
+    self:insert(self._begin_, data)
+end
 
 -- node 等於 nil，視作插在 list 的最末端
-function List:insert(data, node)
+-- 插入位置為node原本的位置，而node會後退一位
+function List:insert(node, data)
     if not data then
         return false
     end
 
-    local new_node = require 'util.stl.node':new(data)
+    local new_node = require 'std.node':new(data)
 
     if self:isEmpty() then
         InsertNodeToEmptyList(self, new_node)
     elseif node == self._begin_ then
         InsertNodeToBegin(self, new_node)
-    elseif ListEnd(node) then
+    elseif not node then
         InsertNodeToEnd(self, new_node)
     else
         InsertNodeFrontOfThePosition(new_node, node)
@@ -178,10 +217,6 @@ InsertNodeToBegin = function(self, new_node)
     self._begin_ = new_node
 end
 
-ListEnd = function(node)
-    return not node
-end
-
 InsertNodeToEnd = function(self, new_node)
     -- 只需把last的next_指標指向新節點
     self._end_.next_ = new_node
@@ -204,73 +239,33 @@ end
 
 -- 只找第一筆資料
 function List:find(data)
-    local i = 0
-    for node in self:iterator() do
-        i = i + 1
-
+    for i, node in self:iterator() do
         if node:getData() == data then
-            return node, i
+            return i, node
         end
     end
 
     return false
 end
 
--- assert
-local IsNil = require 'util.is_nil'
-
 -- O(self._size_)的迭代器方法
 -- HACK: 使用閉包的寫法會比無狀態的迭代器多開銷
+-- NOTE: 簡化閉包的寫法。以目前的寫法，如果使用insert會搜尋不到新插入的元素，原因是新元素是插在node.prev_，node.next_還是原本後面那一個 - 2020-02-04
 function List:iterator()
-    local node = self._begin_
+    local i = 0
+    local node = nil
     return function()
-        if IsNil(node) then
+        i = i + 1
+        node = Table.isNil(node) and self._begin_ or node.next_
+
+        -- 檢查是否到最末端
+        -- NOTE: 第一個回傳值不是nil，迭代器不會停止，可以參考 docs/無狀態的迭代器寫法.lua
+        if Table.isNil(node) then
             return nil
         end
 
-        local prev = node
-        node = node.next_ or nil
-        return prev
+        return i, node
     end
-end
-
--- O(self._size_)的迭代器方法
-function List:reverseIterator()
-    local node = self._end_
-    return function()
-        if IsNil(node) then
-            return nil
-        end
-
-        local prev = node
-        node = node.prev_ or nil
-        return prev
-    end
-end
-
--- 獲取私有成員變量
-function List:isEmpty()
-    return self._size_ == 0
-end
-
-function List:size()
-    return self._size_
-end
-
-function List:getBegin()
-    return self._begin_
-end
-
-function List:getEnd()
-    return self._end_
-end
-
-function List:front()
-    return self._begin_:getData()
-end
-
-function List:back()
-    return self._end_:getData()
 end
 
 return List
