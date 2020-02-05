@@ -36,9 +36,13 @@ function EffectManager:add(setting)
         return self
     end
 
+    -- 無此效果直接跳出
+    if not self:getTemplate(setting.name) then
+        return self
+    end
+
     -- 搜尋效果，有的話對該效果建立新的任務
     AddNewTask(self, setting)
-
     return self
 end
 
@@ -60,7 +64,8 @@ GetEffect = function(self, name)
 end
 
 -- TODO: 新效果要一一與舊效果比對，根據原子狀態關係表處理關係
-CompareEffectAssociation = function()
+CompareEffectAssociation = function(effect_list, effect)
+    return true
 end
 
 function EffectManager:find(target, name)
@@ -69,7 +74,13 @@ function EffectManager:find(target, name)
 end
 
 function EffectManager:delete(target, name)
-    GetList(self, target):erase(name, NameComparison)
+    local effect = self:find(target, name)
+
+    if effect then
+        effect:clear()
+        GetList(self, target):erase(name, NameComparison)
+    end
+
     return self
 end
 
@@ -82,6 +93,10 @@ end
 
 NameComparison = function(a, b)
     return a:getName() == b
+end
+
+function EffectManager:getTemplate(name)
+    return self._templates_[name]
 end
 
 return EffectManager

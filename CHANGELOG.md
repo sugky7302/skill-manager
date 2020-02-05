@@ -1,12 +1,35 @@
 # 更新日誌
 
+## 0.13.0 - 2020-02-05
+
+### Added:
+- **[data/effect/public]**
+  - 新增init.lua，用於讀取資料夾內的所有.lua。
+  - 新增test.lua，編輯一個effect範本，檢驗effect_manager是否可行。
+- **[lib/effect_manager]** 新增getTempalte函數，可以獲得效果模板，方便撰寫on_*函數時復用。
+- **[unit_test]** 新增list.lua，為list的單元測試。
+- **[war3/effect]**
+  - 新增getName函數，可獲得effect的名稱。
+  - 所有公開函數都加入鏈式語法。
+
+### Fixed:
+- **[lib/effect_manager]**
+  - 修正add函數找不到模板還會繼續執行的問題。
+  - 修正delete函數沒有實際刪除effect的問題。
+- **[war3/effect]**
+  - 修正AddTask函數在共存模式下，無法添加新效果的問題。
+  - 目前target無法添加/移除模型，因此先註解調函數，修正effect無法動作的問題。
+
+### Todo:
+- 設計效果管理器的狀態類型關係表，並編寫CompareEffectAssociation函數。
+
 ## 0.12.0 - 2020-02-05
 
 ### Added:
 - **[war3]** 新增effect類別，處理所有效果。
 
 ### Changed:
-- **[war3.timer]** resume函數現在會辨識能不能恢復。
+- **[war3/timer]** resume函數現在會辨識能不能恢復。
 
 ## 0.11.0 - 2020-02-04
 

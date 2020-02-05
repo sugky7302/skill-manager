@@ -5,6 +5,7 @@ local Timer = require 'war3.timer'
 local Event = require 'lib.event'
 local Group = require 'war3.group'
 
+local effect = require 'lib.effect_manager':new()
 local d = require 'lib.skill_decorator':new()
 local e = require 'lib.event_manager':new()
 local l = require 'war3.listener':new(e)
@@ -23,6 +24,15 @@ e:addEvent(
                     skill_tree:run()
 
                     if skill_tree.is_finished_ then
+                        effect:add({
+                            name = "test",
+                            target = source,
+                            time = 2,
+                        }):add({
+                            name = "test",
+                            target = source,
+                            time = 3,
+                        })
                         timer:stop()
                     end
                 end
