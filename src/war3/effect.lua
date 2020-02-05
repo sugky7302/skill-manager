@@ -42,7 +42,6 @@ function Effect:start(new_task)
 end
 
 InitVariables = function(task)
-    task.remaining = task.time
 end
 
 AddTask = function(self, new_task)
@@ -69,7 +68,7 @@ AddTask = function(self, new_task)
         for i, task in self._tasks_:iterator() do
             if self.on_cover and self.on_cover(task, new_task) then
                 self._tasks_:insert(task, new_task)
-                CheckValid(self, i+1, task)
+                CheckValid(self, i + 1, task)
                 return CheckValid(self, i, new_task)
             end
         end
@@ -89,33 +88,25 @@ CheckValid = function(self, index, task)
 end
 
 StartTimer = function(self, task)
-    task.remained_time = task.time or self._time_
+    local Timer = require 'war3.timer'
+    task.remaining = task.time or self._time_
 
-    if self.on_pulse then
-        task.timer =
-            Timer(
-            task.period or self._period_,
-            true,
-            function(this)
-                self.on_pulse(task)
-
-                self.remained_time = self.remained_time - this.period_
-
-                if this.is_shutdown() then
-                    self.finish(task)
-                end
+    task.timer =
+        Timer:new(
+        self._period_,
+        task.remaining / self._period_,
+        function()
+            if self.on_pulse then
+                self:on_pulse(task)
             end
-        )
-    else
-        task.timer =
-            Timer(
-            task.period or self._period_,
-            false,
-            function()
-                self.finish(task)
+
+            task.remaining = task.remaining - self._period_
+
+            if task.remaining <= 0 then
+                self:finish(task)
             end
-        )
-    end
+        end
+    ):start()
 end
 
 function Effect:resume(task)
@@ -150,7 +141,6 @@ function Effect:finish(task)
     DeleteTask(self, task)
 end
 
--- TODO: 還沒改完
 DeleteTask = function(self, task)
     local i, node = self._tasks_:find(task)
 
@@ -159,7 +149,7 @@ DeleteTask = function(self, task)
         self:resume(node.next_:getData())
     end
 
-    -- delete會把node刪掉，這樣的話會抓不到next
+    -- delete會把node刪掉，這樣的話會抓不到next，所以要放在最後面
     self._tasks_:delete(node)
 end
 
@@ -178,6 +168,5 @@ DeleteModel = function(self, task)
         task.target:deleteModel(self._model_)
     end
 end
-
 
 return Effect

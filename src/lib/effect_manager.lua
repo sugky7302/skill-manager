@@ -59,6 +59,7 @@ GetEffect = function(self, name)
     return require 'war3.effect':new(self._templates_[name], self)
 end
 
+-- TODO: 新效果要一一與舊效果比對，根據原子狀態關係表處理關係
 CompareEffectAssociation = function()
 end
 

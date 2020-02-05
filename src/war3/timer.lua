@@ -160,7 +160,10 @@ function Timer:pause()
 end
 
 function Timer:resume()
-    Insert(self, self.pause_frame_)
+    if self.pause_frame_ > 0 then
+        Insert(self, self.pause_frame_)
+    end
+    
     return self
 end
 
