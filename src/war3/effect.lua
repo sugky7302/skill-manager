@@ -37,7 +37,7 @@ function Effect:getName()
 end
 
 function Effect:start(new_task)
-    InitVariables(new_task)
+    -- InitVariables(new_task)
 
     if AddTask(self, new_task) then
         self:on_add(new_task)
@@ -65,9 +65,11 @@ AddTask = function(self, new_task)
 
         -- 終止舊的效果
         self:delete(self._tasks_:front())
+
         -- 替換成新的效果
         self._tasks_:pop_front()
         self._tasks_:push_back(new_task)
+
         return true
     else -- 共存模式
         -- 比較優先級，新任務較高就覆蓋，都沒有就插入末端
@@ -132,7 +134,7 @@ function Effect:clear()
     for i = #self, 1, -1 do
         self:delete(self[i])
     end
-    
+
     return self
 end
 

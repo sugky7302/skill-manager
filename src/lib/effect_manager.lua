@@ -99,10 +99,4 @@ function EffectManager:getTemplate(name)
     return self._templates_[name]
 end
 
-function EffectManager:pause(target, name)
-end
-
-function EffectManager:resume(target, name)
-end
-
 return EffectManager
