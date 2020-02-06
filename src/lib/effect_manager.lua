@@ -1,5 +1,6 @@
 local require = require
 local EffectManager = require 'std.class'('EffectManager')
+local EFFECT_RELATION = require 'data.effect.relational_table'
 
 local LoadTemplate, AddNewTask, NameComparison, GetList, GetEffect, CompareEffectAssociation
 local effect_script_path = {
@@ -10,7 +11,7 @@ function EffectManager:_new()
     if not self._instance_ then
         self._instance_ = {
             _templates_ = LoadTemplate(),
-            _user_data_ = {}
+            _effects_ = {},
         }
     end
 
@@ -41,9 +42,27 @@ function EffectManager:add(setting)
         return self
     end
 
+    if not CompareEffectAssociation(self, setting) then
+        return self
+    end
+
     -- 搜尋效果，有的話對該效果建立新的任務
     AddNewTask(self, setting)
     return self
+end
+
+-- TODO: 新效果要一一與舊效果比對，根據原子狀態關係表處理關係
+-- 共存(0):添加新效果不會影響舊效果 ; 1:舊效果在，無法添加新效果 ; 2:新效果加入並暫停，待舊效果結束後恢復 ; 3:添加新效果，舊效果暫停 ; 互斥(4):添加新效果，舊效果移除 ; 消融(5):新舊效果都移除
+CompareEffectAssociation = function(self, setting)
+    local status
+    for _, effect in GetList(self, setting.target):iterator() do
+        status = EFFECT_RELATION[effect:getClass()][self:getTemplate(setting.name).class]
+
+        if status == 0 then
+        elseif status == 1 then
+        end
+    end
+    return true
 end
 
 AddNewTask = function(self, setting)
@@ -52,20 +71,12 @@ AddNewTask = function(self, setting)
     if effect then
         effect:start(setting)
     else
-        effect = GetEffect(self, setting.name)
-        if CompareEffectAssociation(GetList(self, setting.target), effect) then
-            GetList(self, setting.target):append(effect:start(setting))
-        end
+        GetList(self, setting.target):append(GetEffect(self, setting.name):start(setting))
     end
 end
 
 GetEffect = function(self, name)
     return require 'war3.effect':new(self._templates_[name], self)
-end
-
--- TODO: 新效果要一一與舊效果比對，根據原子狀態關係表處理關係
-CompareEffectAssociation = function(effect_list, effect)
-    return true
 end
 
 function EffectManager:find(target, name)
@@ -85,10 +96,10 @@ function EffectManager:delete(target, name)
 end
 
 GetList = function(self, target)
-    if not self._user_data_[target] then
-        self._user_data_[target] = require 'std.array':new()
+    if not self._effects_[target] then
+        self._effects_[target] = require 'std.array':new()
     end
-    return self._user_data_[target]
+    return self._effects_[target]
 end
 
 NameComparison = function(a, b)

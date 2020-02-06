@@ -36,6 +36,10 @@ function Effect:getName()
     return self._name_
 end
 
+function Effect:getClass()
+    return self._class_
+end
+
 function Effect:start(new_task)
     -- InitVariables(new_task)
 
@@ -164,6 +168,12 @@ DeleteTask = function(self, task)
 
     -- delete會把node刪掉，這樣的話會抓不到next，所以要放在最後面
     self._tasks_:delete(node)
+
+    -- 如果沒有任務就移除效果
+    if self._tasks_:isEmpty() then
+        self._manager_:delete(task.target, self._name_)
+        self:remove()
+    end
 end
 
 IsValid = function(index, max)

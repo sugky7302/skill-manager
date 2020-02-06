@@ -37,6 +37,14 @@ e:addEvent(
                     end
                 end
             ):start()
+
+            Timer:new(10, 1, function()
+                effect:add({
+                    name = "test",
+                    target = source,
+                    time = 2,
+                })
+            end):start()
         end
     )
 )

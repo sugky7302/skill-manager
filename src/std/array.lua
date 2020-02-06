@@ -94,4 +94,28 @@ function Array:size()
     return self._end_ - 1
 end
 
+function Array:iterator()
+    return function(t, i)
+        i = i + 1
+
+        if i == t._end_ then
+            return nil
+        end
+
+        return i, t[i]
+    end, self, 0
+end
+
+function Array:reverseIterator()
+    return function(t, i)
+        i = i + 1
+
+        if i == t._end_ then
+            return nil
+        end
+
+        return i, t[t._end_ - i]
+    end, self, 0
+end
+
 return Array

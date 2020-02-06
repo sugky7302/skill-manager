@@ -1,5 +1,15 @@
 # 更新日誌
 
+## 0.14.0 - 2020-02-06
+
+### Added:
+- **[data/effect]** 新增狀態關係表。
+- **[std/array]** 新增iterator、reverseIterator函數，能夠利用lua的for語法執行迴圈。
+- **[war3/effect]** 新增getClass函數，能夠獲得效果的分類。
+
+### Fixed:
+- **[war3/effect]** 修正沒有任務後，管理器不會移除效果的問題。
+
 ## 0.13.0 - 2020-02-05
 
 ### Added:
