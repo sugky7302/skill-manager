@@ -3,7 +3,7 @@
 local require = require
 
 local Effect = require 'std.class'('Effect')
-local AddModel, DeleteModel, AddTask, DeleteTask, StartTimer
+local AddModel, DeleteModel, AddTask, DeleteTask, TimerStart
 local IsValid, CheckValid, InitVariables
 
 function Effect:_new(setting, manager)
@@ -40,28 +40,36 @@ function Effect:getClass()
     return self._class_
 end
 
+function Effect:getPriority()
+    return self._priority_
+end
+
 function Effect:start(new_task)
-    -- InitVariables(new_task)
+    InitVariables(self, new_task)
 
     if AddTask(self, new_task) then
         self:on_add(new_task)
         -- AddModel(self, new_task)
-        StartTimer(self, new_task)
+        TimerStart(self, new_task)
     end
 
     return self
 end
 
-InitVariables = function(task)
+InitVariables = function(self, task)
+    task.remaining = task.time or self._time_
+    task.period = self._period_
 end
 
 AddTask = function(self, new_task)
     if self._tasks_:isEmpty() then
+        print('empty')
         self._tasks_:push_back(new_task)
         return true
     end
 
     if self._mode_ == 0 then -- 獨佔模式
+        print('single')
         -- effect無法覆蓋或覆蓋失敗
         if not (self.on_cover and self.on_cover(self._tasks_:front(), new_task)) then
             return false
@@ -78,20 +86,26 @@ AddTask = function(self, new_task)
     else -- 共存模式
         -- 比較優先級，新任務較高就覆蓋，都沒有就插入末端
         for i, node in self._tasks_:iterator() do
+            print(i, node:getData())
             if self.on_cover and self.on_cover(node:getData(), new_task) then
                 self._tasks_:insert(node, new_task)
                 CheckValid(self, i + 1, node:getData())
-                return CheckValid(self, i, new_task)
+                print('+')
+                -- 因為新效果還沒有實際運行，所以不需要調用self:pause
+                return IsValid(i, self._max_)
             end
         end
 
+        print('add to bot')
+        -- 因為新效果還沒有實際運行，所以不需要self:pause
         self._tasks_:push_back(new_task)
-        return CheckValid(self, self._tasks_:size(), new_task)
+        return IsValid(self._tasks_:size(), self._max_)
     end
 end
 
 CheckValid = function(self, index, task)
     if not IsValid(index, self._max_) then
+        print('pause ' .. index)
         self:pause(task)
         return false
     end
@@ -99,32 +113,16 @@ CheckValid = function(self, index, task)
     return true
 end
 
-StartTimer = function(self, task)
-    local Timer = require 'war3.timer'
-    task.remaining = task.time or self._time_
-
-    task.timer =
-        Timer:new(
-        self._period_,
-        task.remaining / self._period_,
-        function()
-            if self.on_pulse then
-                self:on_pulse(task)
-            end
-
-            task.remaining = task.remaining - self._period_
-
-            if task.remaining <= 0 then
-                self:finish(task)
-            end
-        end
-    ):start()
-end
-
 function Effect:resume(task)
     self:on_add(task)
+
+    if task.timer then
+        print('timer resume')
+        task.timer:resume()
+    else -- 如果是此效果在AddNewTask的共存模式下，沒有建立成功，只有加進列表，這樣就不會有計時器，因此要在這裡補上。
+        TimerStart(self, task)
+    end
     -- AddModel(self, task)
-    task.timer:resume()
     return self
 end
 
@@ -134,16 +132,44 @@ AddModel = function(self, task)
     end
 end
 
+TimerStart = function(self, task)
+    print('timer start')
+    task.timer =
+        require 'war3.timer':new(
+        self._period_,
+        task.remaining / self._period_,
+        function(timer)
+            if timer.args[1].on_pulse then
+                timer.args[1]:on_pulse(task)
+            end
+
+            timer.args[2].remaining = timer.args[2].remaining - timer.args[2].period
+
+            if timer.args[2].remaining <= 0 then
+                timer.args[1]:finish(timer.args[2])
+            end
+        end
+    ):start(self, task)
+end
+
+function Effect:_remove()
+    self:clear()
+    self._tasks_:remove()
+end
+
 function Effect:clear()
-    for i = #self, 1, -1 do
-        self:delete(self[i])
+    for _, node in self._tasks_:iterator() do
+        self:delete(node:getData())
     end
 
     return self
 end
 
 function Effect:delete(task)
-    task.timer:stop()
+    if task.timer then
+        task.timer:stop()
+    end
+
     self:on_delete(task)
     -- DeleteModel(self, task)
     DeleteTask(self, task)
@@ -164,6 +190,7 @@ DeleteTask = function(self, task)
     -- 如果是共存模式，要把暫停的任務恢復
     if self._mode_ == 1 and node.next_ and IsValid(i, self._max_) then
         self:resume(node.next_:getData())
+        print('resume ' .. i + 1)
     end
 
     -- delete會把node刪掉，這樣的話會抓不到next，所以要放在最後面
@@ -171,7 +198,9 @@ DeleteTask = function(self, task)
 
     -- 如果沒有任務就移除效果
     if self._tasks_:isEmpty() then
+        print('clear effect list')
         self._manager_:delete(task.target, self._name_)
+        print('remove effect')
         self:remove()
     end
 end

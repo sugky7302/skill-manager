@@ -2,7 +2,7 @@ local require = require
 local EffectManager = require 'std.class'('EffectManager')
 local EFFECT_RELATION = require 'data.effect.relational_table'
 
-local LoadTemplate, AddNewTask, NameComparison, GetList, GetEffect, CompareEffectAssociation
+local LoadTemplate, AddNewTask, NameComparison, GetList, GetEffect, CompareEffectAssociation, RemoveEffect
 local effect_script_path = {
     'public'
 }
@@ -42,27 +42,48 @@ function EffectManager:add(setting)
         return self
     end
 
-    if not CompareEffectAssociation(self, setting) then
-        return self
-    end
+    print(setting.name .. " will be added to Unit" .. setting.target)
+
+    -- if not CompareEffectAssociation(self, setting) then
+    --     return self
+    -- end
 
     -- 搜尋效果，有的話對該效果建立新的任務
     AddNewTask(self, setting)
     return self
 end
 
--- TODO: 新效果要一一與舊效果比對，根據原子狀態關係表處理關係
--- 共存(0):添加新效果不會影響舊效果 ; 1:舊效果在，無法添加新效果 ; 2:新效果加入並暫停，待舊效果結束後恢復 ; 3:添加新效果，舊效果暫停 ; 互斥(4):添加新效果，舊效果移除 ; 消融(5):新舊效果都移除
+-- 新效果要一一與舊效果比對，根據原子狀態關係表處理關係
+-- 共存(0):添加新效果不會影響舊效果 ; 互斥(1):比較優先級，優先級低的會移除
+-- 消融(2):新舊效果都移除 ; 4[暫無]:新效果加入並暫停，待舊效果結束後恢復 ; 5[暫無]:添加新效果，舊效果暫停
 CompareEffectAssociation = function(self, setting)
-    local status
-    for _, effect in GetList(self, setting.target):iterator() do
-        status = EFFECT_RELATION[effect:getClass()][self:getTemplate(setting.name).class]
+    local list = GetList(self, setting.target)
+    local template, status
 
-        if status == 0 then
-        elseif status == 1 then
+    for i, effect in list:iterator() do
+        print("[" .. i .."] " .. effect:getName() .. "->" .. setting.name)
+        template = self:getTemplate(setting.name)
+        status = EFFECT_RELATION[effect:getClass()][template.class] or 0  -- 找不到視同共存
+
+        -- status=0 -> 不做任何動作
+        if status == 1 then
+            if effect:getPriority() < (template.priority or 0) then
+                RemoveEffect(list, effect)
+            else
+                return false
+            end
+        elseif status == 2 then
+            RemoveEffect(list, effect)
+            return false
         end
     end
+
     return true
+end
+
+RemoveEffect = function(list, effect)
+    list:erase(effect)
+    effect:remove()
 end
 
 AddNewTask = function(self, setting)
@@ -88,7 +109,6 @@ function EffectManager:delete(target, name)
     local effect = self:find(target, name)
 
     if effect then
-        effect:clear()
         GetList(self, target):erase(name, NameComparison)
     end
 
@@ -99,6 +119,7 @@ GetList = function(self, target)
     if not self._effects_[target] then
         self._effects_[target] = require 'std.array':new()
     end
+
     return self._effects_[target]
 end
 

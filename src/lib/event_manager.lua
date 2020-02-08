@@ -1,4 +1,6 @@
+local require = require
 local EventManager = require 'std.class'("EventManager")
+local Table = require 'std.table'
 local AddArgs
 
 function EventManager:_new()
@@ -35,7 +37,7 @@ AddArgs = function(arg_list, args)
     -- 先將arg_list從table轉成由空格作為分隔符的字串，再用正則表達式搜尋
     -- 這樣會比用arg一一比對arg_list的元素快
     for arg in string.gmatch(args, "%w+") do
-        arg_string = table.concat(arg_list, " ")
+        arg_string = Table.concat(arg_list, " ")
 
         if not string.match(arg_string, arg) then
             arg_list[#arg_list+1] = arg
@@ -45,7 +47,7 @@ end
 
 function EventManager:getArgs(event_name)
     if not self._events_[event_name] then
-        return {__mode = 'kv'}
+        return {}
     end
 
     return self._events_[event_name].args
@@ -57,7 +59,8 @@ function EventManager:dispatch(event_name, ...)
     end
 
     for _, event in ipairs(self._events_[event_name]) do
-        event:dispatch(..., self)
+        -- 變長參數只能放在最後面，它後面不能再有任何引數，不然無法返回全部的值。
+        event:dispatch(self, ...)
     end
 end
 

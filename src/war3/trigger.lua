@@ -6,7 +6,6 @@ local Trigger = require 'std.class'("Trigger")
 
 function Trigger:_new(condition)
     local instance = {
-        __mode = "kv",  -- 設定為弱引用，怕一次性觸發器沒清乾淨。
         _object_ = ej.CreateTrigger(),
         _condition_func_ = nil,
         _condition_ = nil,

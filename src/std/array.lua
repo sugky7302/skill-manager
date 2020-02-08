@@ -9,7 +9,7 @@ function Array:__tostring()
     local print_tb = {'['}
 
     for i = 1, self._end_ - 1 do
-        print_tb[#print_tb + 1] = self[i]
+        print_tb[#print_tb + 1] = type(self[i]) == "table" and "table" or self[i]
     end
 
     print_tb[#print_tb + 1] = ']'

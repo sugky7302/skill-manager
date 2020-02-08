@@ -92,7 +92,7 @@ Insert = function(order, frame)
     order.end_stamp_ = end_stamp
 
     if not timer_queue[end_stamp] then
-        timer_queue[end_stamp] = {}  -- 這裡不能用弱引用表，不然會丟失
+        timer_queue[end_stamp] = {} -- 這裡不能用弱引用表，不然會丟失
         setmetatable(timer_queue[end_stamp], timer_queue[end_stamp])
     end
 
@@ -126,7 +126,6 @@ local function Now()
     return current_frame
 end
 
-
 local Timer = require 'std.class'('Timer')
 
 function Timer:_new(timeout, count, action)
@@ -135,11 +134,13 @@ function Timer:_new(timeout, count, action)
         count_ = count, -- 循環次數必須>0，-1定義為永久，0定義為結束
         end_stamp_ = 0, -- 提前結束會用到結束點
         pause_frame_ = 0, -- 恢復時會需要剩餘時間
-        run = action
+        run = action,
+        args = nil,  -- 儲存外部參數
     }
 end
 
-function Timer:start()
+function Timer:start(...)
+    self.args = {...}
     Insert(self, self.frame_)
     return self
 end
@@ -151,10 +152,13 @@ function Timer:stop()
 end
 
 function Timer:pause()
-    self.pause_frame_ = self.end_stamp_ - Now()
-
-    -- 外部暫停需要把計時器從隊列中刪除
-    Delete(self)
+    -- 處在正常狀態才能執行以下動作
+    if self.pause_frame_ == 0 then
+        self.pause_frame_ = self.end_stamp_ - Now()
+        print("remain " .. self.pause_frame_ .. " secs and " .. self.count_ .. " times")
+        -- 外部暫停需要把計時器從隊列中刪除
+        Delete(self)
+    end
 
     return self
 end
@@ -163,7 +167,10 @@ function Timer:resume()
     if self.pause_frame_ > 0 then
         Insert(self, self.pause_frame_)
     end
-    
+
+    -- pause_frame要歸零，不然中心計時器會認為還在暫停中而不會將命令插到下個時序
+    self.pause_frame_ = 0
+
     return self
 end
 

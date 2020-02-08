@@ -64,7 +64,7 @@ function List:clear()
 end
 
 -- O(self._size_)的方法
-function List:_delete()
+function List:_remove()
     for _, node in self:reverseIterator() do
         self:delete(node)
     end
@@ -84,6 +84,11 @@ function List:reverseIterator()
     local node = nil
     return function()
         i = i + 1
+
+        if self._size_ == 0 then
+            return nil
+        end
+
         node = Table.isNil(node) and self._end_ or node.prev_
 
         -- 檢查是否到最末端
@@ -185,7 +190,9 @@ function List:insert(node, data)
     if not data then
         return false
     end
-
+    print("list +")
+    print(data)
+    print("----")
     local new_node = require 'std.node':new(data)
 
     if self:isEmpty() then
@@ -256,6 +263,11 @@ function List:iterator()
     local node = nil
     return function()
         i = i + 1
+
+        if self._size_ == 0 then
+            return nil
+        end
+
         node = Table.isNil(node) and self._begin_ or node.next_
 
         -- 檢查是否到最末端

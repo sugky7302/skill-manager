@@ -24,27 +24,33 @@ e:addEvent(
                     skill_tree:run()
 
                     if skill_tree.is_finished_ then
-                        effect:add({
-                            name = "test",
-                            target = source,
-                            time = 2,
-                        }):add({
-                            name = "test",
-                            target = source,
-                            time = 3,
-                        })
+                        -- effect:add({
+                        --     name = "test",
+                        --     target = source,
+                        --     time = 2,
+                        -- }):add({
+                        --     name = "test",
+                        --     target = source,
+                        --     time = 3,
+                        -- })
+
+                        Timer:new(1, 1, function()
+                            effect:add({
+                                name = "test1",
+                                target = source,
+                                time = 2,
+                            }):add({
+                                name = "test1",
+                                target = source,
+                                period = 2,
+                                time = 4,
+                            })
+                        end):start()
+
                         timer:stop()
                     end
                 end
             ):start()
-
-            Timer:new(10, 1, function()
-                effect:add({
-                    name = "test",
-                    target = source,
-                    time = 2,
-                })
-            end):start()
         end
     )
 )
