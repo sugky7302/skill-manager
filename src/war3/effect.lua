@@ -3,7 +3,7 @@
 local require = require
 
 local Effect = require 'std.class'('Effect')
-local AddModel, DeleteModel, AddTask, DeleteTask, TimerStart
+local AddModel, DeleteModel, AddTask, DeleteTask, TimerStart, Delete
 local IsValid, CheckValid, InitVariables
 
 function Effect:_new(setting, manager)
@@ -42,6 +42,19 @@ end
 
 function Effect:getPriority()
     return self._priority_
+end
+
+function Effect:_remove()
+    self:clear()
+    self._tasks_:remove()
+end
+
+function Effect:clear()
+    for _, node in self._tasks_:iterator() do
+        Delete(self, node:getData())
+    end
+
+    return self
 end
 
 function Effect:start(new_task)
@@ -99,6 +112,22 @@ AddTask = function(self, new_task)
     end
 end
 
+function Effect:delete(task)
+    Delete(self, task)
+    DeleteTask(self, task)
+    return self
+end
+
+Delete = function(self, task)
+    if task.timer then
+        task.timer:stop()
+    end
+
+    self:on_delete(task)
+    -- DeleteModel(self, task)
+    return self
+end
+
 CheckValid = function(self, index, task)
     if not IsValid(index, self._max_) then
         self:pause(task)
@@ -108,15 +137,23 @@ CheckValid = function(self, index, task)
     return true
 end
 
+function Effect:pause(task)
+    task.timer:pause()
+    self:on_delete(task)
+    -- DeleteModel(self, task)
+    return self
+end
+
 function Effect:resume(task)
     self:on_add(task)
+    -- AddModel(self, task)
 
     if task.timer then
         task.timer:resume()
     else -- 如果是此效果在AddNewTask的共存模式下，沒有建立成功，只有加進列表，這樣就不會有計時器，因此要在這裡補上。
         TimerStart(self, task)
     end
-    -- AddModel(self, task)
+
     return self
 end
 
@@ -146,36 +183,18 @@ TimerStart = function(self, task)
     ):start(self, task)
 end
 
-function Effect:_remove()
-    self:clear()
-    self._tasks_:remove()
-end
-
-function Effect:clear()
-    for _, node in self._tasks_:iterator() do
-        self:delete(node:getData())
-    end
-
-    return self
-end
-
-function Effect:delete(task)
-    if task.timer then
-        task.timer:stop()
-    end
-
-    self:on_delete(task)
-    -- DeleteModel(self, task)
-    DeleteTask(self, task)
-    return self
-end
-
 function Effect:finish(task)
     self:on_finish(task)
     self:on_delete(task)
     -- DeleteModel(self, task)
     DeleteTask(self, task)
     return self
+end
+
+DeleteModel = function(self, task)
+    if not task.target:hasModel(self._model_) then
+        task.target:deleteModel(self._model_)
+    end
 end
 
 DeleteTask = function(self, task)
@@ -194,25 +213,11 @@ DeleteTask = function(self, task)
     if self._tasks_:isEmpty() then
         self._manager_:delete(task.target, self._name_)
         print('remove effect')
-        self:remove()
     end
 end
 
 IsValid = function(index, max)
     return (max < 1) or (index <= max)
-end
-
-function Effect:pause(task)
-    task.timer:pause()
-    self:on_delete(task)
-    -- DeleteModel(self, task)
-    return self
-end
-
-DeleteModel = function(self, task)
-    if not task.target:hasModel(self._model_) then
-        task.target:deleteModel(self._model_)
-    end
 end
 
 return Effect

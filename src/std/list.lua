@@ -168,12 +168,48 @@ DeleteNode = function(self, node)
     self._size_ = self._size_ - 1
 end
 
+-- 只找第一筆資料
+function List:find(data)
+    for i, node in self:iterator() do
+        if node:getData() == data then
+            return i, node
+        end
+    end
+
+    return false
+end
+
 function List:merge(other_list)
     for _, node in other_list:iterator() do
         self:push_back(node:getData())
     end
 
     other_list:remove()
+end
+
+-- O(self._size_)的迭代器方法
+-- HACK: 使用閉包的寫法會比無狀態的迭代器多開銷
+-- NOTE: 簡化閉包的寫法。以目前的寫法，如果使用insert會搜尋不到新插入的元素，原因是新元素是插在node.prev_，node.next_還是原本後面那一個 - 2020-02-04
+function List:iterator()
+    local i = 0
+    local node = nil
+    return function()
+        i = i + 1
+
+        if self._size_ == 0 then
+            return nil
+        end
+
+        node = Table.isNil(node) and self._begin_ or node.next_
+
+        -- 檢查是否到最末端
+        -- NOTE: 第一個回傳值不是nil，迭代器不會停止，可以參考 docs/無狀態的迭代器寫法.lua
+        if Table.isNil(node) then
+            return nil
+        end
+
+        return i, node
+    end
 end
 
 function List:push_back(data)
@@ -240,42 +276,6 @@ InsertNodeFrontOfThePosition = function(new_node, node)
     -- 再把新節點的next_指標指向node
     new_node.next_ = node
     node.prev_ = new_node
-end
-
--- 只找第一筆資料
-function List:find(data)
-    for i, node in self:iterator() do
-        if node:getData() == data then
-            return i, node
-        end
-    end
-
-    return false
-end
-
--- O(self._size_)的迭代器方法
--- HACK: 使用閉包的寫法會比無狀態的迭代器多開銷
--- NOTE: 簡化閉包的寫法。以目前的寫法，如果使用insert會搜尋不到新插入的元素，原因是新元素是插在node.prev_，node.next_還是原本後面那一個 - 2020-02-04
-function List:iterator()
-    local i = 0
-    local node = nil
-    return function()
-        i = i + 1
-
-        if self._size_ == 0 then
-            return nil
-        end
-
-        node = Table.isNil(node) and self._begin_ or node.next_
-
-        -- 檢查是否到最末端
-        -- NOTE: 第一個回傳值不是nil，迭代器不會停止，可以參考 docs/無狀態的迭代器寫法.lua
-        if Table.isNil(node) then
-            return nil
-        end
-
-        return i, node
-    end
 end
 
 return List

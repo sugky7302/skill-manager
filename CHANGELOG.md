@@ -1,11 +1,30 @@
 # 更新日誌
 
+## 0.15.0 - 2020-02-08
+
+### Added:
+- **[lib/effect_manager]** delete函數現在會刪除效果，解決效果自己刪除導致無限循環的問題。
+- **[std/array]** 新增delete函數，刪除指定元素。
+
+### Changed:
+- **[lib/effect_manager]** 整理程式碼。
+- **[std/array]** 整理程式碼。
+- **[std/list]** 整理程式碼。
+- **[war3/effect]** 整理程式碼。
+
+### Fixed:
+- **[std/array]** 修正在迭代器迴圈內刪除元素後，索引停止條件錯誤的問題。
+- **[war3/effect]** 修正remove->clear->delete->remove無限循環的問題。
+
 ## 0.14.2 - 2020-02-08
 
 ### Fixed:
 - **[lib/effect_manager]** delete函數不用先搜尋效果再刪除，多此一舉。
 - **[std/array]** 修正erase函數刪除資料後，因元素數量改變，導致下一個循環會出錯的問題。
 - **[war3/timer]** 修正計時器動作內自己pause會無效的問題。
+
+### Todo:
+- timer、effect_manager、effect有print。
 
 ## 0.14.1 - 2020-02-08
 

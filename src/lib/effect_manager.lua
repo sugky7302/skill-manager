@@ -44,9 +44,9 @@ function EffectManager:add(setting)
 
     print(setting.name .. " will be added to Unit" .. setting.target)
 
-    -- if not CompareEffectAssociation(self, setting) then
-    --     return self
-    -- end
+    if not CompareEffectAssociation(self, setting) then
+        return self
+    end
 
     -- 搜尋效果，有的話對該效果建立新的任務
     AddNewTask(self, setting)
@@ -61,19 +61,18 @@ CompareEffectAssociation = function(self, setting)
     local template, status
 
     for i, effect in list:iterator() do
-        print("[" .. i .."] " .. effect:getName() .. "->" .. setting.name)
         template = self:getTemplate(setting.name)
         status = EFFECT_RELATION[effect:getClass()][template.class] or 0  -- 找不到視同共存
-
+        print("[" .. i .."] " .. effect:getName() .. "->" .. setting.name .. ", status=" .. status)
         -- status=0 -> 不做任何動作
         if status == 1 then
             if effect:getPriority() < (template.priority or 0) then
-                RemoveEffect(list, effect)
+                RemoveEffect(list, i)
             else
                 return false
             end
         elseif status == 2 then
-            RemoveEffect(list, effect)
+            RemoveEffect(list, i)
             return false
         end
     end
@@ -81,9 +80,13 @@ CompareEffectAssociation = function(self, setting)
     return true
 end
 
-RemoveEffect = function(list, effect)
-    list:erase(effect)
-    effect:remove()
+function EffectManager:getTemplate(name)
+    return self._templates_[name]
+end
+
+RemoveEffect = function(list, i)
+    list[i]:remove()
+    list:delete(i)
 end
 
 AddNewTask = function(self, setting)
@@ -106,7 +109,13 @@ function EffectManager:find(target, name)
 end
 
 function EffectManager:delete(target, name)
-    GetList(self, target):erase(name, NameComparison)
+    local effect = self:find(target, name)
+
+    if effect then
+        GetList(self, target):erase(name, NameComparison)
+        effect:remove()
+    end
+
     return self
 end
 
@@ -120,10 +129,6 @@ end
 
 NameComparison = function(a, b)
     return a:getName() == b
-end
-
-function EffectManager:getTemplate(name)
-    return self._templates_[name]
 end
 
 return EffectManager
