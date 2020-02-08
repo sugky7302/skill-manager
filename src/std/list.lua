@@ -190,9 +190,7 @@ function List:insert(node, data)
     if not data then
         return false
     end
-    print("list +")
-    print(data)
-    print("----")
+
     local new_node = require 'std.node':new(data)
 
     if self:isEmpty() then

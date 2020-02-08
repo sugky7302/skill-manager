@@ -106,12 +106,7 @@ function EffectManager:find(target, name)
 end
 
 function EffectManager:delete(target, name)
-    local effect = self:find(target, name)
-
-    if effect then
-        GetList(self, target):erase(name, NameComparison)
-    end
-
+    GetList(self, target):erase(name, NameComparison)
     return self
 end
 

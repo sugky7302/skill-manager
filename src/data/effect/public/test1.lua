@@ -20,6 +20,6 @@ return {
         return self.time < new.time
     end,
     on_pulse = function(self, task)
-        -- print("pulse1-" .. task.time)
+        print("pulse1-" .. task.time)
     end
 }

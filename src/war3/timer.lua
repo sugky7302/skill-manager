@@ -4,7 +4,7 @@ local ej = require 'war3.enhanced_jass'
 local PERIOD, INSTRUCTION_COUNT = 0.001, 10
 local timer_queue = {}
 local current_frame, end_frame, order_queue_index = 0, 0, 0
-local ExecuteOrder, ProcessOrder, Insert, Delete
+local ExecuteOrder, ProcessOrder, Insert, Delete, ComputePauseFrame
 
 local function StartTimer()
     ej.TimerStart(
@@ -135,7 +135,7 @@ function Timer:_new(timeout, count, action)
         end_stamp_ = 0, -- 提前結束會用到結束點
         pause_frame_ = 0, -- 恢復時會需要剩餘時間
         run = action,
-        args = nil,  -- 儲存外部參數
+        args = nil -- 儲存外部參數
     }
 end
 
@@ -154,13 +154,23 @@ end
 function Timer:pause()
     -- 處在正常狀態才能執行以下動作
     if self.pause_frame_ == 0 then
-        self.pause_frame_ = self.end_stamp_ - Now()
-        print("remain " .. self.pause_frame_ .. " secs and " .. self.count_ .. " times")
+        ComputePauseFrame(self)
+        print('remain ' .. self.pause_frame_ .. ' ms and ' .. self.count_ .. ' times')
+
         -- 外部暫停需要把計時器從隊列中刪除
         Delete(self)
     end
 
     return self
+end
+
+ComputePauseFrame = function(self)
+    self.pause_frame_ = self.end_stamp_ - Now()
+
+    -- NOTE: 如果pause_frame=0表示pause是計時器動作內自己執行的，而這樣的含意為下一次執行要暫停，因此要計算下一次的時間戳記。
+    if self.pause_frame_ == 0 and (self.count_ == -1 or self.count_ - 1 > 0) then
+        self.pause_frame_ = self.pause_frame_ + self.frame_
+    end
 end
 
 function Timer:resume()

@@ -63,13 +63,11 @@ end
 
 AddTask = function(self, new_task)
     if self._tasks_:isEmpty() then
-        print('empty')
         self._tasks_:push_back(new_task)
         return true
     end
 
     if self._mode_ == 0 then -- 獨佔模式
-        print('single')
         -- effect無法覆蓋或覆蓋失敗
         if not (self.on_cover and self.on_cover(self._tasks_:front(), new_task)) then
             return false
@@ -86,17 +84,15 @@ AddTask = function(self, new_task)
     else -- 共存模式
         -- 比較優先級，新任務較高就覆蓋，都沒有就插入末端
         for i, node in self._tasks_:iterator() do
-            print(i, node:getData())
             if self.on_cover and self.on_cover(node:getData(), new_task) then
                 self._tasks_:insert(node, new_task)
                 CheckValid(self, i + 1, node:getData())
-                print('+')
+
                 -- 因為新效果還沒有實際運行，所以不需要調用self:pause
                 return IsValid(i, self._max_)
             end
         end
 
-        print('add to bot')
         -- 因為新效果還沒有實際運行，所以不需要self:pause
         self._tasks_:push_back(new_task)
         return IsValid(self._tasks_:size(), self._max_)
@@ -105,7 +101,6 @@ end
 
 CheckValid = function(self, index, task)
     if not IsValid(index, self._max_) then
-        print('pause ' .. index)
         self:pause(task)
         return false
     end
@@ -117,7 +112,6 @@ function Effect:resume(task)
     self:on_add(task)
 
     if task.timer then
-        print('timer resume')
         task.timer:resume()
     else -- 如果是此效果在AddNewTask的共存模式下，沒有建立成功，只有加進列表，這樣就不會有計時器，因此要在這裡補上。
         TimerStart(self, task)
@@ -198,7 +192,6 @@ DeleteTask = function(self, task)
 
     -- 如果沒有任務就移除效果
     if self._tasks_:isEmpty() then
-        print('clear effect list')
         self._manager_:delete(task.target, self._name_)
         print('remove effect')
         self:remove()

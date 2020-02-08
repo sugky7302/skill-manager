@@ -41,7 +41,7 @@ function Array:erase(data, comparison)
         comparison = DefaultCompasion
     end
 
-    for i = 1, self._end_ - 1 do
+    for i = self._end_ - 1, 1, -1 do
         if comparison(self[i], data) then
             -- 將最後一個元素覆蓋至現在位置
             self[i] = self[self._end_ - 1]
@@ -49,6 +49,9 @@ function Array:erase(data, comparison)
 
             -- 調整索引
             self._end_ = self._end_ - 1
+
+            -- 因為最後一個元素調到現在的位置，所以要重新檢查
+            i = i + 1
         end
     end
 end
