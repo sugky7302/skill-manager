@@ -70,7 +70,8 @@ function Effect:start(new_task)
 end
 
 InitVariables = function(self, task)
-    task.remaining = task.time or self._time_
+    task.time = task.time or self._time_
+    task.remaining = task.time
     task.period = self._period_
 end
 
