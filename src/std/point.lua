@@ -18,24 +18,24 @@ function Point:__tostring()
 end
 
 function Point:__add(p)
-    return Point(self.x + p.x, self.y + p.y, self.z + p.z)
+    return Point:new(self.x + p.x, self.y + p.y, self.z + p.z)
 end
 
 function Point:__sub(p)
-    return Point(self.x - p.x, self.y - p.y, self.z - p.z)
+    return Point:new(self.x - p.x, self.y - p.y, self.z - p.z)
 end
 
 function Point:__mul(scale)
-    return Point(self.x * scale, self.y * scale, self.z * scale)
+    return Point:new(self.x * scale, self.y * scale, self.z * scale)
 end
 
 function Point:__div(scale)
-    return Point(self.x / scale, self.y / scale, self.z / scale)
+    return Point:new(self.x / scale, self.y / scale, self.z / scale)
 end
 
 
 function Point:copy()
-    return Point(self.x, self.y, self.z)
+    return Point:new(self.x, self.y, self.z)
 end
 
 -- assert
