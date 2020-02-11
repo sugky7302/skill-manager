@@ -58,6 +58,9 @@ end
 ProcessOrder = function(order)
     order:run()
 
+    -- 記錄已執行次數，方便計算總執行時間
+    order.run_count_ = order.run_count_ + 1
+
     -- 如果執行run時，order將自身所有資料刪除，這裡直接跳出避免報錯
     if not order.count_ then
         return false
@@ -134,6 +137,7 @@ function Timer:_new(timeout, count, action)
         count_ = count, -- 循環次數必須>0，-1定義為永久，0定義為結束
         end_stamp_ = 0, -- 提前結束會用到結束點
         pause_frame_ = 0, -- 恢復時會需要剩餘時間
+        runcount_ = 0,
         run = action,
         args = nil -- 儲存外部參數
     }
@@ -182,6 +186,10 @@ function Timer:resume()
     self.pause_frame_ = 0
 
     return self
+end
+
+function Timer:getRuntime()
+    return PERIOD * self.frame_ * self.run_count_
 end
 
 -- 初始化中心計時器

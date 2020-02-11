@@ -1,6 +1,15 @@
 # 更新日誌
 
-## 0.x.x - 2020-02-11
+## 0.16.0 - 2020-02-11
+
+### Added:
+- **[war3]** 新增Text類別，為漂浮文字的強化版。
+- **[war3/timer]** Timer加入getRuntime函數，能夠獲取計時器總運行時間。
+
+### Changed:
+- **[std.point]**
+  - 整併distance、distance3D函數。
+  - 整併slope函數，現在會回傳兩個值，一個是x-y的斜率，另一個是xy-z的斜率。
 
 ### Todo:
 - 計時器加入總運行時間的功能。

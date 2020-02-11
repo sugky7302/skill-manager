@@ -7,35 +7,35 @@ local Point = require 'std.class'("Point")
 
 function Point:_new(x, y, z)
     return {
-        x_ = x or 0,
-        y_ = y or 0,
-        z_ = z or 0
+        x = x or 0,
+        y = y or 0,
+        z = z or 0
     }
 end
 
 function Point:__tostring()
-    return table.concat({'(', self.x_, ', ', self.y_, ', ', self.z_, ')'})
+    return table.concat({'(', self.x, ', ', self.y, ', ', self.z, ')'})
 end
 
 function Point:__add(p)
-    return Point(self.x_ + p.x_, self.y_ + p.y_, self.z_ + p.z_)
+    return Point(self.x + p.x, self.y + p.y, self.z + p.z)
 end
 
 function Point:__sub(p)
-    return Point(self.x_ - p.x_, self.y_ - p.y_, self.z_ - p.z_)
+    return Point(self.x - p.x, self.y - p.y, self.z - p.z)
 end
 
 function Point:__mul(scale)
-    return Point(self.x_ * scale, self.y_ * scale, self.z_ * scale)
+    return Point(self.x * scale, self.y * scale, self.z * scale)
 end
 
 function Point:__div(scale)
-    return Point(self.x_ / scale, self.y_ / scale, self.z_ / scale)
+    return Point(self.x / scale, self.y / scale, self.z / scale)
 end
 
 
 function Point:copy()
-    return Point(self.x_, self.y_, self.z_)
+    return Point(self.x, self.y, self.z)
 end
 
 -- assert
@@ -44,19 +44,20 @@ local math = math
 -- 假定極點為(0, 0)
 -- 只會旋轉平面座標
 function Point:rotate(deg)
-    local angle, length = math.rad(deg), math.sqrt(self.x_ ^ 2 + self.y_ ^ 2)
-    self.x_, self.y_ = length * math.cos(angle), length * math.sin(angle)
+    local angle, length = math.rad(deg), math.sqrt(self.x^2 + self.y^2)
+    self.x, self.y = length * math.cos(angle), length * math.sin(angle)
+    return self
 end
 
 -- 只會計算平面夾角
 function Point.deg(p1, p2)
-    return math.deg(Point.Rad(p1, p2))
+    return math.deg(Point.rad(p1, p2))
 end
 
 -- 範圍為[0, 2 * pi]
 -- 只會計算平面夾角
 function Point.rad(p1, p2)
-    local rad = math.atan(p2.y_ - p1.y_, p2.x_ - p1.x_)
+    local rad = math.atan(p2.y - p1.y, p2.x - p1.x)
 
     if rad < 0 then
         rad = rad + 2 * math.pi
@@ -66,22 +67,17 @@ function Point.rad(p1, p2)
 end
 
 function Point.slope(p1, p2)
-    return (p2.y_ - p1.y_) / (p2.x_ - p1.x_)
+    return (p2.y - p1.y) / (p2.x - p1.x), (p2.z - p1.z) / Point.distance(p1, p2, 2)
 end
 
-function Point.slope3D(p1, p2)
-    local z_difference = p2.z_ - p1.z_
-    local distance = Point.distance(p1, p2)
-
-    return z_difference / distance
-end
-
-function Point.distance(p1, p2)
-    return math.sqrt((p1.x_ - p2.x_) ^ 2 + (p1.y_ - p2.y_) ^ 2)
-end
-
-function Point.distance3D(p1, p2)
-    return math.sqrt((p1.x_ - p2.x_) ^ 2 + (p1.y_ - p2.y_) ^ 2 + (p1.z_ - p2.z_) ^ 2)
+function Point.distance(p1, p2, dimension)
+    if dimension == 1 then
+        return math.abs(p1.x - p2.x)
+    elseif dimension == 2 then
+        return math.sqrt((p1.x - p2.x) ^ 2 + (p1.y - p2.y) ^ 2)
+    elseif dimension == 3 then
+        return math.sqrt((p1.x - p2.x) ^ 2 + (p1.y - p2.y) ^ 2 + (p1.z - p2.z) ^ 2)
+    end
 end
 
 return Point
