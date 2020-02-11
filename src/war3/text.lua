@@ -1,23 +1,32 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
 local Math = require 'std.math'
+local Point = require 'std.point'
 
 local Text = require 'std.class'('Text')
-local Init, SetTrace, Scaling, Move, MoveSin, ComputeSinTrace, ComputeMin, UpdateText
+local Init, SetTrace, Scaling, Move, MoveSin, ComputeSinTrace, ComputeMin, UpdateText, IsExpired
 
 -- ex: Text:new{
 --     text: 文字,
---     loc: Point(x, y),
+--     loc: {x, y},
 --     time: 秒數,
 --     mode: 移動模式,
 --     font_size: {字體最小值, 字體增大值, 字體最大值},
 --     height: {基本高度, 增加高度(沒用填0), 最大高度},
---     offset(可選): Point(x偏移量, y偏移量),
+--     offset(可選): {距離, 角度},
 -- }
 function Text:_new(data)
     data._invalid_ = false
     data._object_ = ej.CreateTextTag()
     data.init = Init
+    data.loc = Point:new(data.loc[1], data.loc[2])
+
+    -- NOTE: 如果輸入random會隨機弧度；若輸入角度會自動轉換成弧度，這樣方便使用者填入，畢竟正常都用角度。
+    if data.offset then
+        local angle = (data.offset[2] == "random") and ej.GetRandomReal(0, 2*Math.pi) or Math.rad(data.offset[2])
+        data.offset = Point:new(data.offset[1] * Math.cos(angle), data.offset[1] * Math.sin(angle))
+    end
+
     SetTrace(data)
 
     return data
@@ -51,7 +60,7 @@ end
 
 Move = function(self, runtime)
     -- 更新位置
-    local displacement = runtime * self.offset
+    local displacement = self.offset * runtime
     local loc = self.loc + displacement
 
     UpdateText(self, loc, ComputeMin(self.font_size, runtime),
@@ -67,7 +76,7 @@ end
 
 MoveSin = function(self, runtime)
     -- 更新位置
-    local displacement = runtime * self.offset
+    local displacement = self.offset * runtime
     local loc = self.loc + displacement
 
     UpdateText(self, loc, ComputeSinTrace(self.font_size, self.time, runtime),
@@ -107,12 +116,16 @@ function Text:start()
         function(timer)
             self:update(timer:getRuntime())
 
-            if self._invalid_ then
+            if IsExpired(self, timer:getRuntime()) then
                 self._timer_:stop()
                 self:remove()
             end
         end
     ):start()
+end
+
+IsExpired = function(self, runtime)
+    return self._invalid_ or runtime >= self.time
 end
 
 function Text:stop()
