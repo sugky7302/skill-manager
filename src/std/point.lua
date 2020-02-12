@@ -2,8 +2,7 @@
 -- 依賴
 --   class
 
-
-local Point = require 'std.class'("Point")
+local Point = require 'std.class'('Point')
 
 function Point:_new(x, y, z)
     return {
@@ -25,14 +24,23 @@ function Point:__sub(p)
     return Point:new(self.x - p.x, self.y - p.y, self.z - p.z)
 end
 
-function Point:__mul(scale)
-    return Point:new(self.x * scale, self.y * scale, self.z * scale)
+function Point.__mul(m, n)
+    local type, p, scale = type
+
+    if type(m) == 'table' then
+        p = m
+        scale = n
+    else
+        p = n
+        scale = m
+    end
+
+    return Point:new(p.x * scale, p.y * scale, p.z * scale)
 end
 
 function Point:__div(scale)
     return Point:new(self.x / scale, self.y / scale, self.z / scale)
 end
-
 
 function Point:copy()
     return Point:new(self.x, self.y, self.z)
@@ -44,7 +52,7 @@ local math = math
 -- 假定極點為(0, 0)
 -- 只會旋轉平面座標
 function Point:rotate(deg)
-    local angle, length = math.rad(deg), math.sqrt(self.x^2 + self.y^2)
+    local angle, length = math.rad(deg), math.sqrt(self.x ^ 2 + self.y ^ 2)
     self.x, self.y = length * math.cos(angle), length * math.sin(angle)
     return self
 end
