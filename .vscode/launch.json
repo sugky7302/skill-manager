@@ -42,7 +42,7 @@
             "name": "Launch Script",
             "type": "lua",
             "request": "launch",
-            "stopOnEntry": true,
+            "stopOnEntry": false,
             "program": "${fileDirname}\\${fileBasenameNoExtension}.lua",
             "cwd": "${workspaceFolder}",
             "path": "${workspaceFolder}\\src\\?.lua",
