@@ -1,5 +1,5 @@
 ------
--- Database is an simple database for Lua. It can use CRUD methods to save your data.
+-- Database is an simple database for Lua. It's suitable for small data. Maybe 1000 records.
 --
 -- Member:
 --   _primary_key_(int) - the column number for the keyword, query method can use it
@@ -11,95 +11,135 @@
 --     self - class Database
 --     column_count - the database max column count
 --
---   append(self, ...) - a
+--   append(self, ...) - add new datas into database
+--     self - Database instance
+--     ... - datas
 --
---   query(self, key)
+--   query(self, key) - search for datas corresponding to the key
+--     self - Database instance
+--     key - index or the data in the primary column
 --
---   update(self, key, ...)
+--   update(self, key, ...) - search datas corresponding to the key
+--     self - Database instance
+--     key -  index or the data in the primary column
+--     ... - datas
 --
---   delete(self, key)
+--   delete(self, key) - delete datas corresponding to the key
+--     self - Database instance
+--     key - index or the data in the primary column
 -----
 
-
-
 local Database = {}
-local Associate, GetData
+local GetIndex
 
-function Database:new(column_count)
+function Database:new(column_count, primary_key)
     local instance = {
-        _association = {},
-        _primary_key = 1,
+        __index = self,
+        _data_numbers_ = {}, -- 以主欄位資料當作索引，記錄資料編號
+        _primary_key_ = primary_key or 1, -- 資料庫的主鍵，用於搜尋
+        _row_ = 0,
+        _column_ = column_count
     }
 
     for i = 1, column_count do
         instance[#instance + 1] = {}
     end
 
-    setmetatable(instance, instance)
-    instance.__index = self
-    return instance
-end
-
-function Database:setPrimaryKey(index)
-    self._primary_key = index
+    return setmetatable(instance, instance)
 end
 
 function Database:append(...)
-    local args = {...}
-    local index = #self[1] + 1
-    local column
+    local data = {...}
 
-    -- 如果args超過欄位，則不填入
-    -- 如果args不足，則設定false(用nil會造成'#'無法正確返回表長度)
-    for i = 1, #self do
-        column = self[i]
-        column[index] = args[i] or false
+    -- 如果有相同主鍵就覆蓋資料
+    if self._data_numbers_[data[self._primary_key_]] then
+        return self:update(data[self._primary_key_], ...)
     end
 
-    Associate(self._association, args[self._primary_key], index)
-end
+    self._row_ = self._row_ + 1
 
-Associate = function(tb, arg, id)
-    local key = table.concat{arg, ""}
-    tb[key] = id
-end
+    -- 如果data超過欄位，則不填入
+    -- 如果data不足，則設定nil
+    for i = 1, self._column_ do
+        self[i][self._row_] = data[i]
 
-function Database:queryAll(action)
-    for i = 1, #self[1] do
-        action(GetData(self, i))
+        -- 將主欄位資料當作索引記錄資料編號
+        if i == self._primary_key_ then
+            self._data_numbers_[data[i]] = self._row_
+        end
     end
+
+    return self
 end
 
 function Database:query(key)
-    local type = type
+    local i = GetIndex(self, key)
 
-    if type(key) == "number" then
-        return GetData(self, key)
-    end
-
-    if type(key) == "string" then
-        return GetData(self, self._association[key])
-    end
-end
-
-GetData = function(self, key)
-    local column
-    local data = {[0]=key}
-
-    for i = 1, #self do
-        column = self[i]
-        data[#data+1] = column[key]
-    end
-
-    if #data < 1 then
+    if not i then
         return nil
     end
-    
+
+    local data = {}
+
+    for j = 1, self._column_ do
+        data[#data + 1] = self[j][i]
+    end
+
+    -- 如果沒有資料回傳nil，好讓外部簡易判斷，不用再用 # 去檢查長度
+    if not data[1] then
+        return nil
+    end
+
     return data
 end
 
-function Database:size()
-    return #self[1]
+function Database:update(key, ...)
+    local i = GetIndex(self, key)
+
+    if not i then
+        return self
+    end
+
+    for col, data in pairs({...}) do
+        -- 有資料才更新
+        if data then
+            self[col][i] = data
+        end
+    end
+
+    return self
+end
+
+function Database:delete(key)
+    local i = GetIndex(self, key)
+
+    if not i then
+        return self
+    end
+
+    -- 移動的資料要重新記錄資料編號
+    -- 一定要在資料轉換的前面，不然會搜尋不到舊的主鍵資料
+    self._data_numbers_[self[self._primary_key_][self._row_]] = i
+    self._data_numbers_[self[self._primary_key_][i]] = nil
+
+    -- 最後一筆資料會補進空格
+    for j = 1, self._column_ do
+        self[j][i] = self[j][self._row_]
+        self[j][self._row_] = nil
+    end
+
+    self._row_ = self._row_ - 1
+    return self
+end
+
+GetIndex = function(self, key)
+    local type = type
+
+    if type(key) == 'number' then
+        return key
+    elseif type(key) == 'string' then
+        return self._data_numbers_[key]
+    end
 end
 
 return Database
