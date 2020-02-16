@@ -1,0 +1,5 @@
+local RBT = require 'std.red_black_tree':new()
+RBT:insert(1, "a")
+RBT:insert(2, "b")
+RBT:insert(3, "c")
+RBT:insert(0, "d")

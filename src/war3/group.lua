@@ -19,7 +19,7 @@
 --
 --   remove(self) - remove ths group instance
 --     self - group instance
--- 
+--
 --   enumUnitsInRange(self, x, y, r, cnd_name) - select all eligible units in the circle with center(x, y) and radius r
 --     self - group instance
 --     x - x coordinate of the circle center

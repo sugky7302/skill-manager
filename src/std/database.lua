@@ -79,7 +79,7 @@ function Database:query(key)
         return nil
     end
 
-    local data = {}
+    local data = {[0] = i}  -- 記錄資料的排名，有些會當成優先級使用
 
     for j = 1, self._column_ do
         data[#data + 1] = self[j][i]
