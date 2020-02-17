@@ -4,9 +4,11 @@ local function ErrorHandler(err)
 end
 
 return function(path, file_names)
-    local files = {}
+    local files, data = {}
     for _, file_name in ipairs(file_names) do
-        files[file_name] = select(2, xpcall(require, ErrorHandler, table.concat({path, file_name})))
+        print(file_name)
+        data = select(2, xpcall(require, ErrorHandler, table.concat({path, file_name})))
+        files[data.file_key or file_name] = data
     end
 
     return files

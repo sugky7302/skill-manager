@@ -28,80 +28,93 @@
 --     key - attribute name
 ------
 
--- TODO: 缺少屬性事件的引用
 local require = require
-local DB = require 'data.attribute_database'
-local Attribute = require 'std.class'("Attribute")
-local ParseKey, CreateAttribute
+local DB = require 'data.attribute.database'
+local Event = select(2, xpcall(require, debug.traceback, 'data.attribute.init'))
+local Attribute = require 'std.class'('Attribute')
+local ParseKey, CreateAttribute, SetValue, TriggerSetEvent, TriggerGetEvent
 
-function Attribute:_new(self)
+function Attribute:_new()
     return {
-        _rank_ = require 'std.list':new(),
-        _data_ = {},
+        _rank_ = require 'std.red_black_tree':new(),
+        _data_ = {}
     }
-end
-
-function Attribute:add(key, value)
-    self:set(key, self:get(key) + value)
-    return self
-end
-
-function Attribute:set(key, value)
-    local name, has_percent = ParseKey(key)
-    if not self[name] then
-        CreateAttribute(self, name)
-    end
-
-    if has_percent then
-        self[name][2] = value
-    else
-        self[name][1] = value
-    end
-
-    -- TODO: 觸發設值事件
-    -- TODO: 重新排名
-
-    return self
-end
-
-CreateAttribute = function(self, name)
-    self[name] = {0, 0, ""}  -- 數值、百分比、文字
-    -- TODO: 觸發取值事件
-end
-
-function Attribute:get(key)
-    local name = ParseKey(key)
-
-    if not self[name]  then
-        return nil
-    end
-
-    -- 特殊屬性直接回傳
-    local type = type
-    if type(self[name]) == 'string' or type(self[name]) == 'table' then
-        return self[name]
-    end
-
-    -- TODO: 有取值事件就回傳
-
-    return self[name][1] * (1 + self[name][2])
-end
-
-ParseKey = function(key)
-    local string = string
-    return string.match(key, "[^%%]+"), string.sub(key, -1, -1) == "%"
 end
 
 function Attribute:iterator()
     local iter = self._rank_:iterator()
     return function()
-        local i, node = iter()
+        local name = iter()
 
-        if not i then
+        if not name then
             return nil
         end
 
-        return i, node:getData()
+        return name, self[name]
+    end
+end
+
+function Attribute:add(key, value)
+    local name, has_percent = ParseKey(key)
+    return self:set(key, self[name][has_percent and 2 or 1] + value) -- 利用三元運算符判斷要讀數值還是百分比
+end
+
+function Attribute:set(key, value)
+    local name, has_percent = ParseKey(key)
+
+    CreateAttribute(self, name)
+    SetValue(self, name, has_percent, value)
+    TriggerSetEvent(self, name, value)
+    Ranking(self, name)
+
+    return self
+end
+
+CreateAttribute = function(self, name)
+    if not self[name] then
+        --            數值、百分比、屬性文字敘述
+        self[name] = {0, 0, DB:query(name)[2]}
+        self[name][1] = TriggerGetEvent(self, name)
+    end
+end
+
+SetValue = function(self, name, has_percent, value)
+    self[name][has_percent and 2 or 1] = value
+end
+
+TriggerSetEvent = function(self, name, value)
+    if Event[name] and Event[name].set then
+        Event[name].set(self, value)
+    end
+end
+
+Ranking = function(self, name)
+    local data = DB:query(name)
+    if not self._rank_:find(data[0]) then
+        self._rank_:insert(data[0], name)
+    end
+end
+
+function Attribute:get(key)
+    local name = ParseKey(key)
+
+    if not self[name] then
+        return nil
+    end
+
+    return TriggerGetEvent(self, name)
+end
+
+ParseKey = function(key)
+    local string = string
+    return string.match(key, '[^%%]+'), string.sub(key, -1, -1) == '%'
+end
+
+TriggerGetEvent = function(self, name)
+    if Event[name] and Event[name].get then
+        return Event[name].get(self)
+    else
+        return self[name][1] * (1 + self[name][2] / 100)
     end
 end
 

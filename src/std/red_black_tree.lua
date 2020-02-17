@@ -41,6 +41,10 @@ function RBT:_new()
     }
 end
 
+function RBT:size()
+    return self._size_
+end
+
 function RBT:iterator()
     local stack = require 'std.stack':new()
     local node, data = self._root_
