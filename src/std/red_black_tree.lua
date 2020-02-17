@@ -30,6 +30,7 @@ local Node = {
 }
 
 -- 紅黑樹
+local require = require
 local RBT = require 'std.class'('RedBlackTree')
 local LeftRotate, RightRotate, InsertFixedUp, DeleteFixedUp
 
@@ -38,6 +39,34 @@ function RBT:_new()
         _size_ = 0,
         _root_ = nil
     }
+end
+
+function RBT:iterator()
+    local stack = require 'std.stack':new()
+    local node, data = self._root_
+    return function()
+        -- 搜尋左子節點，並將中途遇到的節點壓入stack，方便回退時直接使用
+        while node do
+            stack:push(node)
+            node = node.left_
+        end
+
+        -- 空棧表示所有節點都遍歷過了
+        if stack:isEmpty() then
+            stack:remove()
+            return nil
+        end
+
+        -- 取值並印出
+        node = stack:top()
+        stack:pop()
+        data = node:getData()
+
+        -- 搜尋右子節點。如果沒有的話，下一次會回退到父節點
+        node = node.right_
+
+        return data
+    end
 end
 
 function RBT:insert(index, data)
@@ -63,6 +92,7 @@ function RBT:insert(index, data)
     end
 
     self._root_.color_ = 1
+    self._size_ = self._size_ + 1
 
     return self
 end
