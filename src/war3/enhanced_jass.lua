@@ -385,7 +385,6 @@ local ej = {
         return order_list[order]
     end,
     object = function(handle_name)
-        print("this object's id is", g[handle_name])
         return g[handle_name]
     end,
     print = function(msg)

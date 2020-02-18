@@ -56,6 +56,7 @@ end
 
 function Attribute:add(key, value)
     local name, has_percent = ParseKey(key)
+    CreateAttribute(self, name)
     return self:set(key, self[name][has_percent and 2 or 1] + value) -- 利用三元運算符判斷要讀數值還是百分比
 end
 
@@ -73,7 +74,7 @@ end
 CreateAttribute = function(self, name)
     if not self[name] then
         --            數值、百分比、屬性文字敘述
-        self[name] = {0, 0, DB:query(name)[2]}
+        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ""}  -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
         self[name][1] = TriggerGetEvent(self, name)
     end
 end
@@ -90,7 +91,7 @@ end
 
 Ranking = function(self, name)
     local data = DB:query(name)
-    if not self._rank_:find(data[0]) then
+    if data and not self._rank_:find(data[0]) then
         self._rank_:insert(data[0], name)
     end
 end

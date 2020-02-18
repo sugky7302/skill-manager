@@ -3,6 +3,7 @@ local ej = require 'war3.enhanced_jass'
 local Trigger = require 'war3.trigger'
 
 local Listener = require 'std.class'('Listener')
+local SetSourceTriggerEvent
 
 local EVENTS = {
     ['單位-死亡'] = ej.EVENT_UNIT_DEATH,
@@ -58,11 +59,11 @@ end
 
 function Listener:__call(event_name)
     return function(event_source)
-        self:_setSourceTriggerEvent(event_name, event_source)
+        SetSourceTriggerEvent(self, event_name, event_source)
     end
 end
 
-function Listener:_setSourceTriggerEvent(event_name, event_source)
+SetSourceTriggerEvent = function(self, event_name, event_source)
     local string = string
 
     -- 用正則表達式篩選事件是否為一次性
