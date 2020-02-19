@@ -390,14 +390,13 @@ local ej = {
     print = function(msg)
         cj.DisplayTimedTextToPlayer(cj.Player(0), 0, 0, 5, msg)
     end,
+    -- 設定生命週期利用war3機制自動刪除，會比用RemoveUnit乾淨，內存絕不會漏掉
     removeUnit = function(unit)
         cj.UnitApplyTimedLife(unit, ascii.decode('BHwe'), 0.03)
     end,
-    setTimedLife = function(unit, timeout)
+    setLifeTime = function(unit, timeout)
         cj.UnitApplyTimedLife(unit, ascii.decode('BHwe'), timeout)
     end,
-    -- 設定生命週期利用war3機制自動刪除，會比用RemoveUnit乾淨，內存絕不會漏掉
-
     pressHotkey = function(player, hotkey)
         if cj.GetLocalPlayer() == player then
             cj.ForceUIKey(hotkey)

@@ -1,15 +1,33 @@
 # 更新日誌
 
+## 0.24.0 - 2020-02-20
+
+### Todo:
+- 撰寫Hero單元測試。
+- 新增Hero類別，並通過測試。
+- 新增戰鬥結算系統。
+- 寫一個完整、可裝飾的烈焰風暴，將所有系統都串連起來。
+- 完成紅黑樹的刪除。
+
 ## 0.23.0 - 2020-02-19
 
+- Monster不能直接調用Unit:__call()，還是要寫一個__call。
+- Monster()和Unit()會生成同一個實例。
+
+### Added:
+- **[war3]**
+  - 新增Monster類別，專職處理野外怪物。
+  - 新增Follower類別，專職處理寵物、追隨者。
+
 ### Changed:
+- **[war3/enhanced_jass]** setTimedLife函數更名為setLifeTime。
 - **[war3/unit]** registerEvent函數更名為listen。
 
 ### Fixed:
 - **[war3/unit]** 修正子類別新建實例後，若呼叫__call函數，可能會搜尋不到實例的問題。
 
 ### Todo:
-- 新增Hero類別、Monster類別、Follower(寵物、隨從之類)類別。
+- 新增Monster類別、Follower(寵物、隨從之類)類別。
 - 測試Hero()能不能調用Unit:__call()。
 - 測試Hero()和Unit()同一個單位會不會生成同一個實例。
 - 新增戰鬥結算系統。

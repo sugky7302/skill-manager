@@ -38,15 +38,15 @@ function Unit.create(unit_type, player, loc)
     return new_unit
 end
 
-function Unit:object()
+function Unit:getObject()
     return self._object_
 end
 
-function Unit:id()
+function Unit:getId()
     return self._id_
 end
 
-function Unit:type()
+function Unit:getType()
     return self._type_
 end
 
