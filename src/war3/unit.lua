@@ -29,7 +29,7 @@ function Unit:_remove()
 end
 
 function Unit:__call(unit)
-    return self[unit] or Unit:new(unit)
+    return Unit[unit] or self:new(unit)
 end
 
 -- NOTE: 直接return ej.CreateUnit不會回傳單位
@@ -109,7 +109,7 @@ function Unit:getAttribute(key)
     return self._attribute_:get(key)
 end
 
-function Unit:registerEvent(event_name)
+function Unit:listen(event_name)
     Listener(event_name)(self._object_)
     return self
 end

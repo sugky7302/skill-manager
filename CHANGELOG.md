@@ -1,5 +1,21 @@
 # 更新日誌
 
+## 0.23.0 - 2020-02-19
+
+### Changed:
+- **[war3/unit]** registerEvent函數更名為listen。
+
+### Fixed:
+- **[war3/unit]** 修正子類別新建實例後，若呼叫__call函數，可能會搜尋不到實例的問題。
+
+### Todo:
+- 新增Hero類別、Monster類別、Follower(寵物、隨從之類)類別。
+- 測試Hero()能不能調用Unit:__call()。
+- 測試Hero()和Unit()同一個單位會不會生成同一個實例。
+- 新增戰鬥結算系統。
+- 寫一個完整、可裝飾的烈焰風暴，將所有系統都串連起來。
+- 完成紅黑樹的刪除。
+
 ## 0.22.0 - 2020-02-18
 
 ### Added:
@@ -10,7 +26,7 @@
 - **[std/ascii]**
   - 如果encode函數的引數是字串會直接返回。
   - 如果decode函數的引數是數字會直接返回。
-- **[war3.listener]** _setSourceTriggerEvent函數改為區域函數，讀取起來較快，且不會被外部呼叫。
+- **[war3/listener]** _setSourceTriggerEvent函數改為區域函數，讀取起來較快，且不會被外部呼叫。
 
 ### Fixed:
 - **[lib/attribute]** 修正新建屬性時，若遇到資料庫不存在的屬性便報錯的問題。
