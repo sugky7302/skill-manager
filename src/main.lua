@@ -1,5 +1,5 @@
 local function Main()
-    require 'unit_test.monster'
+    require 'unit_test.hero'
 end
 
 Main()
