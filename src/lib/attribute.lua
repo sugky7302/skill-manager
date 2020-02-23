@@ -34,10 +34,11 @@ local Event = select(2, xpcall(require, debug.traceback, 'data.attribute.init'))
 local Attribute = require 'std.class'('Attribute')
 local ParseKey, CreateAttribute, SetValue, TriggerSetEvent, TriggerGetEvent
 
-function Attribute:_new()
+function Attribute:_new(object)
     return {
         _rank_ = require 'std.red_black_tree':new(),
-        _data_ = {}
+        _data_ = {},
+        _object_ = object,
     }
 end
 
@@ -100,7 +101,7 @@ function Attribute:get(key)
     local name = ParseKey(key)
 
     if not self[name] then
-        return nil
+        return 0
     end
 
     return TriggerGetEvent(self, name)

@@ -57,4 +57,8 @@ function SkillManager:get(skill_name, source, target)
     return skill
 end
 
+function SkillManager:query(skill_name)
+    return self._data_[skill_name]
+end
+
 return SkillManager

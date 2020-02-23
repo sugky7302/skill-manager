@@ -59,7 +59,8 @@ function EventManager:dispatch(event_name, ...)
     end
 
     for _, event in ipairs(self._events_[event_name]) do
-        -- 變長參數只能放在最後面，它後面不能再有任何引數，不然無法返回全部的值。
+        -- NOTE: 變長參數只能放在最後面，它後面不能再有任何引數，不然無法返回全部的值。
+        -- NOTE: 會傳入管理器的引用，是因為能讓回調函數裡面可以使用dispatch函數。
         event:dispatch(self, ...)
     end
 end

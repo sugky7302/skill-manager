@@ -13,7 +13,7 @@ function Unit:_new(unit)
         _object_ = unit,
         _id_ = ej.H2I(unit),
         _type_ = ascii.encode(ej.U2Id(unit)),
-        _attribute_ = Attribute:new(),
+        _attribute_ = Attribute:new(unit),
         owner_ = ej.getPlayer(unit),  -- HACK: 暫時隨便寫一個，等到Player類別確定再改
     }
 
