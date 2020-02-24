@@ -13,13 +13,7 @@ e:addEvent(
             -- 先將當前傷害值歸零，以免實際扣血 ~= 預計扣血
             require 'war3.enhanced_jass'.EXSetEventDamage(0)
 
-            print(
-                DP:run {
-                    name = '普通攻擊',
-                    source = source,
-                    target = target
-                }
-            )
+            print(DP.run('普通攻擊', source, target))
 
             -- 測試直接扣血會不會觸發，結果是不會
             Timer:new(
