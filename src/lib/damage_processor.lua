@@ -1,18 +1,18 @@
 local DP = require 'std.class'("DamageProcessor")
+local AddUp, Parse, Judge, Caculate, Process
 
 function DP:_new()
     if not self._instance_ then
-        self._instance_ = {
-            _is_running_ = false,
-        }
+        self._instance_ = {}
     end
 
     return self._instance_
 end
 
 function DP:run(info)
-    if self._is_running_ then
-        return
+    -- NOTE: 不寫成not(A or B)是因為
+    if not Parse(info) and not Judge(info) then
+        return nil
     end
 
     print(info.source .. " attack " .. info.target)
