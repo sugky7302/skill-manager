@@ -26,10 +26,8 @@ function DP.run(name, source, target)
         target = target,
         value = 0,  -- 傷害值
         rate = nil,  -- 物理傷害和法術傷害的占比。左邊是物理、右邊是法術
-        proc = 0,  -- 法術攻擊力的倍率係數
-        is_crit = 0,  -- 是否暴擊。暴擊=1，正常=0
-        is_blk = 1,  -- 是否穿透。格擋=1，正常=0
-        status = 0  -- 狀態判定。判定過程可能出現閃避、穿透等特殊現象，0=正常、1=穿透、2=閃避、4=格擋、8=暴擊
+        proc = {0, 0, 1},  -- 最小法術傷害、最大法術傷害、法術攻擊力的倍率係數
+        status = {1, 0, 0}  -- 狀態判定。判定過程可能出現閃避、穿透等特殊現象，1:格擋(T)/穿透(F)、2:閃避、3:暴擊
     }
 
     if not Parse(event) then
@@ -37,7 +35,7 @@ function DP.run(name, source, target)
     end
 
     if not Judge(event) then
-        return nil
+        return event.status, nil
     end
 
     Calculate(event)
@@ -62,24 +60,22 @@ Parse = function(event)
     end
 
     event.rate = skill.rate or {0, 1} -- 物理傷害和法術傷害的占比。左邊是物理、右邊是法術
-    event.proc = skill.proc or 1 -- 法術攻擊力的倍率係數
+    event.proc = skill.proc -- 最小法術傷害、最大法術傷害、法術攻擊力的倍率係數
     return true
 end
 
 Judge = function(event)
     if IsDodge(event.source, event.target) then
-        event.status = 2
+        event.status[2] = 1
         return false
     end
 
     if IsPenetrated(event.source, event.target) then
-        event.is_blk = 0
-        event.status = 1
+        event.status[1] = 0
     end
 
     if IsCrit(event.source, event.target) then
-        event.is_crit = 1
-        event.status = event.status + 8
+        event.status[3] = 1
     end
 
     return true
@@ -118,18 +114,27 @@ end
 
 Calculate = function(event)
     local atk, def = GetAttack(event.source, event.rate, event.proc), GetDefense(event.target, event.rate)
+
     event.value =
         Math.bound(
-        0.05 * atk,
-        (event.is_crit + 1) * (atk - event.is_blk * def),
+        Math.max(1, 0.05 * atk),
+        (event.status[3] + 1) * (atk - event.status[1] * def),
         0.95 * event.target:getAttribute('生命上限')
     ) - event.target:getAttribute('護盾')
 end
 
+-- HACK: 隨便寫個公式
 GetAttack = function(source, rate, proc)
+    local atk = Math.rand(source:getAttribute("最小攻擊力"), source:getAttribute("最大攻擊力")) + source:getAttribute("固定傷害")
+    local matk = Math.rand(proc[1], proc[2]) + proc[3] * source:getAttribute("法術攻擊力")
+    return rate[1] * atk + rate[2] * matk
 end
 
+-- HACK: 隨便寫個公式
 GetDefense = function(target, rate)
+    local def = target:getAttribute("護甲")
+    local mdef = target:getAttribute("法術護甲")
+    return rate[1] * def + rate[2] * mdef
 end
 
 AddUp = function(unit, attribute_list)

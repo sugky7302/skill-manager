@@ -72,14 +72,6 @@ function Attribute:set(key, value)
     return self
 end
 
-CreateAttribute = function(self, name)
-    if not self[name] then
-        --            數值、百分比、屬性文字敘述
-        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ""}  -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
-        self[name][1] = TriggerGetEvent(self, name)
-    end
-end
-
 SetValue = function(self, name, has_percent, value)
     self[name][has_percent and 2 or 1] = value
 end
@@ -100,9 +92,7 @@ end
 function Attribute:get(key)
     local name = ParseKey(key)
 
-    if not self[name] then
-        return 0
-    end
+    CreateAttribute(self, name)
 
     return TriggerGetEvent(self, name)
 end
@@ -110,6 +100,14 @@ end
 ParseKey = function(key)
     local string = string
     return string.match(key, '[^%%]+'), string.sub(key, -1, -1) == '%'
+end
+
+CreateAttribute = function(self, name)
+    if not self[name] then
+        --            數值、百分比、屬性文字敘述
+        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ""}  -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
+        self[name][1] = TriggerGetEvent(self, name)
+    end
 end
 
 TriggerGetEvent = function(self, name)

@@ -1,10 +1,11 @@
 local require = require
+local math = math
 local ej = require 'war3.enhanced_jass'
 
 local PERIOD, INSTRUCTION_COUNT = 0.001, 10
 local timer_queue = {}
 local current_frame, end_frame, order_queue_index = 0, 0, 0
-local ExecuteOrder, ProcessOrder, Insert, Delete, ComputePauseFrame
+local ExecuteOrder, ProcessOrder, Insert, Delete, ComputePauseFrame, Frame, Now
 
 local function StartTimer()
     ej.TimerStart(
@@ -64,6 +65,7 @@ ProcessOrder = function(order)
 
     -- 如果執行run時，order將自身所有資料刪除，這裡直接跳出避免報錯
     if not order.count_ then
+        print("a")
         return false
     end
 
@@ -121,27 +123,22 @@ Delete = function(order)
     end
 end
 
-local function Frame(time)
-    local math = math
-    return math.max(math.floor(time / PERIOD) or 1, 1)
-end
-
-local function Now()
-    return current_frame
-end
-
 local Timer = require 'std.class'('Timer')
 
 function Timer:_new(timeout, count, action)
     return {
         frame_ = Frame(timeout),
-        count_ = count, -- 循環次數必須>0，-1定義為永久，0定義為結束
+        count_ = math.ceil(count), -- 循環次數必須>0，-1定義為永久，0定義為結束
         end_stamp_ = 0, -- 提前結束會用到結束點
         pause_frame_ = 0, -- 恢復時會需要剩餘時間
         run_count_ = 0,
         run = action,
         args = nil -- 儲存外部參數
     }
+end
+
+Frame = function(time)
+    return math.max(math.floor(time / PERIOD), 1)
 end
 
 function Timer:start(...)
@@ -160,7 +157,6 @@ function Timer:pause()
     -- 處在正常狀態才能執行以下動作
     if self.pause_frame_ == 0 then
         ComputePauseFrame(self)
-        print('remain ' .. self.pause_frame_ .. ' ms and ' .. self.count_ .. ' times')
 
         -- 外部暫停需要把計時器從隊列中刪除
         Delete(self)
@@ -176,6 +172,10 @@ ComputePauseFrame = function(self)
     if self.pause_frame_ == 0 and (self.count_ == -1 or self.count_ - 1 > 0) then
         self.pause_frame_ = self.pause_frame_ + self.frame_
     end
+end
+
+Now = function()
+    return current_frame
 end
 
 function Timer:resume()

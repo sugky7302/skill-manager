@@ -2,6 +2,7 @@ local require = require
 local ej = require 'war3.enhanced_jass'
 local Math = require 'std.math'
 local Point = require 'std.point'
+local Timer = require 'war3.timer'
 
 local Text = require 'std.class'('Text')
 local Init, SetTrace, Scaling, Move, MoveSin, ComputeSinTrace, ComputeMin, UpdateText, IsExpired
@@ -23,7 +24,7 @@ function Text:_new(data)
 
     -- NOTE: 如果輸入random會隨機弧度；若輸入角度會自動轉換成弧度，這樣方便使用者填入，畢竟正常都用角度。
     if data.offset then
-        local angle = (data.offset[2] == "random") and ej.GetRandomReal(0, 2*Math.pi) or Math.rad(data.offset[2])
+        local angle = (data.offset[2] == 'random') and ej.GetRandomReal(0, 2 * Math.pi) or Math.rad(data.offset[2])
         data.offset = Point:new(data.offset[1] * Math.cos(angle), data.offset[1] * Math.sin(angle))
     end
 
@@ -63,8 +64,7 @@ Move = function(self, runtime)
     local displacement = self.offset * runtime
     local loc = self.loc + displacement
 
-    UpdateText(self, loc, ComputeMin(self.font_size, runtime),
-               ComputeMin(self.height, runtime))
+    UpdateText(self, loc, ComputeMin(self.font_size, runtime), ComputeMin(self.height, runtime))
 
     loc:remove()
     displacement:remove()
@@ -79,15 +79,19 @@ MoveSin = function(self, runtime)
     local displacement = self.offset * runtime
     local loc = self.loc + displacement
 
-    UpdateText(self, loc, ComputeSinTrace(self.font_size, self.time, runtime),
-               ComputeSinTrace(self.height, self.time, runtime))
+    UpdateText(
+        self,
+        loc,
+        ComputeSinTrace(self.font_size, self.time, runtime),
+        ComputeSinTrace(self.height, self.time, runtime)
+    )
 
     loc:remove()
     displacement:remove()
 end
 
 ComputeSinTrace = function(x, max, t)
-    return (x[3]-x[1]) * Math.sin(Math.pi * t / max) + x[1]
+    return (x[3] - x[1]) * Math.sin(Math.pi * t / max) + x[1]
 end
 
 UpdateText = function(self, loc, font_size, height)
@@ -104,24 +108,29 @@ function Text:_remove()
     end
 end
 
+local i = 0
 function Text:start()
     local PERIOD = 0.04
-
+    self.i = i
+    print(i .. ' start')
     self:init()
 
     self._timer_ =
-        require 'war3.timer':new(
+        Timer:new(
         PERIOD,
         (self.time > 0) and self.time / PERIOD or -1,
         function(timer)
             self:update(timer:getRuntime())
+            print(self.i .. " remains " .. timer.count_ .. " times")
 
             if IsExpired(self, timer:getRuntime()) then
+                print(self.i .. ' end')
                 self._timer_:stop()
                 self:remove()
             end
         end
     ):start()
+    i = i + 1
 end
 
 IsExpired = function(self, runtime)

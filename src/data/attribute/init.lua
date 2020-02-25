@@ -1,4 +1,7 @@
 return require 'data.load_file'("data.attribute.", {
     "atk",
-    "life",
+    "mhp",
+    "hp",
+    "max_atk",
+    "min_atk",
 })
