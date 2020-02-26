@@ -4,7 +4,7 @@ local ej = require 'war3.enhanced_jass'
 
 local PERIOD, INSTRUCTION_COUNT = 0.001, 10
 local timer_queue = {}
-local current_frame, order_queue_index = 1, 0
+local current_frame = 1
 local ExecuteOrder, ProcessOrder, Insert, Delete, ComputePauseFrame, Frame, Now
 
 local function StartTimer()
@@ -30,26 +30,17 @@ end
 ExecuteOrder = function()
     local order_queue = timer_queue[current_frame]
     if not order_queue then
-        order_queue_index = 0
         return false
     end
 
-    local order
-    for i = order_queue_index + 1, #order_queue do
-        order = order_queue[i]
+    -- NOTE: 由於pairs會跳過value=nil的索引，因此只要每次完成都設定為nil，掉幀時就能從有值的索引開始。 - 2020-02-26
+    for i, order in pairs(order_queue) do
         if order then
             ProcessOrder(order)
         end
 
-        -- 記錄當前命令索引，如果沒處理完還能在下一迴圈處理
-        -- NOTE: 處理完再記錄。如果沒處理完就記錄，補幀時就會跳過它，造成掉幀的現象。 - 2020-02-26
-        order_queue_index = i
-
         order_queue[i] = nil
     end
-
-    -- 所有命令都做完了，命令索引要指回第一個
-    order_queue_index = 0
 
     -- 必須所有引用都清除，lua才會釋放記憶體
     timer_queue[current_frame] = nil
@@ -65,7 +56,6 @@ ProcessOrder = function(order)
 
     -- 如果執行run時，order將自身所有資料刪除，這裡直接跳出避免報錯
     if not order.count_ then
-        print("a")
         return false
     end
 
@@ -115,9 +105,12 @@ Delete = function(order)
 
     -- NOTE: 使用table.remove才能完整刪除，
     --       只設定為nil反而會讓數組中斷。
+    -- NOTE: 由於table.remove會將空位補滿，導致order_queue_index跳過補空位的那個動作。
+    --       例如我刪掉第6個，第7個會補到第6個的位置，結果order_queue_index跳到了7，就造成掉幀的現象。
+    --       ExecuteOrder改採pairs遍歷，它會跳過值=nil的索引，這樣就保留原本for迴圈要達到的功能。 - 2020-02-26
     for k, v in ipairs(order_queue) do
         if v == order then
-            table.remove(order_queue, k)
+            order_queue[k] = nil
             return true
         end
     end

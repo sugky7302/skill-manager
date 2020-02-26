@@ -108,11 +108,9 @@ function Text:_remove()
     end
 end
 
-local i = 0
 function Text:start()
     local PERIOD = 0.04
-    self.i = i
-    print(i .. ' start')
+
     self:init()
 
     self._timer_ =
@@ -121,20 +119,17 @@ function Text:start()
         (self.time > 0) and self.time / PERIOD or -1,
         function(timer)
             self:update(timer:getRuntime())
-            print(self.i .. " remains " .. timer.count_ .. " times")
 
-            if IsExpired(self, timer:getRuntime()) then
-                print(self.i .. ' end')
+            if IsExpired(self, timer.count_) then
                 self._timer_:stop()
                 self:remove()
             end
         end
     ):start()
-    i = i + 1
 end
 
-IsExpired = function(self, runtime)
-    return self._invalid_ or runtime >= self.time
+IsExpired = function(self, count)
+    return self._invalid_ or count == 1
 end
 
 function Text:stop()

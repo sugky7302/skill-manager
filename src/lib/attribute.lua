@@ -58,7 +58,15 @@ end
 function Attribute:add(key, value)
     local name, has_percent = ParseKey(key)
     CreateAttribute(self, name)
-    return self:set(key, self[name][has_percent and 2 or 1] + value) -- 利用三元運算符判斷要讀數值還是百分比
+
+    -- NOTE: 會把數值和百分比分開處理的原因是數值可能會和遊戲實際數值不同，導致設值會有誤差，
+    --       因此add必須要先利用實際數值校正，後續的運算才會正確；而百分比不會有這樣的問題，
+    --       直接加總即可 - 2020-02-26
+    if has_percent then
+        return self:set(key, self[name][2] + value)
+    else
+        return self:set(key, self:get(key) / (1 + self[name][2] / 100) + value)
+    end
 end
 
 function Attribute:set(key, value)
@@ -66,7 +74,7 @@ function Attribute:set(key, value)
 
     CreateAttribute(self, name)
     SetValue(self, name, has_percent, value)
-    TriggerSetEvent(self, name, value)
+    TriggerSetEvent(self, name)
     Ranking(self, name)
 
     return self
@@ -76,9 +84,9 @@ SetValue = function(self, name, has_percent, value)
     self[name][has_percent and 2 or 1] = value
 end
 
-TriggerSetEvent = function(self, name, value)
+TriggerSetEvent = function(self, name)
     if Event[name] and Event[name].set then
-        Event[name].set(self, value)
+        Event[name].set(self, self[name][1] * (1 + self[name][2] / 100))
     end
 end
 

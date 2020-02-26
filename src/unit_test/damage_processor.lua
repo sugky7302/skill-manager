@@ -32,26 +32,26 @@ ShowText = function(target, status, value)
             {
                 text = '|cffff0000閃避!',
                 loc = {ej.GetUnitX(target), ej.GetUnitY(target)},
-                time = 1.3,
+                time = 1,
                 mode = 'move',
-                font_size = {0.02, 0.01, 0.06},
-                height = {50, 50, 500},
+                font_size = {0.022, 0, 0.022},
+                height = {50, 100, 400},
                 offset = {0, 90}
             }
         ):start()
-    -- else
-    --     local scale = status[3] + 1
-    --     Text:new(
-    --         {
-    --             text = Math.modf(Math.round(value)) .. '',
-    --             loc = {ej.GetUnitX(target), ej.GetUnitY(target)},
-    --             time = 1.3,
-    --             mode = 'sin',
-    --             font_size = {scale * 0.018, scale * 0.005, scale * 0.04},
-    --             height = {20, 5, 120},
-    --             offset = {70, 'random'}
-    --         }
-    --     ):start()
+    else
+        local scale = status[3] + 1
+        Text:new(
+            {
+                text = Math.modf(Math.round(value)) .. '',
+                loc = {ej.GetUnitX(target), ej.GetUnitY(target)},
+                time = 1.2,
+                mode = 'sin',
+                font_size = {scale * 0.0162, 0, scale * 0.03},
+                height = {20, 5, 120},
+                offset = {70, 'random'}
+            }
+        ):start()
     end
 end
 

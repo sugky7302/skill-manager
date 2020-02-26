@@ -161,11 +161,7 @@ Process = function(event)
 end
 
 DealDamage = function(target, value)
-    if value < target:getAttribute('生命') then
-        target:addAttribute('生命', -value)
-    else
-        require 'war3.enhanced_jass'.removeUnit(target:getObject())
-    end
+    target:addAttribute('生命', -value)
 end
 
 return DP
