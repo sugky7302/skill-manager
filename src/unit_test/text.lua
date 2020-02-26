@@ -7,7 +7,7 @@ local e = require 'lib.event_manager':new()
 local l = require 'war3.listener':new(e)
 e:addEvent(
     Event:new(
-        '單位-施放技能',
+        '單位-受到傷害',
         'GetTriggerUnit GetSpellAbilityId',
         function(_, source, ability)
             Text:new({
@@ -24,6 +24,6 @@ e:addEvent(
 )
 Group:new():enumUnitsInRange(0, 0, 999999, 'Nil'):loop(
     function(self, i)
-        l('單位-施放技能')(self.units_[i])
+        l('單位-受到傷害')(self.units_[i])
     end
 )

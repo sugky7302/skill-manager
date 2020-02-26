@@ -4,7 +4,7 @@ local ej = require 'war3.enhanced_jass'
 
 local PERIOD, INSTRUCTION_COUNT = 0.001, 10
 local timer_queue = {}
-local current_frame, end_frame, order_queue_index = 0, 0, 0
+local current_frame, order_queue_index = 1, 0
 local ExecuteOrder, ProcessOrder, Insert, Delete, ComputePauseFrame, Frame, Now
 
 local function StartTimer()
@@ -13,16 +13,15 @@ local function StartTimer()
         PERIOD * INSTRUCTION_COUNT,
         true,
         function()
-            -- 上一幀的命令隊列尚未處理完
-            if order_queue_index > 0 then
-                current_frame = current_frame - 1
-            end
-
-            end_frame = end_frame + INSTRUCTION_COUNT
-
-            for i = current_frame, end_frame do
-                current_frame = current_frame + 1
+            -- NOTE: 捨棄end_frame。原來會用到是因為Moe master是用while做，while執行速度比較慢，
+            --       因此我採用for去處理，這就不需要end_frame了。 - 2020-02-26
+            -- NOTE: 反正只是要循環10次，不用特別用current_frame和end_frame，反而麻煩。 - 2020-02-26
+            for i = 1, INSTRUCTION_COUNT do
                 ExecuteOrder()
+
+                -- NOTE: 如果掉幀，則frame就不會+1，而order_queue_index還保留最後做完的索引，
+                --       很自然就達到補幀的效果。 - 2020-02-26
+                current_frame = current_frame + 1
             end
         end
     )
@@ -37,13 +36,14 @@ ExecuteOrder = function()
 
     local order
     for i = order_queue_index + 1, #order_queue do
-        -- 記錄當前命令索引，如果沒處理完還能在下一迴圈處理
-        order_queue_index = i
-
         order = order_queue[i]
         if order then
             ProcessOrder(order)
         end
+
+        -- 記錄當前命令索引，如果沒處理完還能在下一迴圈處理
+        -- NOTE: 處理完再記錄。如果沒處理完就記錄，補幀時就會跳過它，造成掉幀的現象。 - 2020-02-26
+        order_queue_index = i
 
         order_queue[i] = nil
     end
@@ -168,7 +168,7 @@ end
 ComputePauseFrame = function(self)
     self.pause_frame_ = self.end_stamp_ - Now()
 
-    -- NOTE: 如果pause_frame=0表示pause是計時器動作內自己執行的，而這樣的含意為下一次執行要暫停，因此要計算下一次的時間戳記。
+    -- NOTE: 如果pause_frame=0表示pause是計時器動作內部調用的，這樣的含意即下一次執行要暫停，因此要計算下一次的時間戳記。
     if self.pause_frame_ == 0 and (self.count_ == -1 or self.count_ - 1 > 0) then
         self.pause_frame_ = self.pause_frame_ + self.frame_
     end
