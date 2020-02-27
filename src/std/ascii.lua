@@ -4,6 +4,10 @@ local type = type
 local ASCII = {}
 
 function ASCII.encode(num)
+    if not num then
+        return ""
+    end
+
     if type(num) == 'string' then
         return num
     end
@@ -20,6 +24,10 @@ function ASCII.encode(num)
 end
 
 function ASCII.decode(str)
+    if not str then
+        return 0
+    end
+
     if type(str) == 'number' then
         return str
     end

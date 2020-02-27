@@ -42,7 +42,7 @@ function EffectManager:add(setting)
         return self
     end
 
-    print(setting.name .. " will be added to Unit" .. setting.target)
+    -- print(setting.name .. " will be added to Unit" .. setting.target)
 
     if not CompareEffectAssociation(self, setting) then
         return self
@@ -63,7 +63,7 @@ CompareEffectAssociation = function(self, setting)
     for i, effect in list:iterator() do
         template = self:getTemplate(setting.name)
         status = EFFECT_RELATION[effect:getClass()][template.class] or 0  -- 找不到視同共存
-        print("[" .. i .."] " .. effect:getName() .. "->" .. setting.name .. ", status=" .. status)
+        -- print("[" .. i .."] " .. effect:getName() .. "->" .. setting.name .. ", status=" .. status)
         -- status=0 -> 不做任何動作
         if status == 1 then
             if effect:getPriority() < (template.priority or 0) then

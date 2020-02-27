@@ -1,5 +1,5 @@
 local require = require
-local ej = require 'war3.enhanced_jass'
+local View = require 'war3.view'
 
 local SpellStart = require 'std.class'('ActionNode', require 'lib.skill_tree.node')
 SpellStart:register('詠唱') -- 註冊到node_list
@@ -32,9 +32,8 @@ function FlameStrike:_new()
 end
 
 function FlameStrike:run()
-    ej.DestroyEffect(ej.AddSpecialEffect('Abilities\\Spells\\Human\\FlameStrike\\FlameStrikeTarget.mdl', 0., 0.))
-    ej.AddSpecialEffect('Abilities\\Spells\\Human\\FlameStrike\\FlameStrikeTarget.mdl', 0., 0.)
-    ej.AddSpecialEffect('Abilities\\Spells\\Human\\FlameStrike\\FlameStrike1.mdl', 0., 0.)
+    View:new('Abilities\\Spells\\Human\\FlameStrike\\FlameStrikeTarget.mdl', 0., 0., 0):start()
+    View:new('Abilities\\Spells\\Human\\FlameStrike\\FlameStrike1.mdl', 0., 0., 2):start()
     self.tree_.is_finished_ = true
     self:success()
 end

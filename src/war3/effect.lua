@@ -16,8 +16,8 @@ function Effect:_new(setting, manager)
         _time_ = setting.time,
         _priority_ = setting.priority or 0,
         _mode_ = setting.mode,
-        _icon_ = setting.icon,
-        _model_ = setting.model,
+        _icon_ = setting.icon or 0,
+        _model_ = setting.model or 0,
         _model_point_ = setting.model_point,
         _global_ = setting.global,
         _max_ = setting.max,
@@ -62,7 +62,7 @@ function Effect:start(new_task)
 
     if AddTask(self, new_task) then
         self:on_add(new_task)
-        -- AddModel(self, new_task)
+        AddModel(self, new_task)
         TimerStart(self, new_task)
     end
 
@@ -125,7 +125,7 @@ Delete = function(self, task)
     end
 
     self:on_delete(task)
-    -- DeleteModel(self, task)
+    DeleteModel(self, task)
     return self
 end
 
@@ -141,13 +141,13 @@ end
 function Effect:pause(task)
     task.timer:pause()
     self:on_delete(task)
-    -- DeleteModel(self, task)
+    DeleteModel(self, task)
     return self
 end
 
 function Effect:resume(task)
     self:on_add(task)
-    -- AddModel(self, task)
+    AddModel(self, task)
 
     if task.timer then
         task.timer:resume()
@@ -159,13 +159,13 @@ function Effect:resume(task)
 end
 
 AddModel = function(self, task)
-    if not task.target:hasModel(self._model_) then
-        task.target:addModel(self._model_)
+    if not task.target:hasSkill(self._model_) then
+        task.target:addSkill(self._model_)
     end
 end
 
 TimerStart = function(self, task)
-    print('timer start')
+    -- print('timer start')
     task.timer =
         require 'war3.timer':new(
         self._period_,
@@ -187,14 +187,14 @@ end
 function Effect:finish(task)
     self:on_finish(task)
     self:on_delete(task)
-    -- DeleteModel(self, task)
+    DeleteModel(self, task)
     DeleteTask(self, task)
     return self
 end
 
 DeleteModel = function(self, task)
-    if not task.target:hasModel(self._model_) then
-        task.target:deleteModel(self._model_)
+    if not task.target:hasSkill(self._model_) then
+        task.target:removeSkill(self._model_)
     end
 end
 
@@ -204,7 +204,7 @@ DeleteTask = function(self, task)
     -- 如果是共存模式，要把暫停的任務恢復
     if self._mode_ == 1 and node.next_ and IsValid(i, self._max_) then
         self:resume(node.next_:getData())
-        print('resume ' .. i + 1)
+        -- print('resume ' .. i + 1)
     end
 
     -- delete會把node刪掉，這樣的話會抓不到next，所以要放在最後面
@@ -213,7 +213,7 @@ DeleteTask = function(self, task)
     -- 如果沒有任務就移除效果
     if self._tasks_:isEmpty() then
         self._manager_:delete(task.target, self._name_)
-        print('remove effect')
+        -- print('remove effect')
     end
 end
 

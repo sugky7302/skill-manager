@@ -4,12 +4,18 @@
 
 ### Changed:
 - **[lib/attribute]** add/set/get函數對於key=屬性名，會對加總值(數值*百分比)進行處理；如果key=屬性名%，就只會對百分比做處理。
+- **[std/ascii]** 如果參數為空，則回傳空字串或0。
+- **[war3/effect]** 修改AddModel、DeleteModel裡調用的函數名，並開通刪除技能模型的功能。
+
+### Fixed:
+- **[war3/effect]** 修正調用target:hasSkill時，因為._model_沒有預設值而導致報錯的問題。
 
 ### Todo:
-- 測試新改的attribute在unit_test/damager_processor下跟昨天有無差別。
-- 寫一個完整、可裝飾的烈焰風暴，將所有系統都串連起來。
-- 完成紅黑樹的刪除。
-- 計時器的隊列回收機制。
+- [x] 測試新改的attribute在unit_test/damager_processor下跟昨天有無差別。
+- [ ] 寫一個完整、可裝飾的烈焰風暴，將所有系統都串連起來。
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
 
 ## 0.29.0 - 2020-02-26
 
