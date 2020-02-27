@@ -151,6 +151,10 @@ function RBT:delete(index)
     return self
 end
 
+-- NOTE: 真正的刪除方法，不過先保留，因為刪除的執行量太大
+-- function RBT:delete(index)
+-- end
+
 DeleteFixedUp = function(node)
 end
 
