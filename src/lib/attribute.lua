@@ -3,7 +3,7 @@
 -- It can opperate attributes of the object via simple setting and getting.
 --
 -- Required:
---   list
+--   red_black_tree
 --
 -- Member:
 --   _rank_ - sort all attributes by the priority
@@ -55,6 +55,7 @@ function Attribute:iterator()
     end
 end
 
+-- NOTE: key=屬性名，表示要提升總值(數值*百分比)；key=屬性名%，只會提升百分比 - 2020-02-27
 function Attribute:add(key, value)
     local name, has_percent = ParseKey(key)
     CreateAttribute(self, name)
@@ -65,10 +66,11 @@ function Attribute:add(key, value)
     if has_percent then
         return self:set(key, self[name][2] + value)
     else
-        return self:set(key, self:get(key) / (1 + self[name][2] / 100) + value)
+        return self:set(key, self:get(key) + value)
     end
 end
 
+-- NOTE: key=屬性名，表示要設定總值(數值*百分比)；key=屬性名%，只會設定百分比 - 2020-02-27
 function Attribute:set(key, value)
     local name, has_percent = ParseKey(key)
 
@@ -81,7 +83,11 @@ function Attribute:set(key, value)
 end
 
 SetValue = function(self, name, has_percent, value)
-    self[name][has_percent and 2 or 1] = value
+    if has_percent then
+        self[name][2] = value
+    else
+        self[name][1] = value / (1 + self[name][2] / 100)
+    end
 end
 
 TriggerSetEvent = function(self, name)
@@ -97,10 +103,15 @@ Ranking = function(self, name)
     end
 end
 
+-- NOTE: key=屬性名，表示要取得總值(數值*百分比)；key=屬性名%，只會取得百分比 - 2020-02-27
 function Attribute:get(key)
-    local name = ParseKey(key)
+    local name, has_percent = ParseKey(key)
 
     CreateAttribute(self, name)
+
+    if has_percent then
+        return self[name][2]
+    end
 
     return TriggerGetEvent(self, name)
 end
@@ -112,8 +123,9 @@ end
 
 CreateAttribute = function(self, name)
     if not self[name] then
+        -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
         --            數值、百分比、屬性文字敘述
-        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ""}  -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
+        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ""}
         self[name][1] = TriggerGetEvent(self, name)
     end
 end
