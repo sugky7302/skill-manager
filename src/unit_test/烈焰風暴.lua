@@ -1,23 +1,20 @@
 local require = require
-local SkillManager = require 'lib.skill_manager'
-local SkillTree = require 'lib.skill_tree.skill_tree'
 local Timer = require 'war3.timer'
 local Event = require 'lib.event'
 local Group = require 'war3.group'
-local Unit = require 'war3.unit'
+local Hero = require 'war3.hero'
+local ej = require 'war3.enhanced_jass'
 
-local effect = require 'lib.effect_manager':new()
 local d = require 'lib.skill_decorator':new()
 local e = require 'lib.event_manager':new()
 local l = require 'war3.listener':new(e)
 e:addEvent(
     Event:new(
         '單位-施放技能',
-        'GetTriggerUnit GetSpellAbilityId',
-        function(_, source, ability)
-            d:append(Unit(source), "烈焰風暴-火焰強化")
-            local skill = SkillManager:new():get('烈焰風暴', Unit(source))
-            local skill_tree = SkillTree:new(skill):append(skill.scripts):setPeriod(0.01):run()
+        'GetTriggerUnit GetSpellTargetLoc',
+        function(_, source, loc)
+            d:append(Hero(source), "烈焰風暴-火焰強化")
+            local skill_tree = Hero(source):spell('烈焰風暴', loc, 0.01)
             Timer:new(
                 0.01,
                 -1,
@@ -25,30 +22,8 @@ e:addEvent(
                     skill_tree:run()
 
                     if skill_tree.is_finished_ then
-                        effect:add({
-                            name = "test",
-                            target = Unit(source),
-                            time = 2,
-                        }):add({
-                            name = "test",
-                            target = Unit(source),
-                            time = 3,
-                        })
-
-                        Timer:new(1, 1, function()
-                            effect:add({
-                                name = "test1",
-                                target = Unit(source),
-                                time = 2,
-                            }):add({
-                                name = "test1",
-                                target = Unit(source),
-                                period = 2,
-                                time = 4,
-                            })
-                        end):start()
-
                         timer:stop()
+                        ej.RemoveLocation(loc)
                     end
                 end
             ):start()

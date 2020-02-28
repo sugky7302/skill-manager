@@ -1,8 +1,8 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
 local ascii = require 'std.ascii'
-local EventManager = require 'lib.event_manager':new()
-local Listener = require 'war3.listener':new(EventManager)
+local EventManager = require 'lib.event_manager'
+local Listener = require 'war3.listener'
 local Attribute = require 'lib.attribute'
 
 local Unit = require 'std.class'("Unit")
@@ -48,6 +48,10 @@ end
 
 function Unit:getType()
     return self._type_
+end
+
+function Unit:getLoc()
+    return ej.GetUnitX(self._object_), ej.GetUnitY(self._object_)
 end
 
 function Unit:isAlive()
@@ -110,12 +114,12 @@ function Unit:getAttribute(key)
 end
 
 function Unit:listen(event_name)
-    Listener(event_name)(self._object_)
+    Listener:new(EventManager:new())(event_name)(self._object_)
     return self
 end
 
 function Unit:eventDispatch(event_name, ...)
-    EventManager:dispatch(event_name, self, ...)
+    EventManager:new():dispatch(event_name, self, ...)
     return self
 end
 

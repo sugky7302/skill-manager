@@ -10,7 +10,7 @@ local skill_script_path = {
 function SkillManager:_new()
     if not self._instance_ then
         self._instance_ = {
-            _data_ = LoadSkillScript()
+            _data_ = LoadSkillScript(),
         }
     end
 

@@ -4,4 +4,5 @@ return require 'data.load_file'("data.attribute.", {
     "hp",
     "max_atk",
     "min_atk",
+    "turn_speed",
 })

@@ -1,5 +1,32 @@
 # 更新日誌
 
+## 0.31.0 - 2020-02-28
+
+- 注意不要在包的最上面直接新建一個依賴包的實例，很容易會產生無窮循環調用的問題，要使用就在真的調用函數內使用。
+
+### Added:
+- **[data/attribute]** 新增屬性-轉身速度。
+- **[std/point]** 新增相等比較運算符。
+- **[war3/effect]** 任務新增source參數，能夠設定效果來源，方便回調函數(on_add, on_pulse, ...)執行傷害處理器或其他同時需要source和target的元件。
+- **[war3/text]**
+  - 加入週期回調函數，讓使用者能夠外部修改數據。
+  - start函數加入鏈式語法。
+- **[war3/unit]** 新增getLoc函數，能獲得單位目前的位置。
+
+### Changed:
+- **[lib/damage_processor]** 現在能夠傳入已經生成好的技能表，解決傷害處理器自己生成的表和技能樹的表不同的問題。
+
+### Fixed:
+- **[lib/damager_processor]** 修正skill_manager在調用LoadSkillScript時，因為烈焰風暴腳本依賴DamageProcessor，而DP又直接創建skill_manager，所以產生無窮循環調用的問題。只要把DP對SkillManager的建構函數放到實際函數內調用即可。
+- **[war3/hero]** 修改skill_manager和skill_decorator的依賴方式。
+- **[war3/unit]** 修改event_manager和listener的依賴方式。
+
+### Todo:
+- [x] 寫一個完整、可裝飾的烈焰風暴，將所有系統都串連起來。
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+
 ## 0.30.0 - 2020-02-27
 
 ### Changed:

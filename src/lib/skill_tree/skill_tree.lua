@@ -4,7 +4,6 @@ local SkillTree = require 'std.class'('SkillTree', require 'lib.skill_tree.node'
 local SequenceNode = require 'lib.skill_tree.sequence_node'
 local RandomNode = require 'lib.skill_tree.random_node'
 local NodeList = require 'lib.skill_tree.node_list'
-local skill_decorator = require 'lib.skill_decorator':new()
 
 NodeList:insert('seq', SequenceNode)
 NodeList:insert('rand', RandomNode)
@@ -61,10 +60,11 @@ function SkillTree:_append(parent, data)
         node.tree_ = self
 
         -- 裝飾節點
-        skill_decorator:wrap(self.skill_, node)
+        require 'lib.skill_decorator':new():wrap(self.skill_, node)
     end
 end
 
+-- NOTE: 用來記錄外部計時器的週期給動作節點用的。 - 2020-02-28
 function SkillTree:setPeriod(period)
     self.period_ = period
     return self

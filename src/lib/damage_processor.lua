@@ -1,10 +1,10 @@
 local require = require
-local skill_manager = require 'lib.skill_manager':new()
+local SkillManager = require 'lib.skill_manager'
 local Math = require 'std.math'
 
 local DP = require 'std.class'('DamageProcessor')
 local AddUp, Parse, Judge, Calculate, Process, IsDodge, IsPenetrated
-local IsCrit, GetAttack, GetDefense, DealDamage, GetRatio
+local IsCrit, GetAttack, GetDefense, DealDamage, GetRatio, CreateEvent
 
 local TYPE_A = {}
 local TYPE_B = {}
@@ -20,15 +20,7 @@ function DP:_new()
 end
 
 function DP.run(name, source, target)
-    local event = {
-        name = name,
-        source = source,
-        target = target,
-        value = 0,  -- 傷害值
-        rate = nil,  -- 物理傷害和法術傷害的占比。左邊是物理、右邊是法術
-        proc = {0, 0, 1},  -- 最小法術傷害、最大法術傷害、法術攻擊力的倍率係數
-        status = {1, 0, 0}  -- 狀態判定。判定過程可能出現閃避、穿透等特殊現象，1:格擋(T)/穿透(F)、2:閃避、3:暴擊
-    }
+    local event = CreateEvent(name, source, target)
 
     if not Parse(event) then
         return nil
@@ -44,6 +36,27 @@ function DP.run(name, source, target)
     return event.status, event.value
 end
 
+CreateEvent = function(name, source, target)
+    local event = {
+        name = name,
+        source = source,
+        target = target,
+        value = 0,  -- 傷害值
+        rate = nil,  -- 物理傷害和法術傷害的占比。左邊是物理、右邊是法術
+        proc = nil,  -- 最小法術傷害、最大法術傷害、法術攻擊力的倍率係數
+        status = {1, 0, 0}  -- 狀態判定。判定過程可能出現閃避、穿透等特殊現象，1:格擋(T)/穿透(F)、2:閃避、3:暴擊
+    }
+
+    -- 如果是傳入技能表，會將數據匯入事件
+    if type(name) == 'table' then
+        event.name = name.name
+        event.rate = name.rate
+        event.proc = name.proc
+    end
+
+    return event
+end
+
 Parse = function(event)
     if event.source == event.target then
         return false
@@ -54,7 +67,11 @@ Parse = function(event)
         return true
     end
 
-    local skill = skill_manager:query(event.name)
+    if event.rate and event.proc then
+        return true
+    end
+
+    local skill = SkillManager:new():query(event.name)
     if not skill then
         return false
     end

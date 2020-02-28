@@ -42,6 +42,10 @@ function Point:__div(scale)
     return Point:new(self.x / scale, self.y / scale, self.z / scale)
 end
 
+function Point:__eq(p)
+    return self.x == p.x and self.y == p.y and self.z == p.z
+end
+
 function Point:copy()
     return Point:new(self.x, self.y, self.z)
 end
