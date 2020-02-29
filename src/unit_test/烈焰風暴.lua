@@ -13,7 +13,7 @@ e:addEvent(
         '單位-施放技能',
         'GetTriggerUnit GetSpellTargetLoc',
         function(_, source, loc)
-            d:append(Hero(source), "烈焰風暴-火焰強化")
+            d:append(Hero(source), "烈焰風暴*傷害-火焰強化")
             local skill_tree = Hero(source):spell('烈焰風暴', loc, 0.01)
             Timer:new(
                 0.01,
@@ -22,6 +22,7 @@ e:addEvent(
                     skill_tree:run()
 
                     if skill_tree.is_finished_ then
+                        skill_tree:remove()
                         timer:stop()
                         ej.RemoveLocation(loc)
                     end

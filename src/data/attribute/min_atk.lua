@@ -1,7 +1,7 @@
 local japi = require 'jass.japi'
 
 return {
-    file_key = '最小攻擊力',
+    name = '最小攻擊力',
     set = function(self, value)
         -- -1是讓面板顯示正常
         japi.SetUnitState(self._object_, 0x12, value - 1)

@@ -1,5 +1,32 @@
 # 更新日誌
 
+## 0.32.0 - 2020-02-29
+
+- 今天轉身速度設為0後，又可以讓施法者無法轉身了。
+- 效果管理器和技能樹不太合，要調整使用方式，而且顯示文字可能要直接嵌入傷害處理器，不然外部自己用會很麻煩。
+
+### Added:
+- **[data]** 新增status資料夾，處理Status各狀態的設值函數。
+- **[data/effect/public]** 新增點燃效果。
+- **[data/skill]** 加入template資料夾，放入技能模板節點，並由skill_tree調用與註冊。
+- **[lib]** 新增Status類別，專職處理各種狀態。
+- **[lib/skill_tree/decider_node]** 新增remove函數，刪除自身前會先刪除子節點。
+- **[lib/skill_tree/skill_tree]**
+  - 新增remove函數，刪除自身前會刪除root節點。
+  - 新增_param_私有成員，可存取全樹共用的參數，並使用setParam/getParam/deleteParam進行設值/取值/刪除的功能。
+- **[war3/hero]** 新增status參數
+- **[war3/unit]** 新增status參數，處理狀態。
+
+### Changed:
+- **[data/load_file]** 因為大部分的管理器都是讀取name，為了不多寫，所以讀取file_key改成name。
+
+### Todo:
+- [x] 修正原地施法可以轉身的問題，轉身速度好像無效了。
+- [x] 烈焰風暴加入效果，並使用通魔更換原技能。
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+
 ## 0.31.0 - 2020-02-28
 
 - 注意不要在包的最上面直接新建一個依賴包的實例，很容易會產生無窮循環調用的問題，要使用就在真的調用函數內使用。

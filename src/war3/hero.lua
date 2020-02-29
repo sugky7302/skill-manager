@@ -1,8 +1,15 @@
 local require = require
 local Hero = require 'std.class'("Hero", require 'war3.unit')
+local AddStatus
 
 function Hero:_new(unit)
-    return self:super():_new(unit)
+    local hero = self:super():_new(unit)
+    AddStatus(hero)
+    return hero
+end
+
+AddStatus = function(hero)
+    hero._status_:set("移動施法", false)
 end
 
 function Hero:__call(unit)

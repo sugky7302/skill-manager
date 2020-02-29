@@ -4,15 +4,17 @@ local ascii = require 'std.ascii'
 local EventManager = require 'lib.event_manager'
 local Listener = require 'war3.listener'
 local Attribute = require 'lib.attribute'
+local Status = require 'lib.status'
 
 local Unit = require 'std.class'("Unit")
-local SetSkillStatus
+local SetSkillStatus, CreateStatusTable
 
 function Unit:_new(unit)
     local instance = {
         _object_ = unit,
         _id_ = ej.H2I(unit),
         _type_ = ascii.encode(ej.U2Id(unit)),
+        _status_ = Status:new(unit, CreateStatusTable()),
         _attribute_ = Attribute:new(unit),
         owner_ = ej.getPlayer(unit),  -- HACK: 暫時隨便寫一個，等到Player類別確定再改
     }
@@ -23,8 +25,16 @@ function Unit:_new(unit)
     return instance
 end
 
+CreateStatusTable = function()
+    return {
+        ["無法轉身"] = false,
+        ["無法移動"] = false,
+        ["無法攻擊"] = false,
+    }
+end
+
 function Unit:_remove()
-    ej.RemoveUnit(self._object_)
+    ej.removeUnit(self._object_)
     Unit[self._object_] = nil
 end
 
@@ -111,6 +121,15 @@ end
 
 function Unit:getAttribute(key)
     return self._attribute_:get(key)
+end
+
+function Unit:setStatus(key, status)
+    self._status_:set(key, status)
+    return self
+end
+
+function Unit:hasStatus(key)
+    return self._status_:has(key)
 end
 
 function Unit:listen(event_name)

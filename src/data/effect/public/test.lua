@@ -1,7 +1,7 @@
 return {
     name = "test",
     class = "a",
-    value = {0.5, 1},
+    value = {1, 0.5},
     period = 1,
     time = 3,
     mode = 1,

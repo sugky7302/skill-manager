@@ -12,6 +12,13 @@ function Decider:_new()
     return instance
 end
 
+function Decider:_remove()
+    for i, node in ipairs(self._children_) do
+        node:remove()
+        self._children_[i] = nil
+    end
+end
+
 function Decider:append(leaf_node)
     self._children_[#self._children_+1] = leaf_node
     leaf_node.parent_ = self

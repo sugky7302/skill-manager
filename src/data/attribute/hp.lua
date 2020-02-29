@@ -3,7 +3,7 @@ local ej = require 'war3.enhanced_jass'
 local Math = require 'std.math'
 
 return {
-    file_key = '生命',
+    name = '生命',
     set = function(self, value)
         if value > 0.3 then
             ej.SetWidgetLife(self._object_, value)

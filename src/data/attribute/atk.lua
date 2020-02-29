@@ -1,5 +1,5 @@
 return {
-    file_key = "攻擊力",
+    name = "攻擊力",
     set = function(self, value)
         print("set")
     end,

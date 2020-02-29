@@ -194,7 +194,7 @@ function Effect:finish(task)
 end
 
 DeleteModel = function(self, task)
-    if not task.target:hasSkill(self._model_) then
+    if task.target:hasSkill(self._model_) then
         task.target:removeSkill(self._model_)
     end
 end
