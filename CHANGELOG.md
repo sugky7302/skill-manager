@@ -16,7 +16,6 @@
 
 ### Todo:
 - [x] 整合文字和傷害處理器，讓效果也能使用。
-- [ ] 所有單例模式如damager_processor、skill_decorator、skill_manager、event_manager、listener改成對象，但要考慮無窮循環調用的問題。
 - [ ] 完成紅黑樹的刪除。
 - [ ] 計時器的隊列回收機制。
 - [ ] effect_manager、effect有print。
