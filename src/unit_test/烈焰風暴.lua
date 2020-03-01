@@ -14,6 +14,7 @@ e:addEvent(
         'GetTriggerUnit GetSpellTargetLoc',
         function(_, source, loc)
             d:append(Hero(source), "烈焰風暴*傷害-火焰強化")
+            d:append(Hero(source), "烈焰風暴*傷害-強化點燃")
             local skill_tree = Hero(source):spell('烈焰風暴', loc, 0.01)
             Timer:new(
                 0.01,

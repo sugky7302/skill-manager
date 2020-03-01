@@ -62,6 +62,10 @@ Parse = function(event)
         return false
     end
 
+    if not event.target:isAlive() then
+        return false
+    end
+
     if event.name == '普通攻擊' then
         event.rate = {1, 0} -- 物理傷害和法術傷害的占比。左邊是物理、右邊是法術
         return true

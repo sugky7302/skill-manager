@@ -24,11 +24,11 @@ function Effect:_new(setting, manager)
         _keep_after_death_ = setting.keep_after_death or false,
         _manager_ = manager,
         _tasks_ = require 'std.list':new(),
-        on_add = setting.on_add,
-        on_delete = setting.on_delete,
-        on_finish = setting.on_finish,
+        on_add = setting.on_add or function() end,
+        on_delete = setting.on_delete or function() end,
+        on_finish = setting.on_finish or function() end,
         on_cover = setting.on_cover,
-        on_pulse = setting.on_pulse
+        on_pulse = setting.on_pulse or function() end,
     }
 end
 

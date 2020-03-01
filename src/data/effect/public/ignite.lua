@@ -1,4 +1,4 @@
-local DP = require 'lib.damage_processor'
+local Combat = require 'war3.combat'
 return {
     name = "點燃",
     class = "a",
@@ -9,13 +9,7 @@ return {
     priority = 15,
     max = 1,
     model = 'A001',
-    on_add = function(self, task)
-    end,
-    on_delete = function(self, task)
-    end,
-    on_finish = function(self, task)
-    end,
     on_pulse = function(self, task)
-        print(DP:new().run(task.value, task.source, task.target))
+        Combat(task.value, task.source, task.target)
     end
 }

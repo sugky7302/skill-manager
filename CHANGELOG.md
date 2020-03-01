@@ -1,5 +1,26 @@
 # 更新日誌
 
+## 1.0.0 - 2020-03-01
+
+- 完成技能管理器。
+
+### Added:
+- **[war3]** 遵從函數不復用原則，新增Combat函數，整合傷害處理器和漂浮文字。調用後會啟動傷害處理器並顯示文字，方便使用。
+
+### Changed:
+- skill腳本只要新增效果的數值表，例如rate、proc，並於效果任務的value引用數值表，這樣就能在回調函數的task.value使用此表，而且動作節點如果使用裝飾器，裡面也會連動。
+- **[war3/effect]** on_add、on_delete_on_finish、on_pulse會有預設函數，腳本就不需要每個都寫。
+
+### Fixed:
+- **[lib/damage_processor]** 修正單位已死亡也還是會執行傷害處理器的問題。
+
+### Todo:
+- [x] 整合文字和傷害處理器，讓效果也能使用。
+- [ ] 所有單例模式如damager_processor、skill_decorator、skill_manager、event_manager、listener改成對象，但要考慮無窮循環調用的問題。
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+
 ## 0.32.0 - 2020-02-29
 
 - 今天轉身速度設為0後，又可以讓施法者無法轉身了。
@@ -7,7 +28,7 @@
 
 ### Added:
 - **[data]** 新增status資料夾，處理Status各狀態的設值函數。
-- **[data/effect/public]** 新增點燃效果。
+- **[data/effect/public]** 新增點燃效果。增status資料夾，處理Status各狀態的設值函數
 - **[data/skill]** 加入template資料夾，放入技能模板節點，並由skill_tree調用與註冊。
 - **[lib]** 新增Status類別，專職處理各種狀態。
 - **[lib/skill_tree/decider_node]** 新增remove函數，刪除自身前會先刪除子節點。

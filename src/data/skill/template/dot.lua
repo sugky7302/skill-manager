@@ -20,19 +20,19 @@ function Dot:run()
         self.count_ = self.count_ - 1
         self.period_ = self._period_
     end
-    
+
     if self.count_ < 1 then
         self:on_finish()
         self:success()
         return
     end
-    
+
     self.period_ = self.period_ - self.tree_.period_
     self:running()
 end
 
 function Dot:on_pulse()
-    self:showText(self:dealDamage())
+    self:dealDamage()
 end
 
 function Dot:on_finish()

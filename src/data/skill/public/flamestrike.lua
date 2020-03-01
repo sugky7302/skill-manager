@@ -42,11 +42,11 @@ function FlameShot:on_pulse()
             self.tree_.skill_.target = Unit(this.units_[i])
             EffectManager:new():add{
                 name = "點燃",
-                value = {rate={0, 1}, proc={3, 4, 0.5}},
+                value = self.tree_.skill_.ignite,
                 source = self.tree_.skill_.source,
                 target = Unit(this.units_[i]),
             }
-            self:showText(self:dealDamage())
+            self:dealDamage()
         end
     ):remove()
 end
@@ -65,16 +65,29 @@ local function EnhanceFire(node)
     end
 end
 
+local function EnhanceIgnite(node)
+    local on_pulse = node.on_pulse
+    node.on_pulse = function(self)
+        self.tree_.skill_.ignite.proc = {10, 20, 1}
+        on_pulse(self)
+    end
+end
+
 return {
     name = '烈焰風暴',
     rate = {0, 1}, -- 物理傷害比例, 法術傷害比例
     proc = {18, 24, 0.5},
+    ignite = {
+        rate = {0, 1},
+        proc = {3, 4, 0.5},
+    },
     scripts = {
         {id = '詠唱', args = {2}},
         {id = '烈焰風暴'},
         {id = '烈焰風暴*傷害', args = {1, 3}}
     },
     decorators = {
-        {'烈焰風暴*傷害-火焰強化', EnhanceFire}
+        {'烈焰風暴*傷害-火焰強化', EnhanceFire},
+        {'烈焰風暴*傷害-強化點燃', EnhanceIgnite},
     }
 }
