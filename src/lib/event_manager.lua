@@ -1,6 +1,7 @@
 local require = require
-local EventManager = require 'std.class'("EventManager")
 local Table = require 'std.table'
+local Event = require 'lib.event'
+local EventManager = require 'std.class'("EventManager")
 local AddArgs
 
 function EventManager:_new()
@@ -13,7 +14,10 @@ function EventManager:_new()
     return self._instance_
 end
 
-function EventManager:addEvent(event)
+function EventManager:addEvent(name, args, callback)
+    -- NOTE: 內部新建Event實例，外部就不用特別require - 2020-03-04
+    local event = Event:new(name, args, callback)
+
     local event_queue = self._events_[event.name_]
     if not event_queue then
         event_queue = {args={}}

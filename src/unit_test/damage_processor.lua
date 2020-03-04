@@ -2,7 +2,6 @@ local require = require
 local ej = require 'war3.enhanced_jass'
 local DP = require 'lib.damage_processor':new()
 local e = require 'lib.event_manager':new()
-local Event = require 'lib.event'
 local Unit = require 'war3.unit'
 local Timer = require 'war3.timer'
 local Text = require 'war3.text'
@@ -11,19 +10,17 @@ local Math = require 'std.math'
 local ShowText
 
 e:addEvent(
-    Event:new(
-        '單位-受到傷害',
-        'GetEventDamageSource GetTriggerUnit',
-        function(_, source, target)
-            -- 先將當前傷害值歸零，以免實際扣血 ~= 預計扣血
-            require 'jass.japi'.EXSetEventDamage(0)
+    '單位-受到傷害',
+    'GetEventDamageSource GetTriggerUnit',
+    function(_, source, target)
+        -- 先將當前傷害值歸零，以免實際扣血 ~= 預計扣血
+        require 'jass.japi'.EXSetEventDamage(0)
 
-            local status, value = DP.run('普通攻擊', Unit(source), Unit(target))
-            if status then
-                ShowText(target, status, value)
-            end
+        local status, value = DP.run('普通攻擊', Unit(source), Unit(target))
+        if status then
+            ShowText(target, status, value)
         end
-    )
+    end
 )
 
 ShowText = function(target, status, value)

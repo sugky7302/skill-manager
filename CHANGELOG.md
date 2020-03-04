@@ -1,5 +1,16 @@
 # 更新日誌
 
+## 1.1.0 - 2020-03-04
+
+### Changed:
+- **[lib/event_manager]** addEvent的參數從event改成Event的參數，由內部生成Event實例。
+- **[unit_test]** 有關event_manager:addEvent都做了修改。
+
+### Todo:
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+
 ## 1.0.0 - 2020-03-01
 
 - 完成技能管理器。

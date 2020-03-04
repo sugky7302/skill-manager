@@ -184,7 +184,7 @@ LeftRotate = function(self, old)
         new.left_.parent_ = old
     end
 
-    -- 處理新根節點變到舊根節點的位置的關係
+    -- 處理新根節點移到舊根節點的位置的關係
     new.parent_ = old.parent_
 
     if not old.parent_ then
