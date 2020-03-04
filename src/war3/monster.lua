@@ -1,7 +1,7 @@
 local require = require
-local ej = require 'war3.enhanced_jass'
+local Unit = require 'war3.unit'
 
-local Monster = require 'std.class'('Monster', require 'war3.unit')
+local Monster = require 'std.class'('Monster', Unit)
 local InitAttribute, SetRevivePoint
 
 function Monster:_new(unit)
@@ -11,11 +11,11 @@ function Monster:_new(unit)
 end
 
 SetRevivePoint = function(self)
-    self._revive_point_ = require 'std.point':new(ej.GetUnitX(self._object_), ej.GetUnitY(self._object_))
+    self._revive_point_ = require 'std.point':new(Unit.getLoc(self))
 end
 
 InitAttribute = function(self)
-    local unit_data = require 'jass.slk'.unit[require 'std.ascii'.encode(ej.U2Id(self._object_))]
+    local unit_data = require 'jass.slk'.unit[self._type_]
 
     if not unit_data then
         return self

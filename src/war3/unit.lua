@@ -1,6 +1,5 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
-local ascii = require 'std.ascii'
 local EventManager = require 'lib.event_manager'
 local Listener = require 'war3.listener'
 local Attribute = require 'lib.attribute'
@@ -13,7 +12,7 @@ function Unit:_new(unit)
     local instance = {
         _object_ = unit,
         _id_ = ej.H2I(unit),
-        _type_ = ascii.encode(ej.U2Id(unit)),
+        _type_ = ej.U2S(unit),
         _status_ = Status:new(unit, CreateStatusTable()),
         _attribute_ = Attribute:new(unit),
         owner_ = ej.getPlayer(unit),  -- HACK: 暫時隨便寫一個，等到Player類別確定再改
@@ -44,7 +43,7 @@ end
 
 -- NOTE: 直接return ej.CreateUnit不會回傳單位
 function Unit.create(unit_type, player, loc)
-    local new_unit = ej.CreateUnit(player, ascii.decode(unit_type), loc.x, loc.y, 0)
+    local new_unit = ej.CreateUnit(player, ej.decode(unit_type), loc.x, loc.y, 0)
     return new_unit
 end
 
@@ -81,16 +80,16 @@ function Unit:disableSkill(skill)
 end
 
 SetSkillStatus = function(self, skill, status)
-    ej.SetPlayerAbilityAvailable(self.owner_, ascii.decode(skill), status)
+    ej.SetPlayerAbilityAvailable(self.owner_, ej.decode(skill), status)
     return self
 end
 
 function Unit:hasSkill(skill)
-    return ej.GetUnitAbilityLevel(self._object_, ascii.decode(skill)) > 0
+    return ej.GetUnitAbilityLevel(self._object_, ej.decode(skill)) > 0
 end
 
 function Unit:addSkill(skill, lv)
-    skill = ascii.decode(skill)
+    skill = ej.decode(skill)
     lv = lv or 1
 
     ej.UnitAddAbility(self._object_, skill)
@@ -99,12 +98,12 @@ function Unit:addSkill(skill, lv)
 end
 
 function Unit:removeSkill(skill)
-    ej.UnitRemoveAbility(self._object_, ascii.decode(skill))
+    ej.UnitRemoveAbility(self._object_, ej.decode(skill))
     return self
 end
 
 function Unit:resetSkill(skill)
-    local lv = ej.GetUnitAbilityLevel(self._object_, ascii.decode(skill))
+    local lv = ej.GetUnitAbilityLevel(self._object_, ej.decode(skill))
     self:removeSkill(skill):addSkill(skill, lv)
     return self
 end

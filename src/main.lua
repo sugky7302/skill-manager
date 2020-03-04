@@ -1,5 +1,5 @@
 local function Main()
-    require 'unit_test.烈焰風暴'
+    require 'unit_test.monster'
 end
 
 Main()

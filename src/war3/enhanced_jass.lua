@@ -357,6 +357,8 @@ local order_list = {
 
 local ej = {
     __index = cj,
+    decode = ascii.decode,
+    encode = ascii.encode,
     H2I = function(h)
         return cj.GetHandleId(h)
     end,
@@ -393,6 +395,10 @@ local ej = {
     -- 設定生命週期利用war3機制自動刪除，會比用RemoveUnit乾淨，內存絕不會漏掉
     removeUnit = function(unit)
         cj.UnitApplyTimedLife(unit, ascii.decode('BHwe'), 0.03)
+    end,
+    removeItem = function(item)
+        cj.SetWidgetLife(item, 1)
+        cj.RemoveItem(item)
     end,
     setLifeTime = function(unit, timeout)
         cj.UnitApplyTimedLife(unit, ascii.decode('BHwe'), timeout)

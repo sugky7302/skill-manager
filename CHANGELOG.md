@@ -2,9 +2,15 @@
 
 ## 1.1.0 - 2020-03-04
 
+### Added:
+- **[war3/enhanced_jass]**
+  - 新增removeItem函數，能夠乾淨刪除物品。
+  - 新增encode、decode函數，直接引用ascii，這樣使用ej的包就解耦ascii了。
+
 ### Changed:
 - **[lib/event_manager]** addEvent的參數從event改成Event的參數，由內部生成Event實例。
 - **[unit_test]** 有關event_manager:addEvent都做了修改。
+- **[war3/monster]** 與ej、ascii解耦，單純繼承unit。
 
 ### Todo:
 - [ ] 完成紅黑樹的刪除。
