@@ -11,6 +11,29 @@
 ## 單一職責
 強化原we的物品功能。
 
+## 測試腳本
+- 堆疊物品
+  - 當英雄獲得物品
+  - 調用"堆疊"函數。於此檢查有無相同物品，有的話堆疊
+- 拾取裝備
+  - 當英雄獲得裝備
+  - 添加裝備的屬性於英雄
+- 丟棄裝備
+  - 當英雄丟棄裝備
+  - 移除裝備的屬性於英雄
+- 使用裝備
+  - 當英雄點擊裝備
+  - 以對話框顯示裝備屬性
+- 使用藥品
+  - 當英雄使用消耗品且此消耗品類型為藥品
+  - 對英雄添加藥品的效果，調用"使用"函數
+- 英雄施放珠寶的技能
+  - 當英雄點擊珠寶對某裝備施放"鑲嵌"技能
+  - 記錄該裝備為此珠寶的施放對象
+- 使用珠寶
+  - 當英雄使用珠寶
+  - 如果珠寶特性符合孔特性，則添加珠寶屬性於施放對象，否則返還珠寶
+
 ## 依賴
 - enhanced_jass as ej
 
@@ -46,7 +69,7 @@
         self._id_ <- ej.H2I(item)
         self._type_ <- ej.Item2S(item)
         self.owner_ <- nil
-        Item[item] <- self
+        將self註冊進Item裡
     end func
 ```
 
@@ -57,7 +80,7 @@
 - 隱藏細節: 如果找不到實例會生成一個。
 ```
     func ()(item)
-        return Item[item] or a new Item for item
+        return 根據item索引從Item中獲得實例 or a new Item for item
     end func
 ```
 
@@ -66,28 +89,79 @@
 - 輸出: 操作對象
 - 說明: 回傳當前實例的操作對象。
 - 隱藏細節: X
+```
+    func getObject()
+        return self.object
+    end func
+```
 
 ### getId
 - 輸入: X
 - 輸出: 編號
 - 說明: 回傳當前實例的唯一編號。
 - 隱藏細節: X
+```
+    func getId()
+        return self.id
+    end func
+```
 
 ### getType
 - 輸入: X
 - 輸出: 類型
 - 說明: 回傳當前實例的物品類型。
 - 隱藏細節: X
+```
+    func getType()
+        return self.type
+    end func
+```
 
 ### setCharge
 - 輸入: 數量
 - 輸出: X
 - 說明: 設定當前實例的數量。
 - 隱藏細節: 如果數量<=0，會刪除物品。
+```
+    func setCharge(count)
+        count <- max(count, 0)
+
+        if count > 0 then
+            the charges of self.object is setted by count
+        else
+            remove self.object
+        end if
+    end func
+```
 
 ### getCharge
 - 輸入: X
 - 輸出: 數量
 - 說明: 回傳當前實例的數量。
 - 隱藏細節: X
+```
+    func getCharge()
+        return the charges of self.object
+    end func
+```
+
+### stack
+- 輸入: X
+- 輸出: X
+- 說明: 檢查擁有者有無相同物品，有的話會堆疊。
+- 隱藏細節: 此函數為空函數，需要子類別實現。
+```
+    func stack()
+    end func
+```
+
+### use
+- 輸入: X
+- 輸出: X
+- 說明: 觸發使用此物品會產生的效果。
+- 隱藏細節: 此函數為空函數，需要子類別實現。
+```
+    func use()
+    end func
+```
 

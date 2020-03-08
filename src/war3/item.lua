@@ -1,7 +1,11 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
-local ascii = require 'std.ascii'
 local Item = require 'std.class'("Item")
+
+function Item.create(item_type, loc)
+    local item = ej.CreateItem(ej.decode(item_type), loc.x, loc.y)
+    return item
+end
 
 function Item:_new(item)
     local this = {
@@ -14,6 +18,10 @@ function Item:_new(item)
     -- 將實例綁在類別上，方便呼叫
     self[item] = this
     return this
+end
+
+function Item:_remove()
+    ej.removeItem(self._object_)
 end
 
 function Item:__call(item)
@@ -30,6 +38,27 @@ end
 
 function Item:getType()
     return self._type_
+end
+
+function Item:setCharge(count)
+    count = math.max(count, 0)
+
+    if count > 0 then
+        ej.SetItemCharges(self._object_, count)
+    else
+        self:remove()
+    end
+end
+
+function Item:getCharge()
+    return ej.GetItemCharges(self._object_)
+end
+
+
+function Item:stack()
+end
+
+function Item:use()
 end
 
 return Item
