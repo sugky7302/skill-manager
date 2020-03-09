@@ -40,6 +40,10 @@ function Item:getType()
     return self._type_
 end
 
+function Item:addCharge(count)
+    self:setCharge(self:getCharge() + count)
+end
+
 function Item:setCharge(count)
     count = math.max(count, 0)
 

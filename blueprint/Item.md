@@ -117,6 +117,17 @@
     end func
 ```
 
+### addCharge
+- 輸入: 數量
+- 輸出: X
+- 說明: 增加當前實例的數量。
+- 隱藏細節: 會先和當前數量加總再設定，全部都只是操作getCharge和setCharge而已。
+```
+    func addCharge(count)
+        self.setCharge(self.getCharge() + count)
+    end func
+```
+
 ### setCharge
 - 輸入: 數量
 - 輸出: X
@@ -129,7 +140,7 @@
         if count > 0 then
             the charges of self.object is setted by count
         else
-            remove self.object
+            remove self
         end if
     end func
 ```

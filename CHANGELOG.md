@@ -1,9 +1,25 @@
 # 更新日誌
 
+## 1.3.0 - 2020-03-09
+
+### Added:
+- **[war3]** 新增Consumable類別。
+
+### Todo:
+- [ ] 實現unit的items()迭代器。
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+
 ## 1.2.0 - 2020-03-08
 
 ### Added:
-- **[war3/item]** 新增item類別。
+- **[war3]** 新增item類別。
+
+### Todo:
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
 
 ## 1.1.0 - 2020-03-04
 
