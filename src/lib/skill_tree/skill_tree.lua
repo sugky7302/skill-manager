@@ -1,6 +1,4 @@
 local require = require
-
-local SkillTree = require 'std.class'('SkillTree', require 'lib.skill_tree.node')
 local SequenceNode = require 'lib.skill_tree.sequence_node'
 local RandomNode = require 'lib.skill_tree.random_node'
 local NodeList = require 'lib.skill_tree.node_list'
@@ -8,6 +6,8 @@ require 'data.skill.template.init'  -- 加載技能模板節點，它們會自�
 
 NodeList:insert('seq', SequenceNode)
 NodeList:insert('rand', RandomNode)
+
+local SkillTree = require 'std.class'('SkillTree', require 'lib.skill_tree.node')
 
 function SkillTree:_new(skill, root)
     local instance = self:super()._new(self)
@@ -81,7 +81,7 @@ function SkillTree:setPeriod(period)
 end
 
 function SkillTree:setParam(key, value)
-    self._param_[key] = v
+    self._param_[key] = value
     return self
 end
 

@@ -1,6 +1,8 @@
 local require = require
-local SkillManager = require 'std.class'('SkillManager')
+local Decorator = require 'lib.skill_decorator'
+local Tree = require 'lib.skill_tree.skill_tree'
 local Table = require 'std.table'
+local SkillManager = require 'std.class'('SkillManager')
 
 local LoadSkillScript
 local skill_script_path = {
@@ -19,7 +21,7 @@ end
 
 -- NOTE: 資料索引為檔案名，因此data資料夾下的所有腳本不得重名
 LoadSkillScript = function()
-    local skill_decorator = require 'lib.skill_decorator':new()
+    local skill_decorator = Decorator:new()
     local ipairs = ipairs
     local scripts, data = {}
 
@@ -49,16 +51,20 @@ LoadSkillScript = function()
     return scripts
 end
 
-function SkillManager:get(skill_name, source, target)
+function SkillManager:get(skill_name, source, target, period)
     local skill = Table.copy(self._data_[skill_name])
     skill.source = source
     skill.target = target or source
 
-    return skill
+    return Tree:new(skill):append(skill.scripts):setPeriod(period)
 end
 
 function SkillManager:query(skill_name)
     return self._data_[skill_name]
+end
+
+function SkillManager:decorate(unit, decorator_name)
+    Decorator:new():append(unit, decorator_name)
 end
 
 return SkillManager

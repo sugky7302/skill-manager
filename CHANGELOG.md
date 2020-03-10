@@ -1,5 +1,23 @@
 # 更新日誌
 
+## 1.4.0 - 2020-03-10
+
+### Added:
+- **[war3/hero]**
+  - 新增items迭代器。
+  - 新增obtainItem函數，當英雄拾取物品時調用，會登記英雄對此物品的權限，items迭代器會用到。
+  - 新增dropItem函數，當英雄丟棄物品時調用，會註銷英雄對此物品的權限，items迭代器會用到。
+
+### Changed:
+- **[lib/skill_manager]** 將skill_decorator、skill_tree整合進skill_manager，讓skill_manager成為對外窗口。
+
+### Todo:
+- [x] 實現hero的items()迭代器。
+- [x] 將skill_decorator、skill_tree整合進skill_manager，讓skill_manager成為對外窗口。
+- [ ] 完成紅黑樹的刪除。
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+
 ## 1.3.0 - 2020-03-09
 
 ### Added:

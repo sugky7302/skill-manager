@@ -14,7 +14,6 @@ function Consumable:stack()
         return false
     end
 
-    -- BUG: unit:items迭代器還沒實現
     for _, item in self.owner_:items() do
         if item:getType() == self._type_ then
             item:addCharge(self:getCharge())
