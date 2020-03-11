@@ -60,6 +60,7 @@ end
 
 
 function Item:stack()
+    return false
 end
 
 function Item:use()

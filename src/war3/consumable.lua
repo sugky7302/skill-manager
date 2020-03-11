@@ -9,18 +9,20 @@ function Consumable:__call(item)
     return self:super().__call(self, item)
 end
 
-function Consumable:stack()
-    if not self.owner_ then
+function Consumable:stack(user)
+    if not user or user.type ~= "Hero" then
         return false
     end
 
-    for _, item in self.owner_:items() do
+    for _, item in user:items() do
         if item:getType() == self._type_ then
             item:addCharge(self:getCharge())
             self:remove()
-            return
+            return true
         end
     end
+
+    return false
 end
 
 return Consumable
