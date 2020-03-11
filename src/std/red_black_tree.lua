@@ -32,7 +32,7 @@ local Node = {
 -- 紅黑樹
 local require = require
 local RBT = require 'std.class'('RedBlackTree')
-local LeftRotate, RightRotate, InsertFixedUp, DeleteFixedUp
+local LeftRotate, RightRotate, InsertFixedUp, DeleteFixedUp, Replace
 
 function RBT:_new()
     return {
@@ -152,10 +152,117 @@ function RBT:delete(index)
 end
 
 -- NOTE: 真正的刪除方法，不過先保留，因為刪除的執行量太大
--- function RBT:delete(index)
--- end
+function RBT:_delete(index)
+    local node = self:find(index)
 
-DeleteFixedUp = function(node)
+    if not node then
+        return false
+    end
+
+    -- 搜尋替代節點，記得把替代節點的值給原本的節點，這樣才算刪除
+    if node.left_ and node.right_ then
+        local origin = node
+        node = Replace(node)
+        origin._index_ = node._index_
+        origin._data_ = node._data_
+    end
+
+    local replaced_node = node.left_ or node.right_
+
+    if not node.parent_ then
+        self._root_ = replaced_node
+    elseif node == node.parent_.left_ then
+        node.parent_.left_ = replaced_node
+    else
+        node.parent_.right_ = replaced_node
+    end
+
+    if node.color_ == 1 then
+        -- 如果替代節點是nil，造一個簡單的表讓DelteFixdUp能夠操作就好
+        DeleteFixedUp(replaced_node or {parent_ = node, color_ = 1})
+    end
+end
+
+Replace = function(node)
+    local replaced_node
+
+    if node.right_ then
+        replaced_node = node.right_
+
+        while replaced_node.left_ do
+            replaced_node = replaced_node.left_
+        end
+
+        return replaced_node
+    end
+
+    replaced_node = node.parent_
+
+    while replaced_node and node == replaced_node.right_ do
+        node = replaced_node
+        replaced_node = replaced_node.parent_
+    end
+
+    return replaced_node
+end
+
+-- BUG: Case只是寫上去而已，brother=nil的狀況還沒處理
+DeleteFixedUp = function(self, node)
+    local direct, brother  -- direct = 0(左) or 1(右)
+
+    while node ~= self._root_ and node.color_ == 1 do
+        -- 根據父節點在祖父節點的位置，獲得brother節點
+        direct = node == node.parent_.left_ and 'right_' or 'left_'
+        brother = node.parent_[direct]
+
+        -- Case1: 如果brother是紅色
+        if brother and brother.color_ == 0 then
+            brother.color_ = 1
+            node.parent_.color_ = 0
+
+            if direct == "right_" then
+                LeftRotate(self, node.parent_)
+            else
+                RightRotate(self, node.parent_)
+            end
+
+            brother = node.parent_[direct]
+        end
+
+        -- Case2: brother的兩個child都是黑色
+        if brother.left_.color_ == 1 and brother.right_.color_ == 1 then
+            brother.color_ = 0
+            node = node.parent_
+        else
+            -- Case3: brother的right child是黑的, left child是紅色
+            if brother[direct].color_ == 1 then
+                brother[direct == "left_" and "right_" or "left_"].color_ = 1
+                brother.color_ = 0
+
+                if direct == "right_" then
+                    RightRotate(self, brother)
+                else
+                    LeftRotate(self, brother)
+                end
+
+                brother = node.parent_[direct]
+            end
+
+            -- 經過Case3後, 一定會變成Case4
+            -- Case4: brother的right child 是紅色的, left child是黑色
+            brother.color_ = node.parent_.color_
+            node.parent_.color_ = 1
+            brother[direct].color_ = 1
+
+            if direct == "right_" then
+                LeftRotate(self, node.parent_)
+            else
+                RightRotate(self, node.parent_)
+            end
+
+            node = self._root_
+        end
+    end
 end
 
 -- HACK: 因為刪除很麻煩，先用標記代替，所以搜尋時要跳過被標記的節點

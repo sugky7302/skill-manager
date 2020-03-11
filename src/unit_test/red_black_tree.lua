@@ -7,3 +7,9 @@ RBT:insert(0, "d")
 for v in RBT:iterator() do
     print(v)
 end
+
+RBT:delete(3)
+
+for v in RBT:iterator() do
+    print(v)
+end
