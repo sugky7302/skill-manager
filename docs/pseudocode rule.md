@@ -119,9 +119,10 @@ end for
 ## 函數
 
 使用func開頭來宣告，參數的類型不一定要寫。
+參數可以在()中設定預設值。
 
 ```
-func 名稱(a:number, b:str)
+func 名稱(a:number, b:str=1)
 	動作
 end func
 ```
