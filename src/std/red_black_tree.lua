@@ -9,7 +9,7 @@ local Node = {
             parent_ = nil,
             left_ = nil,
             right_ = nil,
-            is_deleted_ = false,
+            is_deleted_ = false
         }
 
         return setmetatable(instance, instance)
@@ -81,7 +81,7 @@ function RBT:insert(index, data)
     else
         local node, direct = self._root_
         while node do
-            direct = index < node:getIndex() and "left_" or "right_"
+            direct = index < node:getIndex() and 'left_' or 'right_'
 
             if not node[direct] then
                 node[direct] = new_node
@@ -169,6 +169,10 @@ function RBT:_delete(index)
 
     local replaced_node = node.left_ or node.right_
 
+    if replaced_node then
+        replaced_node.parent_ = node.parent_
+    end
+
     if not node.parent_ then
         self._root_ = replaced_node
     elseif node == node.parent_.left_ then
@@ -178,9 +182,10 @@ function RBT:_delete(index)
     end
 
     if node.color_ == 1 then
-        -- 如果替代節點是nil，造一個簡單的表讓DelteFixdUp能夠操作就好
-        DeleteFixedUp(replaced_node or {parent_ = node, color_ = 1})
+        DeleteFixedUp(replaced_node)
     end
+
+    self._size_ = self._size_ - 1
 end
 
 Replace = function(node)
@@ -206,13 +211,19 @@ Replace = function(node)
     return replaced_node
 end
 
--- BUG: Case只是寫上去而已，brother=nil的狀況還沒處理
 DeleteFixedUp = function(self, node)
-    local direct, brother  -- direct = 0(左) or 1(右)
+    local direct, rdirect, brother
 
-    while node ~= self._root_ and node.color_ == 1 do
+    while node and node.color_ == 1 and node ~= self._root_ do
         -- 根據父節點在祖父節點的位置，獲得brother節點
-        direct = node == node.parent_.left_ and 'right_' or 'left_'
+        if node == node.parent_.left_ then
+            direct = 'right'
+            rdirect = 'left'
+        else
+            direct = 'left'
+            rdirect = 'right'
+        end
+
         brother = node.parent_[direct]
 
         -- Case1: 如果brother是紅色
@@ -220,7 +231,7 @@ DeleteFixedUp = function(self, node)
             brother.color_ = 1
             node.parent_.color_ = 0
 
-            if direct == "right_" then
+            if direct == 'right_' then
                 LeftRotate(self, node.parent_)
             else
                 RightRotate(self, node.parent_)
@@ -230,38 +241,46 @@ DeleteFixedUp = function(self, node)
         end
 
         -- Case2: brother的兩個child都是黑色
-        if brother.left_.color_ == 1 and brother.right_.color_ == 1 then
+        if (not brother.left_ or brother.left_.color_ == 1) and (not brother.right_ or brother.right_.color_ == 1) then
             brother.color_ = 0
-            node = node.parent_
+
+            if node.parent_.color_ == 0 then
+                node.parent_.color_ = 1
+                break
+            else
+                node = node.parent_
+            end
         else
             -- Case3: brother的right child是黑的, left child是紅色
-            if brother[direct].color_ == 1 then
-                brother[direct == "left_" and "right_" or "left_"].color_ = 1
-                brother.color_ = 0
+            if brother[rdirect] and brother[rdirect].color_ == 0 then
+                brother[rdirect].color_ = node.parent_.color_
+                node.parent_.color_ = 1
 
-                if direct == "right_" then
+                if direct == 'right_' then
                     RightRotate(self, brother)
+                    LeftRotate(self, node.parent_)
                 else
                     LeftRotate(self, brother)
+                    RightRotate(self, node.parent_)
                 end
+            elseif brother[direct] and brother[direct].color_ == 0 then
+                brother.color_ = node.parent_.color_
+                node.parent_.color_ = 1
+                brother[direct].color_ = 1
 
-                brother = node.parent_[direct]
+                if direct == 'right_' then
+                    LeftRotate(self, node.parent_)
+                else
+                    RightRotate(self, node.parent_)
+                end
             end
 
-            -- 經過Case3後, 一定會變成Case4
-            -- Case4: brother的right child 是紅色的, left child是黑色
-            brother.color_ = node.parent_.color_
-            node.parent_.color_ = 1
-            brother[direct].color_ = 1
-
-            if direct == "right_" then
-                LeftRotate(self, node.parent_)
-            else
-                RightRotate(self, node.parent_)
-            end
-
-            node = self._root_
+            break
         end
+    end
+
+    if node then
+        node.color_ = 1
     end
 end
 
@@ -270,6 +289,7 @@ function RBT:find(index)
     local node = self._root_
     while node do
         if index == node:getIndex() then
+            -- return node
             return node.is_deleted_ and nil or node
         elseif index < node:getIndex() then
             node = node.left_

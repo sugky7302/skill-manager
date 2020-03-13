@@ -1,5 +1,15 @@
 # 更新日誌
 
+## 1.6.0 - 2020-03-13
+
+### Changed:
+- **[std/red_black_tree]** 完成刪除函數和刪除修正函數。
+
+### Todo:
+- [ ] 計時器的隊列回收機制。
+- [ ] effect_manager、effect有print。
+- [x] 完成紅黑樹的刪除。
+
 ## 1.5.0 - 2020-03-11
 
 ### Changed:
