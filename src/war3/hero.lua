@@ -50,6 +50,7 @@ function Hero:obtainItem(item)
         if not self._items_[i] then
             self._items_[i] = item
             item.owner_ = self
+            item:obtain()
             return true
         end
     end
@@ -61,6 +62,7 @@ function Hero:dropItem(item)
     for i = 1, #self._items_ do
         if self._items_[i] == item then
             self._items_[i] = false
+            item:drop()
             item.owner_ = nil
             return true
         end

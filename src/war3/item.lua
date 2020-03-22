@@ -2,6 +2,8 @@ local require = require
 local ej = require 'war3.enhanced_jass'
 local Item = require 'std.class'("Item")
 
+-- TODO: 預留讀取物品類型腳本的功能
+
 function Item.create(item_type, loc)
     local item = ej.CreateItem(ej.decode(item_type), loc.x, loc.y)
     return item
@@ -64,6 +66,12 @@ function Item:stack()
 end
 
 function Item:use()
+end
+
+function Item:obtain()
+end
+
+function Item:drop()
 end
 
 return Item

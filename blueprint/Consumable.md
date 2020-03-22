@@ -9,6 +9,17 @@
 
 ## 接口
 
+### __call
+- 輸入: we物品
+- 輸出: 實例
+- 說明: 回傳we消耗品的實例。
+- 隱藏細節: 如果找不到實例會生成一個。
+```
+    func ()(item)
+        return 根據item索引從Consumable中獲得實例 or a new Consumable for item
+    end func
+```
+
 ### stack
 - 輸入: X
 - 輸出: X

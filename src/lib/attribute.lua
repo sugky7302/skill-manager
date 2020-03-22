@@ -34,11 +34,12 @@ local Event = select(2, xpcall(require, debug.traceback, 'data.attribute.init'))
 local Attribute = require 'std.class'('Attribute')
 local ParseKey, CreateAttribute, SetValue, TriggerSetEvent, TriggerGetEvent
 
-function Attribute:_new(object)
+function Attribute:_new(object, is_trigger_event)
     return {
         _rank_ = require 'std.red_black_tree':new(),
         _data_ = {},
         _object_ = object,
+        _is_trigger_event_ = is_trigger_event or true,
     }
 end
 
@@ -91,7 +92,7 @@ SetValue = function(self, name, has_percent, value)
 end
 
 TriggerSetEvent = function(self, name)
-    if Event[name] and Event[name].set then
+    if self._is_trigger_event_ and Event[name] and Event[name].set then
         Event[name].set(self, self[name][1] * (1 + self[name][2] / 100))
     end
 end
@@ -131,7 +132,7 @@ CreateAttribute = function(self, name)
 end
 
 TriggerGetEvent = function(self, name)
-    if Event[name] and Event[name].get then
+    if self._is_trigger_event_ and Event[name] and Event[name].get then
         return Event[name].get(self)
     else
         return self[name][1] * (1 + self[name][2] / 100)

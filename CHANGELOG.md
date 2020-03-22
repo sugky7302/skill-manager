@@ -1,12 +1,22 @@
 # 更新日誌
 
+## 1.7.0 - 2020-03-22
+
+### Added:
+- **[lib/attribute]** 建構函數新增is_trigger_event參數，讓使用者決定set/get函數要不要調用事件。
+
+### Todo:
+- [ ] 先寫裝備的使用腳本。
+- [ ] effect_manager、effect有print。
+- [ ] Item讀取物品類型腳本。
+- [ ] (可選)Attribute的DB、Event之後要改成使用者自行設定，就像家裡的播放機，自動讀取插入的USB的音樂檔，只要格式正確即可。
+
 ## 1.6.0 - 2020-03-13
 
 ### Changed:
 - **[std/red_black_tree]** 完成刪除函數和刪除修正函數。
 
 ### Todo:
-- [ ] 計時器的隊列回收機制。
 - [ ] effect_manager、effect有print。
 - [x] 完成紅黑樹的刪除。
 
