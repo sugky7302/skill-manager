@@ -7,7 +7,6 @@
 --
 -- Member:
 --   _rank_ - sort all attributes by the priority
---   _data_ - record datas for all attributes
 --
 -- Function:
 --   new(self) - create a new attribute instance
@@ -37,7 +36,6 @@ local ParseKey, CreateAttribute, SetValue, TriggerSetEvent, TriggerGetEvent
 function Attribute:_new(object, is_trigger_event)
     return {
         _rank_ = require 'std.red_black_tree':new(),
-        _data_ = {},
         _object_ = object,
         _is_trigger_event_ = is_trigger_event or true,
     }
@@ -117,11 +115,6 @@ function Attribute:get(key)
     return TriggerGetEvent(self, name)
 end
 
-ParseKey = function(key)
-    local string = string
-    return string.match(key, '[^%%]+'), string.sub(key, -1, -1) == '%'
-end
-
 CreateAttribute = function(self, name)
     if not self[name] then
         -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
@@ -137,6 +130,21 @@ TriggerGetEvent = function(self, name)
     else
         return self[name][1] * (1 + self[name][2] / 100)
     end
+end
+
+function Attribute:delete(key)
+    local name = ParseKey(key)
+    self[name] = nil
+
+    local data = DB:query(name)
+    if data and self._rank_:find(data[0]) then
+        self._rank_:delete(data[0])
+    end
+end
+
+ParseKey = function(key)
+    local string = string
+    return string.match(key, '[^%%]+'), string.sub(key, -1, -1) == '%'
 end
 
 return Attribute

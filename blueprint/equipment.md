@@ -25,7 +25,7 @@
 ```
     func __ctr__(item)
         self <- a new Item instance
-        self._attribute_ <- a new Atrribute instance
+        self.attribute <- a new Atrribute instance
     end func
 ```
 
@@ -33,7 +33,7 @@
 - 輸入: we物品
 - 輸出: 實例
 - 說明: 回傳we裝備的實例。
-- 隱藏細節: 如果找不到實例會生成一個。
+- 細節: 如果找不到實例會生成一個。
 ```
     func ()(item)
         return 根據item索引從Equipment中獲得實例 or a new Equipment for item
@@ -41,10 +41,41 @@
 ```
 
 ### attributes
+- 輸入: X
+- 輸出: 屬性
+- 說明: 依序輸出記錄的屬性。
+- 細節: 調用attribute的迭代器。
+```
+    func attributes()
+        i <- 0
+        return func()
+            i <- i+1
+            return self.attribute[i-1]
+        end func
+    end func
+```
 
 ### addAttribute
+- 輸入: 屬性名, 數值
+- 輸出: X
+- 說明: 提升該屬性的數值。
+- 細節: 調用attribute.add函數。
+```
+    func addAttribute(name, value)
+        self.attribute.add(name, value)
+    end func
+```
 
 ### deleteAttribute
+- 輸入: 屬性名
+- 輸出: X
+- 說明: 刪除該屬性。
+- 細節: 調用attribute.delete函數。
+```
+    func deleteAttribute(name)
+        self.attribute.delete(name)
+    end func
+```
 
 ### obtain
 

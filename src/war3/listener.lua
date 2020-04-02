@@ -10,6 +10,10 @@ local EVENTS = {
     ['單位-受到傷害'] = ej.EVENT_UNIT_DAMAGED,
     ['單位-被選取'] = ej.EVENT_UNIT_SELECTED,
     ['單位-施放技能'] = ej.EVENT_UNIT_SPELL_CAST,
+    ['單位-拾取物品'] = ej.EVENT_UNIT_PICKUP_ITEM,
+    ['單位-丟棄物品'] = ej.EVENT_UNIT_DROP_ITEM,
+    ['單位-使用物品'] = ej.EVENT_UNIT_USE_ITEM,
+    ['單位-出售物品'] = ej.EVENT_UNIT_SELL_ITEM,
     ['測試'] = 4,
 }
 

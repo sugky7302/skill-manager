@@ -141,8 +141,8 @@ InsertFixedUp = function(self, node)
     end
 end
 
--- HACK: 先用標記的方式處理刪除
-function RBT:delete(index)
+-- NOTE: 保留標記的方式處理刪除
+function RBT:_delete(index)
     local node = self:find(index)
     if node then
         node.is_deleted_ = true
@@ -151,8 +151,7 @@ function RBT:delete(index)
     return self
 end
 
--- NOTE: 真正的刪除方法，不過先保留，因為刪除的執行量太大
-function RBT:_delete(index)
+function RBT:delete(index)
     local node = self:find(index)
 
     if not node then
