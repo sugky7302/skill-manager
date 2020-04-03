@@ -37,7 +37,7 @@ function Attribute:_new(object, is_trigger_event)
     return {
         _rank_ = require 'std.red_black_tree':new(),
         _object_ = object,
-        _is_trigger_event_ = is_trigger_event or true,
+        _is_trigger_event_ = is_trigger_event or true
     }
 end
 
@@ -119,7 +119,7 @@ CreateAttribute = function(self, name)
     if not self[name] then
         -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
         --            數值、百分比、屬性文字敘述
-        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ""}
+        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ''}
         self[name][1] = TriggerGetEvent(self, name)
     end
 end
