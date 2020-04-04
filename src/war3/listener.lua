@@ -5,6 +5,11 @@ local Trigger = require 'war3.trigger'
 local Listener = require 'std.class'('Listener')
 local SetSourceTriggerEvent
 
+-- NOTE: 值必須要進入遊戲測試，看觸發事件對應的GetTriggerEventId是什麼。
+--   步驟1：EVENTS添加事件名的鍵索引
+--   （可選）步驟2：於SetSourceTriggerEvent新增事件類型和註冊事件函數
+--   步驟3：在line 31的for迴圈前添加print(ej.GetTriggerEventId)以得到事件編號。有些可以直接從common.lua去查，不需要進到遊戲測試。
+--   步驟4：填入該事件名的值
 local EVENTS = {
     ['單位-死亡'] = ej.EVENT_UNIT_DEATH,
     ['單位-受到傷害'] = ej.EVENT_UNIT_DAMAGED,
@@ -15,13 +20,15 @@ local EVENTS = {
     ['單位-使用物品'] = ej.EVENT_UNIT_USE_ITEM,
     ['單位-出售物品'] = ej.EVENT_UNIT_SELL_ITEM,
     ['測試'] = 4,
+    ['對話框-被點擊'] = 92,
 }
 
 -- 觸發器的動作函數，獨立出來是因為一次性觸發器也會用到。
 local function Condition()
     local pairs = pairs
-
     local event_name
+
+    -- NOTE: 可以用print(ej.GetTriggerEventId)獲得本次觸發的事件編號
     for k, v in pairs(EVENTS) do
         if v == ej.GetTriggerEventId() then
             event_name = k
@@ -87,8 +94,11 @@ SetSourceTriggerEvent = function(self, event_name, event_source)
     event_name = string.gsub(event_name, "*", "")
     local event_type = string.match(event_name, '[^-]+')
 
+    -- NOTE: 請在這加入該類型事件的註冊方法函數！！
     if event_type == '單位' then
         ej.TriggerRegisterUnitEvent(trg:object(), event_source, EVENTS[event_name])
+    elseif event_type == '對話框' then
+        ej.TriggerRegisterDialogEvent(trg:object(), event_source)
     elseif event_type == '測試' then
         ej.TriggerRegisterTimerEvent(trg:object(), 0, false)
     end
