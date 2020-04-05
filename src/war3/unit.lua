@@ -132,7 +132,7 @@ function Unit:hasStatus(key)
 end
 
 function Unit:listen(event_name)
-    Listener:new(EventManager:new())(event_name)(self._object_)
+    Listener:new()(event_name)(self._object_)
     return self
 end
 

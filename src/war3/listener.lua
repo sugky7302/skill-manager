@@ -53,10 +53,10 @@ local function Condition()
     return true
 end
 
-function Listener:_new(event_manager)
+function Listener:_new()
     if not self._instance_ then
         self._instance_ = {
-            _events_ = event_manager,
+            _events_ = require 'lib.event_manager':new(),
             _trigger_ = Trigger:new(Condition)
         }
     end
@@ -102,6 +102,11 @@ SetSourceTriggerEvent = function(self, event_name, event_source)
     elseif event_type == '測試' then
         ej.TriggerRegisterTimerEvent(trg:object(), 0, false)
     end
+end
+
+function Listener:bind(name, args, callback)
+    self._events_:addEvent(name, args, callback)
+    return self
 end
 
 return Listener
