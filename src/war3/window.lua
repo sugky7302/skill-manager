@@ -106,7 +106,6 @@ end
 function Window:add(text)
     self._lists_[#self._lists_ + 1] = text
     Refresh(self)
-
     return self
 end
 
@@ -175,17 +174,22 @@ CreateItem = function(self)
 end
 
 -- NOTE: hotkey是ascii表查詢該按鍵於10進位的值
+-- NOTE: 上一頁、下一頁沒有新建的話，要記得清空舊的物件，不然id會碰撞到，就莫名其妙觸發了
 CreateOperator = function(self)
     local concat = table.concat
 
     if self._page_number_ > 1 then
         self._operator_[3] =
             ej.DialogAddButton(self._object_, concat {'|cff00ff00↑|r(p.', self._page_number_ - 1, ')'}, 0)
+    else
+        self._operator_[3] = false
     end
 
     if self._page_number_ * self._length_ < #self._lists_ then
         self._operator_[2] =
             ej.DialogAddButton(self._object_, concat {'|cff00ff00↓|r(p.', self._page_number_ + 1, ')'}, 0)
+    else
+        self._operator_[2] = false
     end
 
     self._operator_[1] = ej.DialogAddButton(self._object_, '|cffff0000x|r', 0)
