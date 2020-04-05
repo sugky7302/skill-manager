@@ -1,5 +1,5 @@
 local function Main()
-    require 'unit_test.window'
+    require 'unit_test.attribute'
 end
 
 Main()

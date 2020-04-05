@@ -12,6 +12,10 @@
 --   new(self) - create a new attribute instance
 --     self - Class Attribute
 --
+--   setPackage(self, path) - load a external package from the path
+--     self - attribute instance
+--     path - the package path
+--
 --   add(self, key, value) - add the value into the attribute which is represented by the key
 --     self - attribute instance
 --     key - attribute name
@@ -25,20 +29,30 @@
 --   get(self, key) - get the attribute value by the key
 --     self - attribute instance
 --     key - attribute name
+--
+--   delete(self, key) - delete the attribute by the key
+--     self - attribute instance
+--     key - attribute name
 ------
 
 local require = require
-local DB = require 'data.attribute.database'
-local Event = select(2, xpcall(require, debug.traceback, 'data.attribute.init'))
+local select = select
+local pcall = pcall
+local xpcall = xpcall
 local Attribute = require 'std.class'('Attribute')
-local ParseKey, CreateAttribute, SetValue, TriggerSetEvent, TriggerGetEvent
+local ParseKey, CreateAttribute, SetValue, SetAttributeToObject, GetAttributeFromObject
 
-function Attribute:_new(object, is_trigger_event)
+function Attribute:_new(object)
     return {
         _rank_ = require 'std.red_black_tree':new(),
         _object_ = object,
-        _is_trigger_event_ = is_trigger_event or true
+        _package_ = nil
     }
+end
+
+function Attribute:setPackage(path)
+    self._package_ = select(2, xpcall(require, debug.traceback, path))
+    return self
 end
 
 function Attribute:iterator()
@@ -75,7 +89,7 @@ function Attribute:set(key, value)
 
     CreateAttribute(self, name)
     SetValue(self, name, has_percent, value)
-    TriggerSetEvent(self, name)
+    SetAttributeToObject(self, name)
     Ranking(self, name)
 
     return self
@@ -89,16 +103,21 @@ SetValue = function(self, name, has_percent, value)
     end
 end
 
-TriggerSetEvent = function(self, name)
-    if self._is_trigger_event_ and Event[name] and Event[name].set then
-        Event[name].set(self, self[name][1] * (1 + self[name][2] / 100))
+SetAttributeToObject = function(self, name)
+    if
+        pcall(
+            function()
+                return self._package_[name].set
+            end
+        )
+     then
+        self._package_[name].set(self, self[name][1] * (1 + self[name][2] / 100))
     end
 end
 
 Ranking = function(self, name)
-    local data = DB:query(name)
-    if data and not self._rank_:find(data[0]) then
-        self._rank_:insert(data[0], name)
+    if not self._rank_:find(self[name][0]) then
+        self._rank_:insert(self[name][0], name)
     end
 end
 
@@ -112,21 +131,40 @@ function Attribute:get(key)
         return self[name][2]
     end
 
-    return TriggerGetEvent(self, name)
+    return GetAttributeFromObject(self, name)
 end
 
 CreateAttribute = function(self, name)
     if not self[name] then
-        -- NOTE: 預設成空字串是怕要print的時候，若是nil的話還要額外判斷，更麻煩。
-        --            數值、百分比、屬性文字敘述
-        self[name] = {0, 0, DB:query(name) and DB:query(name)[2] or ''}
-        self[name][1] = TriggerGetEvent(self, name)
+        local key =
+            select(
+            2,
+            xpcall(
+                function()
+                    -- NOTE: table搜不到priority只會回傳nil，並不會跳到catch
+                    --   因此只要是nil就回傳跟catch一樣的結果
+                    return self._package_[name].priority or self._rank_:size() + 1
+                end,
+                function()
+                    return self._rank_:size() + 1
+                end
+            )
+        )
+        -- 在紅黑數的索引（預設0）、數值、百分比
+        self[name] = {[0] = key, 0, 0}
+        self[name][1] = GetAttributeFromObject(self, name)
     end
 end
 
-TriggerGetEvent = function(self, name)
-    if self._is_trigger_event_ and Event[name] and Event[name].get then
-        return Event[name].get(self)
+GetAttributeFromObject = function(self, name)
+    if
+        pcall(
+            function()
+                return self._package_[name].get
+            end
+        )
+     then
+        return self._package_[name].get(self)
     else
         return self[name][1] * (1 + self[name][2] / 100)
     end
@@ -134,12 +172,12 @@ end
 
 function Attribute:delete(key)
     local name = ParseKey(key)
-    self[name] = nil
 
-    local data = DB:query(name)
-    if data and self._rank_:find(data[0]) then
-        self._rank_:delete(data[0])
+    if self._rank_:find(self[name][0]) then
+        self._rank_:delete(self[name][0])
     end
+
+    self[name] = nil
 end
 
 ParseKey = function(key)

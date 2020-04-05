@@ -1,18 +1,18 @@
-local attr = require 'lib.attribute':new(nil, false)
+local attr = require 'lib.attribute':new():setPackage('data.test.attribute')
 
-attr:set("物理攻擊力", 5)
-attr:set("法術攻擊力", 10)
-
-for name, value in attr:iterator() do
-    print(name, value[1] * (1+value[2]/100))
+local function loop()
+    for name, value in attr:iterator() do
+        print(name, value[1] * (1+value[2]/100))
+    end
 end
 
-attr:add("物理攻擊力%", 50)
-attr:add("物理攻擊力", 100)
-print(attr:get "物理攻擊力")
+attr:set("a", 5):set("b", 10)
+loop()
 
-attr:delete("物理攻擊力")
 
-for name in attr:iterator() do
-    print(name)
-end
+attr:add("a%", 50):add("a", 100)
+print(attr:get "a")
+
+attr:delete("a")
+
+loop()
