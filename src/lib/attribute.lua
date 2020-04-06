@@ -6,7 +6,9 @@
 --   red_black_tree
 --
 -- Member:
+--   _object_ - record the operated object
 --   _rank_ - sort all attributes by the priority
+--   _package_ - record external package
 --
 -- Function:
 --   new(self) - create a new attribute instance
@@ -15,6 +17,9 @@
 --   setPackage(self, path) - load a external package from the path
 --     self - attribute instance
 --     path - the package path
+--
+--   iterator(self) - Traverse all elements in _rank_ by Lua iterator
+--     self - attribute instance
 --
 --   add(self, key, value) - add the value into the attribute which is represented by the key
 --     self - attribute instance
@@ -39,6 +44,7 @@ local require = require
 local select = select
 local pcall = pcall
 local xpcall = xpcall
+
 local Attribute = require 'std.class'('Attribute')
 local ParseKey, CreateAttribute, SetValue, SetAttributeToObject, GetAttributeFromObject
 
@@ -51,7 +57,7 @@ function Attribute:_new(object)
 end
 
 function Attribute:setPackage(path)
-    self._package_ = select(2, xpcall(require, debug.traceback, path))
+    self._package_ = select(2, xpcall(require, function() return nil end, path))
     return self
 end
 

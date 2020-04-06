@@ -1,5 +1,6 @@
 return {
     a = {
+        res = "hello world",
         set = function()
             print("set a")
         end,
@@ -9,6 +10,7 @@ return {
         end
     },
     b = {
+        vec = 10,
         set = function()
             print("set b")
         end,

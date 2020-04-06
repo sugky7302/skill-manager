@@ -1,13 +1,12 @@
 # 更新日誌
 
-## 1.7.0.49 - 2020-04-05
+## 1.7.0.50 - 2020-04-06
 
 ### Added:
 - **[data]**
   - 新增item資料夾，用於放置物品類型的事件腳本。
   - 新增test資料夾，儲存unit_test要用到的腳本。
 - **[lib/attribute]** 
-  - 建構函數新增is_trigger_event參數，讓使用者決定set/get函數要不要調用事件。
   - 新增delete函數，可刪除屬性。
 - **[unit_test]**
   - 新增listener測試，簡單測試listener的運行流程。
@@ -45,6 +44,8 @@
 - [x] 對話框要自動生成上一頁、下一頁的觸發動作。
 - [x] 加入玩家類別。
 - [x] Attribute的DB、Event之後要改成使用者自行設定，就像家裡的播放機，自動讀取插入的USB的音樂檔，只要格式正確即可。
+- [ ] attribute能讀取外部資料庫的其他屬性。
+- [ ] 完善player類別。
 - [ ] 設計符石，讓它可鑲嵌在裝備上。
 - [ ] effect_manager、effect有print。
 
