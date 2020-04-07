@@ -111,6 +111,8 @@ local function Class(name, ...)
                 end
             end
         end,
+        -- 設置裝飾符
+        -- 取值裝飾符
     }
 
     setmetatable(object, object)
