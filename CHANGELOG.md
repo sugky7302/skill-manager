@@ -1,6 +1,6 @@
 # 更新日誌
 
-## 1.7.0.50 - 2020-04-06
+## 1.7.0.51 - 2020-04-10
 
 ### Added:
 - **[data]**
@@ -8,6 +8,8 @@
   - 新增test資料夾，儲存unit_test要用到的腳本。
 - **[lib/attribute]** 
   - 新增delete函數，可刪除屬性。
+  - 新增getDescription函數，可獲得該屬性的描述。
+  - 新增getProperty函數，可獲得該屬性於外部資料庫的指定屬性。
 - **[unit_test]**
   - 新增listener測試，簡單測試listener的運行流程。
   - 新增window測試，完整測試對話框接口。
@@ -22,7 +24,9 @@
   - 新增bind函數，將監聽器整合事件管理器的addEvent函數，讓使用者不用每次監聽事件都要宣告EventManager和Listener。
 
 ### Changed:
-- **[lib/attribute]** 解耦資料庫和Attibute的關係，使用者透過setPackage設定Attribute在設值/取值事件要調用的資料庫。
+- **[lib/attribute]**
+  - 解耦資料庫和Attibute的關係，使用者透過setPackage設定Attribute在設值/取值事件要調用的資料庫。
+  - 調整GetAttributeFromObject的寫法。
 - **[war3/window]**
   - 視窗會自動生成操作鈕的動作函數。
   - 調整綁定索引，從玩家改成對話框物件，這樣玩家才能同時擁有多個視窗。單一視窗完成多工太複雜，而且數據保存會有問題，因此改成現在這個方式。
@@ -44,7 +48,7 @@
 - [x] 對話框要自動生成上一頁、下一頁的觸發動作。
 - [x] 加入玩家類別。
 - [x] Attribute的DB、Event之後要改成使用者自行設定，就像家裡的播放機，自動讀取插入的USB的音樂檔，只要格式正確即可。
-- [ ] attribute能讀取外部資料庫的其他屬性。
+- [x] attribute能讀取外部資料庫的其他屬性。
 - [ ] 完善player類別。
 - [ ] 設計符石，讓它可鑲嵌在裝備上。
 - [ ] class加入設值裝飾符、取值裝飾符。

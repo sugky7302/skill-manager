@@ -2,7 +2,7 @@ local attr = require 'lib.attribute':new():setPackage('data.test.attribute')
 
 local function loop()
     for name, value in attr:iterator() do
-        print(name, value[1] * (1+value[2]/100))
+        print(name, value[1] * (1+value[2]/100), attr:getDescription(name))
     end
 end
 
@@ -16,3 +16,7 @@ print(attr:get "a")
 attr:delete("a")
 
 loop()
+
+print(attr:getProperty("c", "res"))  -- nil(no this attribute)
+print(attr:getProperty("b", "res"))  -- nil(no this property)
+print(attr:getProperty("a", "res"))  -- hello world
