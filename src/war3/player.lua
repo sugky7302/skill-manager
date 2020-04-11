@@ -1,6 +1,6 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
-local EventManger = require 'lib.event_manager'
+local EventManager = require 'lib.event_manager'
 local Listener = require 'war3.listener'
 
 local Player = require 'std.class'("Player")
@@ -10,6 +10,7 @@ function Player:_new(player)
         _object_ = player,
         _name_ = ej.GetPlayerName(player),
         _id_ = ej.GetPlayerId(player),
+        _attribute_ = require 'lib.attribute':new(player),
     }
 
     self[player] = this
@@ -34,12 +35,17 @@ function Player:getId()
 end
 
 function Player:addAttribute(name, value)
+    self._attribute_:add(name, value)
+    return self
 end
 
 function Player:setAttribute(name, value)
+    self._attribute_:set(name, value)
+    return self
 end
 
 function Player:getAttribute(name)
+    return self._attribute_:get(name)
 end
 
 function Player:listen(event_name)
