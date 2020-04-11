@@ -5,7 +5,7 @@ local Equipment = require 'std.class'("Equipment", require 'war3.item')
 
 function Equipment:_new(item)
     local instance = self:super():_new(item)
-    instance._attribute_ = Attribute:new(item, false)
+    instance._attribute_ = Attribute:new(item)
     return instance
 end
 
