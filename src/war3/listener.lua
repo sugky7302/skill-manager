@@ -19,6 +19,9 @@ local EVENTS = {
     ['單位-丟棄物品'] = ej.EVENT_UNIT_DROP_ITEM,
     ['單位-使用物品'] = ej.EVENT_UNIT_USE_ITEM,
     ['單位-出售物品'] = ej.EVENT_UNIT_SELL_ITEM,
+    ['單位-發佈無目標命令'] = ej.EVENT_UNIT_ISSUED_ORDER,
+    ['單位-發佈點目標命令'] = ej.EVENT_UNIT_ISSUED_POINT_ORDER,
+    ['單位-發佈物體目標命令'] = ej.EVENT_UNIT_ISSUED_TARGET_ORDER,
     ['測試'] = 4,
     ['對話框-被點擊'] = 92,
 }

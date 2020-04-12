@@ -14,7 +14,7 @@ function Unit:_new(unit)
         _id_ = ej.H2I(unit),
         _type_ = ej.U2S(unit),
         _status_ = Status:new(unit, CreateStatusTable()),
-        _attribute_ = Attribute:new(unit),
+        _attribute_ = Attribute:new(unit):setPackage('data.attribute.init'),
         owner_ = ej.getPlayer(unit),  -- HACK: 暫時隨便寫一個，等到Player類別確定再改
     }
 

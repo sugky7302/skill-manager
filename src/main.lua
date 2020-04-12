@@ -1,5 +1,5 @@
 local function Main()
-    require 'unit_test.attribute'
+    require 'unit_test.item'
 end
 
 Main()

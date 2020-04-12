@@ -73,7 +73,7 @@ function Item:stack()
     return false
 end
 
-function Item:use()
+function Item:use(target)
 end
 
 function Item:obtain()
