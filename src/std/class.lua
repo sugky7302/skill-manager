@@ -14,11 +14,16 @@ local function Class(name, ...)
     local setmetatable, pairs, getmetatable = setmetatable, pairs, getmetatable
 
     local object = {
+        _VERSION = '1.0.0',
         _sets = {},
         _gets = {},
-        _prototype = {...}, -- 原型，也就是委託的對象，只要該對象有你需要的東西，都可以填進去。排在最前面的原型為第一委託者。
-        _VERSION = '1.0.0',
-        type = name, -- 因為type(object)都會返回table，無法對不同類別的實例作比較，所以儲存類別的名字，在比較時才能區別。
+
+        -- 原型，也就是委託的對象，只要該對象有你需要的東西，都可以填進去。排在最前面的原型為第一委託者。
+        _prototype = {...},
+
+        -- 因為type(object)都會返回table，無法對不同類別的實例作比較，所以儲存類別的名字，在比較時才能區別。
+        type = name,
+
         -- NOTE: 根據參數data的類型，支援3種建構方式:
         --       - 無參數 : class()
         --       - 有參數但非創建實例 : class(var1, var2, ...)
@@ -112,7 +117,7 @@ local function Class(name, ...)
 
             return self
         end,
-        -- 呼叫委託對象
+        -- 根據原形鏈向上搜尋委託對象
         super = function(self, super_name)
             if #self._prototype == 0 then
                 return nil
@@ -128,13 +133,13 @@ local function Class(name, ...)
                 end
             end
         end,
-        -- 設置裝飾符
+        -- 註冊設值裝飾符
         setter = function(self, key, func)
             self[key] = nil
             getmetatable(self)._sets[key] = func
             return self
         end,
-        -- 取值裝飾符
+        -- 註冊取值裝飾符
         getter = function(self, key, func)
             getmetatable(self)._gets[key] = func
             return self
