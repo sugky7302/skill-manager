@@ -1,4 +1,4 @@
--- Version : 1.2.2
+-- Version : 1.3.0
 -- 自定義類型 類別，使用javascript的方式--對象關聯或稱委託。
 -- 新的類別能夠很好區分類別和實例的差別，不會像以往子類實際上也只是父類的一個實例。
 
@@ -8,11 +8,14 @@
 -- table、string、number、boolean:當前類別搜索不到會去搜尋原型鏈，找到的話就返回值，沒有就返回nil。不會複製一份給自己。
 -- function:同樣會搜尋原型鏈，但是是將實例委託該函數處理。不會複製函數引用給自己。
 -- 盡量在class設定預設值，不要用_new為每個實例創建值，等要用的時候再建就好，除非是一定會用到的、每個實例都不同的值。
--- NOTE: 刪除set/get/delete instance/subclass的功能 - 2020-01-19
+-- 刪除set/get/delete instance/subclass的功能 - 2020-01-19
+-- 新增設值裝飾符(setter)及取值裝飾符(getter) - 2020-04-13
 local function Class(name, ...)
-    local setmetatable, pairs = setmetatable, pairs
+    local setmetatable, pairs, getmetatable = setmetatable, pairs, getmetatable
 
     local object = {
+        _sets = {},
+        _gets = {},
         _prototype = {...}, -- 原型，也就是委託的對象，只要該對象有你需要的東西，都可以填進去。排在最前面的原型為第一委託者。
         _VERSION = '1.0.0',
         type = name, -- 因為type(object)都會返回table，無法對不同類別的實例作比較，所以儲存類別的名字，在比較時才能區別。
@@ -51,6 +54,11 @@ local function Class(name, ...)
                 return value
             end
 
+            -- NOTE: 檢查getter是否有key - 2020-04-13
+            if class._gets[key] then
+                return class._gets[key](table)
+            end
+
             for i = 1, #class._prototype do
                 -- 這也會執行__index，只是table不同，直到原型鏈的頂端
                 value = class._prototype[i][key]
@@ -65,8 +73,17 @@ local function Class(name, ...)
         -- __newindex是在對不存在的索引賦值時調用，我們不會拿來賦值，因為self[key] = value就會直接賦值了，
         -- __newindex存在則編譯器會調用它，而不會調用賦值。如果__newindex是一個table，則會賦值在table裡。
         -- 如果內部用self[key] = value，它又會因為對不存在的索引賦值而調用__newindex，導致無限循環因而報錯。
-        -- __newindex = function(table, key, value)
-        -- end,
+        __newindex = function(table, key, value)
+            -- 如果是實例，會獲取類別；如果是類別，會獲取自己
+            local class = getmetatable(table)
+
+            -- NOTE: 處理設值裝飾符 - 2020-04-13
+            if class._sets[key] then
+                return class._sets[key](table, value)
+            end
+
+            rawset(table, key, value)
+        end,
 
         remove = function(self)
             -- 使用者自訂的解構函數
@@ -112,7 +129,16 @@ local function Class(name, ...)
             end
         end,
         -- 設置裝飾符
+        setter = function(self, key, func)
+            self[key] = nil
+            getmetatable(self)._sets[key] = func
+            return self
+        end,
         -- 取值裝飾符
+        getter = function(self, key, func)
+            getmetatable(self)._gets[key] = func
+            return self
+        end
     }
 
     setmetatable(object, object)
