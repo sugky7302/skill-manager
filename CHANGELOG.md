@@ -1,9 +1,13 @@
 # 更新日誌
 
-## 1.8.0.57 - 2020-04-20
+## 1.8.0.58 - 2020-04-24
 
 ### Added:
-- [std] 新增String庫，擴展Lua自帶的string庫。
+- [std]
+  - 新增String庫，擴展Lua自帶的string庫。
+  - 新增PriorityQueue庫，可透過創建實例時設定依升冪或降冪排序。
+
+- [unit_test] 新增PriorityQueue測試。
 
 ## 1.7.0.56 - 2020-04-13
 
