@@ -58,4 +58,14 @@ function Table.isNil(tb)
     return tb == nil or next(tb) == nil
 end
 
+function Table.hasSameElements(tb1, tb2)
+    for k, v in pairs(tb1) do
+        if v ~= tb2[k] then
+            return false
+        end
+    end
+
+    return true
+end
+
 return Table
