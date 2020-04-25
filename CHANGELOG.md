@@ -1,9 +1,14 @@
 # 更新日誌
 
-## 1.8.0.57 - 2020-04-19
+## 1.8.0.58 - 2020-04-24
 
 ### Added:
+- [std]
+  - 新增String庫，擴展Lua自帶的string庫。
+  - 新增PriorityQueue庫，可透過創建實例時設定依升冪或降冪排序。
 - **[src/table]** 新增hasSameElements函數，檢查兩個表的元素是否相同。
+
+- [unit_test] 新增PriorityQueue測試。
 
 ### Todo:
 - [ ] 完成材料合成功能。
