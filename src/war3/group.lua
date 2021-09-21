@@ -1,6 +1,6 @@
 ------
--- Group is an extension of jass group, it integrates the most jass group feature
--- and strengthens the user experience.
+-- Group is an extension of jass group, it integrates the most jass group features
+-- and enhances the user experience.
 --
 -- Required:
 --   enhanced_jass
@@ -8,7 +8,6 @@
 --
 -- Member:
 --   _ignore_label_(table) - save ths ignored units
---   _object_(jass group object) - save the new jass group object
 --   units_(queue) - save the jass units
 --   filter_(jass unit object) - record a jass unit to filter enum units
 --
@@ -20,7 +19,7 @@
 --   remove(self) - remove ths group instance
 --     self - group instance
 --
---   enumUnitsInRange(self, x, y, r, cnd_name) - select all eligible units in the circle with center(x, y) and radius r
+--   circleUnits(self, x, y, r, cnd_name) - select all matched units in the circle with center(x, y) and radius r
 --     self - group instance
 --     x - x coordinate of the circle center
 --     y - y coordinate of the circle center
@@ -95,14 +94,13 @@ local Condition = {
 function Group:_new(filter)
     return {
         _ignore_label_ = {},
-        _object_ = GetEmptyGroup(),
         units_ = require 'std.array':new(),
         filter_ = filter or 0 -- 如果filter沒有傳參，要設定成0才不會出問題
     }
 end
 
 -- cnd_name 有 IsEnemy、IsAlly、IsHero、IsUnit、Nil
-function Group:enumUnitsInRange(x, y, r, cnd_name)
+function Group:circleUnits(x, y, r, cnd_name)
     local enum_range_units = GetEmptyGroup()
 
     -- 選取比原先範圍大一些的區域，好讓有些處在範圍邊緣的單位能夠被正確選取
@@ -143,18 +141,6 @@ GetEmptyGroup = function()
     return empty_group
 end
 
-function Group:addUnit(unit)
-    ej.GroupAddUnit(self._object_, unit)
-    self.units_:append(unit)
-    return self
-end
-
-function Group:_remove()
-    RecycleGroup(self._object_)
-    self:clear()
-    self.units_:remove()
-end
-
 RecycleGroup = function(group)
     -- 用 ">=" 是因為這個函式會增加recycle_group的數量
     if recycle_group:size() >= QUANTITY then
@@ -162,6 +148,16 @@ RecycleGroup = function(group)
     else
         recycle_group:push_back(group)
     end
+end
+
+function Group:addUnit(unit)
+    self.units_:append(unit)
+    return self
+end
+
+function Group:_remove()
+    self:clear()
+    self.units_:remove()
 end
 
 function Group:clear()
@@ -173,13 +169,12 @@ function Group:clear()
         end
     )
 
-    ej.GroupClear(self._object_)
     self.units_:clear()
     return self
 end
 
 -- action的格式要是
--- function(self, i, ...)
+-- function(self, unit, ...)
 --     body
 -- end
 -- 順序循環在執行改變array長度的動作時，由於最後一個元素會補到空位，而導致順序不正確
@@ -187,14 +182,13 @@ end
 -- 使用倒序循環就不會出現這樣的問題
 function Group:loop(action, ...)
     for i = self.units_:size(), 1, -1 do
-        action(self, i, ...)
+        action(self, self.units_[i], ...)
     end
 
     return self
 end
 
 function Group:removeUnit(unit)
-    ej.GroupRemoveUnit(self._object_, unit)
     self.units_:erase(unit)
     return self
 end
