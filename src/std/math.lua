@@ -76,4 +76,12 @@ function Math.gcf(num1, num2)
     end
 end
 
+function Math.angle(s_x, s_y, t_x, t_y)
+    return math.atan(t_y - s_y, t_x - s_x)
+end
+
+function Math.inRange(x, lower, higher)
+    return (x >= lower) and x <= higher
+end
+
 return Math

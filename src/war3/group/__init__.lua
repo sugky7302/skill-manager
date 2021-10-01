@@ -4,17 +4,17 @@
 --
 -- Required:
 --   enhanced_jass
---   queue
+--   array
+--   group/condition
+--   group/region
 --
 -- Member:
 --   _ignore_label_(table) - save ths ignored units
 --   units_(queue) - save the jass units
---   filter_(jass unit object) - record a jass unit to filter enum units
 --
 -- Function:
---   new(self, filter) - create a new group instance
+--   new(self) - create a new group instance
 --     self - class Group
---     filter - a jass unit as the condition which filters enum units
 --
 --   remove(self) - remove ths group instance
 --     self - group instance
@@ -36,7 +36,7 @@
 --
 --   loop(self, action, args) - call the action on all units in the group
 --     self - group instance
---     action - an anomymous function, its argument list must have self and index i
+--     action - an anomymous function, its argument list must have self and unit
 --     args - argument list of any length
 --
 --   in(self, unit) - check whether the unit is in the group or not
@@ -59,94 +59,76 @@
 
 
 local require = require
-local Queue = require 'std.queue'
 local ej = require 'war3.enhanced_jass'
 
 local Group = require 'std.class'('Group')
-Group._VERION = '1.1.0'
+Group._VERION = '1.2.0'
 
--- constants
-local QUANTITY = 128
-
--- 使用queue是因為要重複利用we的單位組，減少ram的開銷
-local recycle_group = Queue:new()
-local GetEmptyGroup, RecycleGroup
-
-local Condition = {
-    IsEnemy = function(enumer, filter)
-        return ej.GetUnitState(enumer, ej.UNIT_STATE_LIFE) > 0.3 and ej.IsUnitEnemy(enumer, ej.GetOwningPlayer(filter))
-    end,
-    IsAlly = function(enumer, filter)
-        return ej.GetUnitState(enumer, ej.UNIT_STATE_LIFE) > 0.3 and ej.IsUnitAlly(enumer, ej.GetOwningPlayer(filter))
-    end,
-    IsHero = function(enumer, filter)
-        return ej.IsUnitType(enumer, ej.UNIT_TYPE_HERO)
-    end,
-    IsUnit = function(enumer, filter)
-        return not (ej.IsUnitType(enumer, ej.UNIT_TYPE_HERO))
-    end,
-    Nil = function(enumer, filter)
-        return true
-    end
-}
+local InitArgs, GetDirection
 
 -- 建構函式
 function Group:_new(filter)
     return {
         _ignore_label_ = {},
         units_ = require 'std.array':new(),
-        filter_ = filter or 0 -- 如果filter沒有傳參，要設定成0才不會出問題
     }
 end
 
--- cnd_name 有 IsEnemy、IsAlly、IsHero、IsUnit、Nil
-function Group:circleUnits(x, y, r, cnd_name)
-    local enum_range_units = GetEmptyGroup()
+-- args = {
+--     p:{} 中心點的座標
+--     vars:{} 額外參數。如果區域需要angle這個參數的話，最後一個是它
+--     type: 選取區域的類型
+--     (optional) cnd: 選取單位的條件
+--     (optional) filter: 比較對象
+-- }
+function Group:circleUnits(args)
+    InitArgs(args)
 
-    -- 選取比原先範圍大一些的區域，好讓有些處在範圍邊緣的單位能夠被正確選取
-    ej.GroupEnumUnitsInRange(enum_range_units, x, y, r + 10, nil)
+    local enum_range_units = require 'war3.group.region'[args.type](args.p, args.vars, GetDirection(args))
 
     local enum_unit = ej.FirstOfGroup(enum_range_units)
-    while ej.H2I(enum_unit) ~= 0 do
-        if
-            Condition[cnd_name](enum_unit, self.filter_) and (not self._ignore_label_[ej.H2I(enum_unit) .. '']) and
-                ej.H2I(enum_unit) ~= ej.H2I(self.filter_)
-        then
+    while enum_unit ~= 0 do
+        if args.cnd(enum_unit) and (not self._ignore_label_[enum_unit]) and enum_unit ~= args.filter then
             self:addUnit(enum_unit)
         end
 
         ej.GroupRemoveUnit(enum_range_units, enum_unit)
-
         enum_unit = ej.FirstOfGroup(enum_range_units)
     end
 
-    RecycleGroup(enum_range_units)
+    require('war3.group.manager').release(enum_range_units)
 
     return self
 end
 
-GetEmptyGroup = function()
-    -- 用 ">" 是因為這個函式會減少recycle_group的數量
-    if recycle_group:size() > QUANTITY then
-        return false
+InitArgs = function(args)
+    -- NOTE: 因為condtion會檢查filter，所以不能讓filter=nil
+    args.filter = args.filter or 0
+
+    -- 如果有條件，就生成條件表達式，沒有就直接生成一個真值的匿名函數
+    if args.cnd then
+        -- NOTE: 如果直接在匿名函數裡使用args.cnd加上讓 args.cnd 等於匿名函數，在函數被調用時，會因為args.cnd已經變成函數而造成內部調用args.cnd時發生錯誤。
+        local cnd = args.cnd
+        args.cnd = function(unit)
+            return require('war3.group.condition')[cnd](unit, args.filter)
+        end
+    else
+        args.cnd = function() return true end
     end
-
-    if recycle_group:isEmpty() then
-        return ej.CreateGroup()
-    end
-
-    local empty_group = recycle_group:front()
-    recycle_group:pop_front()
-
-    return empty_group
 end
 
-RecycleGroup = function(group)
-    -- 用 ">=" 是因為這個函式會增加recycle_group的數量
-    if recycle_group:size() >= QUANTITY then
-        ej.DestroyGroup(group)
+GetDirection = function(args)
+    local Math = require 'std.math'
+
+    if args.filter == 0 then
+        return Math.pi / 2
+    end
+
+    -- NOTE: 如果目標點跟匹配源同個座標，認定為原地施法，因此角度會取匹配源的朝向
+    if args.p.x == ej.GetUnitX(args.filter) and args.p.y == ej.GetUnitY(args.filter) then
+        return ej.GetUnitFacing(args.filter)
     else
-        recycle_group:push_back(group)
+        return Math.angle(ej.GetUnitX(args.filter), ej.GetUnitY(args.filter), args.p.x, args.p.y)
     end
 end
 
@@ -161,14 +143,7 @@ function Group:_remove()
 end
 
 function Group:clear()
-    self:loop(
-        function(this, i)
-            -- false self[i]
-            -- true self.units_[i]
-            this:removeUnit(this.units_[i])
-        end
-    )
-
+    self._ignore_label_ = {}
     self.units_:clear()
     return self
 end
@@ -206,7 +181,7 @@ function Group:isEmpty()
 end
 
 function Group:ignore(unit)
-    self._ignore_label_[ej.H2I(unit) .. ''] = true
+    self._ignore_label_[unit] = true
     return self
 end
 

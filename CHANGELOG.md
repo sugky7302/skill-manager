@@ -1,8 +1,33 @@
 # 更新日誌
 
-## 1.8.1.62 - 2021-08-18
+## 1.9.0.64 - 2021-10-01
+
+### Added:
+- **[std/math]** 新增inRange函數，檢查該值是否在區間內。
+- **[war3/group]**
+  - 新增condition.lua，專職處理group的選取條件。
+  - 新增region.lua，處理group的選取區域。
+- **[war3/group/__init__**
+  - 新增InitArgs函數，用於初始化circleUnits進來的參數。
+  - 新增GetDirection函數，取得選取區域的朝向。
 
 ### Changed:
+- **[war3/group]**
+  - circleUnits的參數變成用table傳遞，比較清晰易懂。
+  - 由於ej.H2I(unit)和unit在lua裡相同，因此所有ej.H2I(unit)都被替換為unit。
+  - 為了讓group與匹配單位解構，我把filter改為參數，並使用匿名函數把cnd包裝，變得更為彈性，不再必須與filter做比較。
+
+### Fixed:
+- **[task.json]** 修正powershell無法啟動執行、配置等lua的任務的問題。
+
+## 1.8.1.63 - 2021-09-21
+
+### Added:
+- **[std/math]** 新增angle函數，可獲取兩點之間的夾角。
+- **[war3/group]** 新增manger.lua，專職處理jass的單位組的獲取與釋放。
+
+### Changed:
+- **[init]** 參照python讀取函數庫的方式，添加一種讀取路徑的方法。只要是資料夾類型的函數庫，當require在載入函數庫時，也會搜尋資料夾下的__init__.lua
 - **[std/group]** 修改group原本的設計模式，使其脫離原本的jass限制，更符合使用需求。
 
 ## 1.8.0.61 - 2020-05-01

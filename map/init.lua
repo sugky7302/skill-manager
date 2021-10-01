@@ -2,6 +2,7 @@
 local require = require
 local Runtime = require 'jass.runtime'
 local Console = require 'jass.console'
+local concat = table.concat
 
 Global = {}
 
@@ -36,7 +37,8 @@ end
 local abs_path = ';D:\\Program\\SkillManager\\src\\'
 
 -- 一定要絕對路徑，不然lua會找不到
-package.path = package.path .. abs_path .. '?.lua'
+package.path = concat{package.path, abs_path, '?.lua'}
+package.path = concat{package.path, abs_path, '?\\__init__.lua'}
 
 -- 進入主函數
 require 'main'
