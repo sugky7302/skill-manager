@@ -35,9 +35,9 @@ return {
     end,
     line = function(p, vars, angle)
     end,
-    circle = function(p, vars)
+    circle = function(p, r)
         local group = Manager.get()
-        ej.GroupEnumUnitsInRange(group, p.x, p.y, vars[1] + 10, nil)
+        ej.GroupEnumUnitsInRange(group, p.x, p.y, r + 10, nil)
         return group
     end,
     sector = function(p, vars, angle)

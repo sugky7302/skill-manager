@@ -76,7 +76,7 @@ end
 
 -- args = {
 --     p:{} 中心點的座標
---     vars:{} 額外參數。如果區域需要angle這個參數的話，最後一個是它
+--     vars: 額外參數。如果有多個參數，會以table方式儲存。
 --     type: 選取區域的類型
 --     (optional) cnd: 選取單位的條件
 --     (optional) filter: 比較對象

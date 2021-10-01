@@ -5,7 +5,7 @@ local a = Group:new()
 
 a:circleUnits{
     p = {x=0, y=0},
-    vars = {999999},
+    vars = 999999,
     type = "circle"
 }
 print(a:getCount())
