@@ -85,44 +85,38 @@ function Math.inRange(x, lower, higher)
 end
 
 -- 以p為起點，向右作一條射線，看射線跟邊相交的點的數量是奇還偶
-local IsPointInLIne
 function Math.inPolygon(p, points)
-    local cross_num = 0
+    local in_poly = false  -- 奇數次表示在裡面，偶數次表示在外面
     local next, x
     for i, pt in ipairs(points) do
         next = points[i == #points and 1 or i+1]
 
-        if IsPointInLIne(p, pt, next) then
+        -- 點在頂點上
+        if (p.x == pt.x and p.y == pt.y) or (p.x ==next.x and p.y == next.y) then
             return true
         end
 
         -- 點經過水平的邊不算
         -- 點的y座標比兩端點都低或都高，都代表碰不到邊
-        if (pt.y ~= next.y) and
-           (p.y >= math.min(pt.y, next.y)) and
-           (p.y < math.max(pt.y, next.y)) then
-            -- 判斷射線有沒有跨過線段(計算斜率，再用比例求射線與線段相交的x)
-            x = (p.y - pt.y) * (next.x - pt.x) / (next.y - pt.y) + pt.x
+        -- 如果經過頂點，會把頂點歸類在射線的上側
+        if p.y > math.min(pt.y, next.y) and
+           p.y <= math.max(pt.y, next.y) then
+            -- 射線與線段相交的x
+            x = pt.x + (p.y - pt.y) * (next.x - pt.x) / (next.y - pt.y)
 
+            -- 點在線上
+            if x == p.x then
+                return true
+            end
+
+            -- 透過判斷射線起始點在預期的x的左右邊，可以知道它有無跨過線段
             if x > p.x then
-                cross_num = cross_num + 1
+                in_poly = not in_poly
             end
         end
     end
 
-    -- 奇數表示在裡面，偶數表示在外面
-    return cross_num % 2 == 1
-end
-
-IsPointInLine = function(p, left, right)
-    -- 比較斜率是否相同來判斷點有無在直線上
-    if (p.y - left.y) * (right.x - left.x) == (right.y - left.y) * (p.x - left.x) and
-        p.x >= Math.min(left.x, right.x) and p.x <= Math.max(right.x, left.x) and
-        p.y >= Math.min(left.y, right.y) and p.y <= Math.max(right.y, left.y) then
-            return true
-    end
-
-    return false
+    return in_poly
 end
 
 return Math
