@@ -84,4 +84,45 @@ function Math.inRange(x, lower, higher)
     return (x >= lower) and x <= higher
 end
 
+-- 以p為起點，向右作一條射線，看射線跟邊相交的點的數量是奇還偶
+local IsPointInLIne
+function Math.inPolygon(p, points)
+    local cross_num = 0
+    local next, x
+    for i, pt in ipairs(points) do
+        next = points[i == #points and 1 or i+1]
+
+        if IsPointInLIne(p, pt, next) then
+            return true
+        end
+
+        -- 點經過水平的邊不算
+        -- 點的y座標比兩端點都低或都高，都代表碰不到邊
+        if (pt.y ~= next.y) and
+           (p.y >= math.min(pt.y, next.y)) and
+           (p.y < math.max(pt.y, next.y)) then
+            -- 判斷射線有沒有跨過線段(計算斜率，再用比例求射線與線段相交的x)
+            x = (p.y - pt.y) * (next.x - pt.x) / (next.y - pt.y) + pt.x
+
+            if x > p.x then
+                cross_num = cross_num + 1
+            end
+        end
+    end
+
+    -- 奇數表示在裡面，偶數表示在外面
+    return cross_num % 2 == 1
+end
+
+IsPointInLine = function(p, left, right)
+    -- 比較斜率是否相同來判斷點有無在直線上
+    if (p.y - left.y) * (right.x - left.x) == (right.y - left.y) * (p.x - left.x) and
+        p.x >= Math.min(left.x, right.x) and p.x <= Math.max(right.x, left.x) and
+        p.y >= Math.min(left.y, right.y) and p.y <= Math.max(right.y, left.y) then
+            return true
+    end
+
+    return false
+end
+
 return Math

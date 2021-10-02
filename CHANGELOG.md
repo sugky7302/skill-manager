@@ -1,9 +1,11 @@
 # 更新日誌
 
-## 1.9.0.65 - 2021-10-01
+## 1.9.0.66 - 2021-10-02
 
 ### Added:
-- **[std/math]** 新增inRange函數，檢查該值是否在區間內。
+- **[std/math]**
+  - 新增inRange函數，檢查該值是否在區間內。
+  - 新增inPolygon函數，檢查點有無在區域內。
 - **[war3/group]**
   - 新增condition.lua，專職處理group的選取條件。
   - 新增region.lua，處理group的選取區域。
