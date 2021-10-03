@@ -14,4 +14,18 @@ do
     end
 end
 
+@ 實際寫法
+local function iter(a,i)
+    i = i + 1
+    local v = a[i]
+    if v then
+        return i, v
+    end
+end
+
+<explist>
+function ipairs(a)
+    return iter, a, 0  !! 注意，無狀態的迭代器這裡只能有3個值，第一個是函數，第二個是常量，第三個是控制變量
+end
+
 -- 自己寫的iterator是使用閉包實現，因此如果要直接調用，必須寫成self:iterator()()才對
