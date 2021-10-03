@@ -1,11 +1,6 @@
 --[[
 Matrix is a math tool to trackle Multi-Dimension calculation.
 
-Member:
-    (private) row - the number of matrix row elements
-    (private) column - the number of matrix column elements
-    (private) values - save matrix values by an array
-
 Function:
     static identity(size) - create an size x size identity matrix
         size - matrix size
@@ -56,7 +51,7 @@ local require = require
 local Math = require 'std.math'
 local cls = require 'std.class'("Matrix")
 
-local CreateSquareMatrix
+local CreateSquareMatrix, ScalarMultiple, MatrixMultiple, VectorMultiple
 
 function cls.identity(size)
     return cls:new(CreateSquareMatrix(size, function(i)
@@ -200,6 +195,44 @@ function cls:__sub(m)
 end
 
 function cls:__mul(m)
+    if type(m) == 'number' then
+        return ScalarMultiple(self, m)
+    elseif m.type == "Vector" then
+        return VectorMultiple(self, m)
+    elseif m.type == "Matrix" then
+        return MatrixMultiple(self, m)
+    end
+end
+
+ScalarMultiple = function(self, n)
+    local new = {}
+    for i, j, v in self:iterator() do
+        if j == 1 then
+            new[i] = {}
+        end
+
+        new[i][j] = v * n
+    end
+
+    return cls:new(new)
+end
+
+VectorMultiple = function(self, v)
+    assert(self:col() == #v, "the size of between the vector and the matrix is different.")
+
+    local new = {}
+    for i, j, val in self:iterator() do
+        if not new[i] then
+            new[i] = 0
+        end
+
+        new[i] = new[i] + val * v[j]
+    end
+
+    return require 'std.vector':new(new)
+end
+
+MatrixMultiple = function(self, m)
     assert(self:col() == m:row(), "the size of two matrices is different.")
     local new, sum = {}, 0
 
@@ -230,19 +263,6 @@ function cls:__div(n)
         end
 
         new[i][j] = v / n
-    end
-
-    return cls:new(new)
-end
-
-function cls:scale(n)
-    local new = {}
-    for i, j, v in self:iterator() do
-        if j == 1 then
-            new[i] = {}
-        end
-
-        new[i][j] = v * n
     end
 
     return cls:new(new)

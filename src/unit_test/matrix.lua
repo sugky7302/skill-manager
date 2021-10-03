@@ -6,4 +6,9 @@ for i, j, v in a:iterator() do
     print(table.concat{"M(", i, ",", j, ") = ", v})
 end
 
-print(a == b, a + b, a * b:transpose(), a:scale(2), b/ 3)
+print(a == b, a + b, a * b:transpose(), a*2, b/ 3)
+
+local c = require 'std.vector'(7, 8, 9)
+print(c*a)
+
+print(a:transpose() * c)

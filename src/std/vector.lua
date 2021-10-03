@@ -6,6 +6,8 @@ local require = require
 local Math = require 'std.math'
 local cls = require 'std.class'("Vector")
 
+local ScalarMultiple, VectorMultiple, MatrixMultiple
+
 function cls.zeros(size)
     local new = {}
     for i = 1, size do
@@ -104,10 +106,45 @@ function cls:__sub(v)
     return cls:new(new)
 end
 
-function cls:__mul(n)
+function cls:__mul(m)
+    if type(m) == 'number' then
+        return ScalarMultiple(self,m)
+    elseif m.type == 'Vector' then
+        return VectorMultiple(self, m)
+    elseif m.type == "Matrix" then
+        return MatrixMultiple(self, m)
+    end
+end
+
+ScalarMultiple = function(self, n)
     local new = {}
     for i, val in ipairs(self) do
         new[i] = val * n
+    end
+
+    return cls:new(new)
+end
+
+VectorMultiple = function(self, v)
+    assert(#self == #v, "the size of two vectors is different.")
+    local sum = 0
+    for i, val in ipairs(self) do
+        sum = sum + val * v[i]
+    end
+
+    return sum
+end
+
+MatrixMultiple = function(self, m)
+    assert(#self == m:row(), "the size of between the vector and the matrix is different.")
+
+    local new = {}
+    for i, j, v in m:iterator() do
+        if not new[j] then
+            new[j] = 0
+        end
+
+        new[j] = new[j] + self[i] * v
     end
 
     return cls:new(new)
@@ -135,16 +172,6 @@ function cls:norm()
     end
 
     return Math.sqrt(sum)
-end
-
-function cls:dot(v)
-    assert(#self == #v, "the size of two vectors is different.")
-    local sum = 0
-    for i, val in ipairs(self) do
-        sum = sum + val * v[i]
-    end
-
-    return sum
 end
 
 return cls
