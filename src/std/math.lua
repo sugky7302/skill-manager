@@ -77,7 +77,8 @@ function Math.gcf(num1, num2)
 end
 
 function Math.angle(s_x, s_y, t_x, t_y)
-    return math.atan(t_y - s_y, t_x - s_x)
+    local theta  = math.atan(t_y - s_y, t_x - s_x)
+    return theta < 0 and 2 * math.pi + theta or theta
 end
 
 function Math.inRange(x, lower, higher)

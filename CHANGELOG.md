@@ -1,6 +1,6 @@
 # 更新日誌
 
-## 1.9.0.67 - 2021-10-02
+## 1.9.0.68 - 2021-10-03
 
 ### Added:
 - **[std/math]**
@@ -9,11 +9,13 @@
 - **[war3/group]**
   - 新增condition.lua，專職處理group的選取條件。
   - 新增region.lua，處理group的選取區域。
-- **[war3/group/__init__**
+- **[war3/group/__init__]**
   - 新增InitArgs函數，用於初始化circleUnits進來的參數。
   - 新增GetDirection函數，取得選取區域的朝向。
+- **[war3/group/manager]** 新增traverse函數，能夠遍歷單位組。
 
 ### Changed:
+- **[std/math]** angle函數的回傳值從[-π, π] -> [0, 2π]。
 - **[war3/group]**
   - circleUnits的參數變成用table傳遞，比較清晰易懂。
   - 由於ej.H2I(unit)和unit在lua裡相同，因此所有ej.H2I(unit)都被替換為unit。
@@ -21,6 +23,7 @@
 
 ### Fixed:
 - **[task.json]** 修正powershell無法啟動執行、配置等lua的任務的問題。
+- **[war3/group/__init__]** 修正GetDirection函數裡，GetUnitFacing的回傳值沒有從角度轉換到弧度的錯誤。
 
 ## 1.8.1.63 - 2021-09-21
 

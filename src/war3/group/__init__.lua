@@ -9,8 +9,8 @@
 --   group/region
 --
 -- Member:
---   _ignore_label_(table) - save ths ignored units
---   units_(queue) - save the jass units
+--   _blacklist_(table) - save ths marked units
+--   _units_(queue) - save the jass units
 --
 -- Function:
 --   new(self) - create a new group instance
@@ -19,15 +19,21 @@
 --   remove(self) - remove ths group instance
 --     self - group instance
 --
---   circleUnits(self, x, y, r, cnd_name) - select all matched units in the circle with center(x, y) and radius r
+--   circleUnits(self, args) - select all matched units in a assigned region
 --     self - group instance
---     x - x coordinate of the circle center
---     y - y coordinate of the circle center
---     r - circle radius
---     cnd_name - a condition name, it calls the corresponding function in Condition to filter enum units.
---                It has IsEnemy, IsAlly, IsHero, IsUnit, and Nil currently.
+--     args - {
+--       p:{x, y} 中心點的座標
+--       vars: 額外參數。如果有多個參數，會以table方式儲存。
+--       type: 選取區域的類型
+--       (optional) cnd: 選取單位的條件，有IsEnemy、IsAlly、IsHero、IsUnit
+--       (optional) filter: 比較對象
+--     }
 --
 --   addUnit(self, unit) - add a unit into the group
+--     self - group instance
+--     unit - a jass unit
+--
+--   removeUnit(self, unit) - remove a unit from the group
 --     self - group instance
 --     unit - a jass unit
 --
@@ -39,7 +45,7 @@
 --     action - an anomymous function, its argument list must have self and unit
 --     args - argument list of any length
 --
---   in(self, unit) - check whether the unit is in the group or not
+--   In(self, unit) - check whether the unit is in the group or not
 --     self - group instance
 --     unit - a jass unit
 --     return - exists or not
@@ -52,11 +58,14 @@
 --     self - group instance
 --     return - empty or not
 --
---   ignore(self, unit) - label the unit such that calling function enumUnitsInRange could ignore the unit
+--   mark(self, unit) - mark an unit such that the unit will be ignored while the group is circling units.
 --     self - group instance
---     unit - a jass unit we want to ignore
+--     unit - a jass unit
+--
+--   unmark(self, unit) - cancel the marked state of the unit
+--     self - group instance
+--     unit - a jass unit
 ------
-
 
 local require = require
 local ej = require 'war3.enhanced_jass'
@@ -66,37 +75,24 @@ Group._VERION = '1.2.0'
 
 local InitArgs, GetDirection
 
--- 建構函式
-function Group:_new(filter)
+function Group:_new()
     return {
-        _ignore_label_ = {},
-        units_ = require 'std.array':new(),
+        _blacklist_ = {},
+        _units_ = require 'std.array':new(),
     }
 end
 
--- args = {
---     p:{} 中心點的座標
---     vars: 額外參數。如果有多個參數，會以table方式儲存。
---     type: 選取區域的類型
---     (optional) cnd: 選取單位的條件
---     (optional) filter: 比較對象
--- }
 function Group:circleUnits(args)
     InitArgs(args)
 
-    local enum_range_units = require 'war3.group.region'[args.type](args.p, args.vars, GetDirection(args))
-
-    local enum_unit = ej.FirstOfGroup(enum_range_units)
-    while enum_unit ~= 0 do
-        if args.cnd(enum_unit) and (not self._ignore_label_[enum_unit]) and enum_unit ~= args.filter then
-            self:addUnit(enum_unit)
-        end
-
-        ej.GroupRemoveUnit(enum_range_units, enum_unit)
-        enum_unit = ej.FirstOfGroup(enum_range_units)
-    end
-
-    require('war3.group.manager').release(enum_range_units)
+    require('war3.group.manager').traverse(
+        require 'war3.group.region'[args.type](args.p, args.vars, GetDirection(args)),
+        function(unit)
+            return args.cnd(unit) and (not self._blacklist_[unit]) and unit ~= args.filter
+        end,
+        function(unit)
+            self:addUnit(unit)
+        end)
 
     return self
 end
@@ -125,26 +121,32 @@ GetDirection = function(args)
     end
 
     -- NOTE: 如果目標點跟匹配源同個座標，認定為原地施法，因此角度會取匹配源的朝向
+    -- NOTE: Facing出來是角度，因此要轉成弧度
     if args.p.x == ej.GetUnitX(args.filter) and args.p.y == ej.GetUnitY(args.filter) then
-        return ej.GetUnitFacing(args.filter)
+        return Math.pi * ej.GetUnitFacing(args.filter) / 180
     else
         return Math.angle(ej.GetUnitX(args.filter), ej.GetUnitY(args.filter), args.p.x, args.p.y)
     end
 end
 
 function Group:addUnit(unit)
-    self.units_:append(unit)
+    self._units_:append(unit)
+    return self
+end
+
+function Group:removeUnit(unit)
+    self._units_:erase(unit)
     return self
 end
 
 function Group:_remove()
     self:clear()
-    self.units_:remove()
+    self._units_:remove()
 end
 
 function Group:clear()
-    self._ignore_label_ = {}
-    self.units_:clear()
+    self._blacklist_ = {}
+    self._units_:clear()
     return self
 end
 
@@ -156,32 +158,32 @@ end
 -- 只有2個元素的array，如果delete array[1]刪掉，會讀不到array[2]
 -- 使用倒序循環就不會出現這樣的問題
 function Group:loop(action, ...)
-    for i = self.units_:size(), 1, -1 do
-        action(self, self.units_[i], ...)
+    for i = self._units_:size(), 1, -1 do
+        action(self, self._units_[i], ...)
     end
 
     return self
 end
 
-function Group:removeUnit(unit)
-    self.units_:erase(unit)
-    return self
-end
-
 function Group:In(unit)
-    return self.units_:exist(unit)
+    return self._units_:exist(unit)
 end
 
 function Group:getCount()
-    return self.units_:size()
+    return self._units_:size()
 end
 
 function Group:isEmpty()
-    return self.units_:isEmpty()
+    return self._units_:isEmpty()
 end
 
-function Group:ignore(unit)
-    self._ignore_label_[unit] = true
+function Group:mark(unit)
+    self._blacklist_[unit] = true
+    return self
+end
+
+function Group:unmark(unit)
+    self._blacklist_[unit] = nil
     return self
 end
 

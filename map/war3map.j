@@ -57,7 +57,7 @@ function CreateUnitsForPlayer0 takes nothing returns nothing
     local integer unitID
     local trigger t
     local real life
-    set u=CreateUnit(p, 'Hblm', - 352.9, - 29.3, 1.549)
+    set u=CreateUnit(p, 'Hblm', - 353.4, - 40.3, 16.568)
 endfunction
 //===========================================================================
 function CreateNeutralHostile takes nothing returns nothing
@@ -66,7 +66,7 @@ function CreateNeutralHostile takes nothing returns nothing
     local integer unitID
     local trigger t
     local real life
-    set u=CreateUnit(p, 'nban', - 219.7, - 40.3, 16.568)
+    set u=CreateUnit(p, 'nban', - 219.7, - 40.3, 179.45)
 endfunction
 //===========================================================================
 function CreatePlayerBuildings takes nothing returns nothing

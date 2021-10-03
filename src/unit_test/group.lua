@@ -8,18 +8,42 @@ a:circleUnits{
     vars = 999999,
     type = "circle"
 }
-print(a:getCount())
+
 a:loop(function(self, unit)
-    print("I'm " .. unit)
+    print("I'm " .. ej.U2S(unit))
     local b = Group:new():circleUnits{
         p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
-        vars = {500, 500},
+        vars = {1000, 268},
         type = 'rectangle',
         cnd = 'IsEnemy',
         filter = unit
     }
-    print("There are " .. b:getCount() .. " enemies near me")
-    b:loop(function(this, u)
-        ej.KillUnit(u)
-    end)
+    print("Rectangle selected " .. b:getCount() .. " enemies")
+
+    b = Group:new():circleUnits{
+        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        vars = {1000, 134},
+        type = 'line',
+        cnd = 'IsEnemy',
+        filter = unit
+    }
+    print("Line selected " .. b:getCount() .. " enemies")
+
+    b = Group:new():circleUnits{
+        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        vars = {134, -15, 60},
+        type = 'sector',
+        cnd = 'IsEnemy',
+        filter = unit
+    }
+    print("Sector selected " .. b:getCount() .. " enemies")
+
+    b = Group:new():circleUnits{
+        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        vars = {134, 30},
+        type = 'fix_sector',
+        cnd = 'IsEnemy',
+        filter = unit
+    }
+    print("Fixed sector selected " .. b:getCount() .. " enemies")
 end)
