@@ -5,10 +5,10 @@ return {
         set = function()
             print("觸發a的設值函數")
         end,
-        get = function()
-            print("觸發a的取值函數")
-            return 5
-        end
+        -- get = function()
+        --     print("觸發a的取值函數")
+        --     return 5
+        -- end
     },
     b = {
         format = "提高N點b",

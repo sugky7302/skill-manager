@@ -1,3 +1,36 @@
+--[[
+  Red-black tree is an important data structure of computer science. It is often used on building the database.
+
+  Member:
+    _size_ - record the size of the tree
+    _root_ - the root node of the tree
+
+  Function:
+    new(self) - create a new instance
+      self - class
+
+    size(self) - the number of nodes in the tree
+      self - instance
+      return - the size
+    
+    iterator(self) - traverse the tree
+      self - instance
+      return - the index of the node, the value of the node
+
+    insert(self, index, data) - insert the data into the index-th position of the tree
+      self - instance
+      index - key
+      data - value
+    
+    delete(self, index) - delete the data in the index-th position of the tree
+      self - instance
+      index - key
+
+    find(self, index) - find the value in the index-th position of the tree
+      self - instance
+      index - key
+--]]
+
 -- 葉節點
 local Node = {
     new = function(self, index, data, color)
@@ -47,7 +80,7 @@ end
 
 function RBT:iterator()
     local stack = require 'std.stack':new()
-    local node, data = self._root_
+    local node = self._root_
     return function()
         -- 搜尋左子節點，並將中途遇到的節點壓入stack，方便回退時直接使用
         while node do
@@ -64,12 +97,12 @@ function RBT:iterator()
         -- 取值並印出
         node = stack:top()
         stack:pop()
-        data = node:getData()
+        local idx, data = node:getIndex(), node:getData()
 
         -- 搜尋右子節點。如果沒有的話，下一次會回退到父節點
         node = node.right_
 
-        return data
+        return idx, data
     end
 end
 
