@@ -1,8 +1,8 @@
 local attr = require 'lib.attribute':new():setPackage('data.test.attribute')
 
 local function loop()
-    for name, value in attr:iterator() do
-        print(name, value[1] * (1+value[2]/100), attr:get(name), attr:getDescription(name))
+    for priority, name in attr:iterator() do
+        print(priority, name, attr:sum(name), attr:get(name), attr:getDescription(name))
     end
 end
 

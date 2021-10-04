@@ -13,8 +13,6 @@
   Member:
     _object_ - record the operated object
     _rank_ - sort all attributes by the priority.
-             Advantages of the red-black tree are that the searching speed is faster than table and
-             it can sort orders automatically.
     _package_ - record external package
 
   Function:
@@ -76,7 +74,7 @@ local ParseKey, CreateAttribute, Sync, GetFormat
 
 function cls:_new(object)
     return {
-        _rank_ = require 'std.red_black_tree':new(),
+        _rank_ = {},
         _object_ = object,
         _package_ = nil
     }
@@ -89,16 +87,10 @@ function cls:setPackage(path)
 end
 
 function cls:iterator()
-    local iter = self._rank_:iterator()
-    return function()
-        local _, name = iter()  -- 第一個值是不需要的索引
-
-        if not name then
-            return nil
-        end
-
-        return name, self[name]
+    local iter = function(t, i)
+        return next(t, i)
     end
+    return iter, self._rank_, nil
 end
 
 -- 獲得外部資料庫的屬性
@@ -196,14 +188,22 @@ CreateAttribute = function(self, name)
     if self._package_ and self._package_[name] and self._package_[name].priority then
         key = self._package_[name].priority
     else
-        key = self._rank_:size() + 1
+        -- NOTE: 因為 # 只會搜到連續空間的最後一格，因此 +1 一定會是空格
+        key = #self._rank_ + 1
+    end
+
+    -- 如果priority的位置上有值，就把它搬到空位
+    if self._rank_[key] then
+        local new_key = #self._rank_ + 1
+        self._rank_[new_key] = self._rank_[key]
+        self[self._rank_[key]][0] = new_key
     end
 
     -- 在紅黑數的索引（預設0）、數值、百分比、固定值
     self[name] = {[0] = key, 0, 0, 0}
 
     -- 把優先級加入索引表
-    self._rank_:insert(self[name][0], name)
+    self._rank_[key] = name
 end
 
 -- NOTE: 利用取值函數來同步遊戲內的數值和紀錄值。如果沒有取值函數，就回傳0，保證使用它的函數不會出錯。 - 2021-10-04
@@ -220,11 +220,7 @@ end
 
 function cls:delete(key)
     local name = ParseKey(key)
-
-    if self._rank_:find(self[name][0]) then
-        self._rank_:delete(self[name][0])
-    end
-
+    self._rank_[self[name][0]] = nil
     self[name] = nil
 end
 
