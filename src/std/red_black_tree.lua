@@ -21,7 +21,7 @@
       self - instance
       index - key
       data - value
-    
+
     delete(self, index) - delete the data in the index-th position of the tree
       self - instance
       index - key
@@ -37,7 +37,7 @@ local Node = {
         local instance = {
             __index = self,
             _index_ = index,
-            _data_ = data,
+            data_ = data,
             color_ = color or 0, -- 0: 紅色、1: 黑色
             parent_ = nil,
             left_ = nil,
@@ -56,9 +56,6 @@ local Node = {
     end,
     getIndex = function(self)
         return self._index_
-    end,
-    getData = function(self)
-        return self._data_
     end
 }
 
@@ -97,7 +94,7 @@ function RBT:iterator()
         -- 取值並印出
         node = stack:top()
         stack:pop()
-        local idx, data = node:getIndex(), node:getData()
+        local idx, data = node:getIndex(), node.data_
 
         -- 搜尋右子節點。如果沒有的話，下一次會回退到父節點
         node = node.right_
@@ -107,6 +104,10 @@ function RBT:iterator()
 end
 
 function RBT:insert(index, data)
+    if not (index and data) then
+        return self
+    end
+
     local new_node = Node:new(index, data)
 
     if not self._root_ then

@@ -14,9 +14,13 @@ end
 
 print(a)
 
--- 單獨調用迭代器
--- a:iterator()只是一個函數，必須要再加()才會調用
-print(a:iterator()())
+for i, node in a:iterator() do
+    if i == 2 then
+        a:delete(node)
+    end
+end
+
+print(a)
 
 
 -- 多層迭代器參考寫法，主要是別的類別的迭代器要調用本迭代器進行處理，需要額外做一些工作

@@ -1,8 +1,32 @@
 -- 在lua上建構c++的泛型list，提供插入/移除任意類型元素
 
+-- 葉節點
+local Node = {
+    new = function(self, data)
+        local instance = {
+            __index = self,
+            _data_ = data,
+            prev_ = nil,
+            next_ = nil
+        }
+
+        return setmetatable(instance, instance)
+    end,
+    remove = function(self)
+        for k in pairs(self) do
+            self[k] = nil
+        end
+
+        self = nil
+    end,
+    getData = function(self)
+        return self._data_
+    end
+}
+
 -- package
 local require = require
-local Table = require 'std.table'
+local IsNil = require 'std.table'.isNil
 local List = require 'std.class'('List')
 
 List._VERSION = '1.2.0'
@@ -52,7 +76,7 @@ function List:__tostring()
 
     print_str[#print_str + 1] = ']'
 
-    return Table.concat(print_str, ' ')
+    return table.concat(print_str, ' ')
 end
 
 function List:clear()
@@ -89,10 +113,10 @@ function List:reverseIterator()
             return nil
         end
 
-        node = Table.isNil(node) and self._end_ or node.prev_
+        node = IsNil(node) and self._end_ or node.prev_
 
         -- 檢查是否到最末端
-        if Table.isNil(node) then
+        if IsNil(node) then
             return nil
         end
 
@@ -200,11 +224,11 @@ function List:iterator()
             return nil
         end
 
-        node = Table.isNil(node) and self._begin_ or node.next_
+        node = IsNil(node) and self._begin_ or node.next_
 
         -- 檢查是否到最末端
         -- NOTE: 第一個回傳值不是nil，迭代器不會停止，可以參考 docs/無狀態的迭代器寫法.lua
-        if Table.isNil(node) then
+        if IsNil(node) then
             return nil
         end
 
@@ -227,7 +251,7 @@ function List:insert(node, data)
         return false
     end
 
-    local new_node = require 'std.node':new(data)
+    local new_node = Node:new(data)
 
     if self:isEmpty() then
         InsertNodeToEmptyList(self, new_node)

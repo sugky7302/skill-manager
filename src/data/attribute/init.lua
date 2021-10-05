@@ -1,4 +1,4 @@
-return require 'data.load_file'("data.attribute.", {
+return require 'data.load_file'("data.attribute", {
     "atk",
     "mhp",
     "hp",

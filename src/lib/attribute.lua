@@ -2,9 +2,6 @@
   cls is an extension recorded extra attributes of unit, hero or item.
   It can operate attributes of the object via simple setting and getting.
 
-  Required:
-    red_black_tree
-
   Note:
     An attribute script is reserved 4 keywords, set(set value function), get(get value function),
     format(a text of describing the attribute, N would be replaced by a number ),
@@ -143,17 +140,20 @@ function cls:set(key, value)
     CreateAttribute(self, name)
     Sync(self, name)
 
+    local idx
     if sign == PERCENT then
-        self[name][2] = value
+        idx = 2
     elseif sign == FIX then
-        self[name][3] = value
+        idx = 3
     else
-        self[name][1] = value
+        idx = 1
     end
+
+    self[name][idx] = value
 
     -- 調用設值函數
     pcall(function()
-        self._package_[name].set(self, value)
+        self._package_[name].set(self, idx, value)
     end)
 
     return self

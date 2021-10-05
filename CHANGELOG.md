@@ -1,8 +1,10 @@
 # 更新日誌
 
-## 1.9.0.72 - 2021-10-04
+## 1.9.0.73 - 2021-10-05
 
 ### Added:
+- **[data/test]** 新增rune的測試資料庫。
+- **[lib]** 新增rune.lua，負責處理鑲嵌符文這一塊。
 - **[lib/attribute]** 新增sum函數，會回傳指定屬性的總值。
 - **[std]** 
   - 新增vector庫，處理向量的問題。此外，向量和矩陣可以相乘，以符合數學用法。
@@ -11,13 +13,16 @@
   - 新增inRange函數，檢查該值是否在區間內。
   - 新增inPolygon函數，檢查點有無在區域內。
 - **[std/red_black_tree]** 添加說明文件。
-- **[unit_test]** 新增vector單元測試腳本。
+- **[unit_test]**
+  - 新增vector單元測試腳本。
+  - 新增rune腳本。
 - **[war3/group]**
   - 新增condition.lua，專職處理group的選取條件。
   - 新增region.lua，處理group的選取區域。
 - **[war3/group/__init__]**
   - 新增InitArgs函數，用於初始化circleUnits進來的參數。
   - 新增GetDirection函數，取得選取區域的朝向。
+  - 新增迭代器，功能與loop函數相同，但適用於lua本身的for。
 - **[war3/group/manager]** 新增traverse函數，能夠遍歷單位組。
 
 ### Changed:
@@ -26,6 +31,8 @@
   - 原本設定值的方式會產生因添加順序不同而結果不同的問題，這不符合設計目的，因此修改了公式。
   - 重構寫法，刪除一些不必要的函數。特別是add函數，因為set已經有屬性名的判斷，所以add就不用再判斷。
   - 由於紅黑樹開銷太大，且這裡用途只有排序優先級，因此使用更簡易的table實作。
+  - 調用設值函數時，會傳入索引參數，使裡頭可以知道value是加在哪個部份。
+- **[std/database]** 重新設計，將儲存結構從自創的多table變成RB樹，更符合資料庫引擎的需求。
 - **[std/math]** angle函數的回傳值從[-π, π] -> [0, 2π]。
 - **[std/red_black_tree]** 迭代器現在會回傳索引跟值。
 - **[war3/group]**
@@ -36,6 +43,9 @@
 ### Fixed:
 - **[task.json]** 修正powershell無法啟動執行、配置等lua的任務的問題。
 - **[war3/group/__init__]** 修正GetDirection函數裡，GetUnitFacing的回傳值沒有從角度轉換到弧度的錯誤。
+
+### Removed:
+- **[std]** 刪除node.lua，把其功能移動到list.lua裡。
 
 ## 1.8.1.63 - 2021-09-21
 

@@ -165,6 +165,16 @@ function Group:loop(action, ...)
     return self
 end
 
+function Group:iterator()
+    local i = self._units_:size() + 1
+    local iter = function(t)
+        i = i - 1
+        if i == 0 then return nil end
+        return t[i]
+    end
+    return iter, self._units_, 0
+end
+
 function Group:In(unit)
     return self._units_:exist(unit)
 end
