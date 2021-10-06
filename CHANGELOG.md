@@ -1,6 +1,10 @@
 # 更新日誌
 
-## 1.9.0.73 - 2021-10-05
+## TODO:
+- Equipment重新設計
+- 重新分類script
+
+## 1.9.0.74 - 2021-10-06
 
 ### Added:
 - **[data/test]** 新增rune的測試資料庫。
@@ -35,6 +39,7 @@
 - **[std/database]** 重新設計，將儲存結構從自創的多table變成RB樹，更符合資料庫引擎的需求。
 - **[std/math]** angle函數的回傳值從[-π, π] -> [0, 2π]。
 - **[std/red_black_tree]** 迭代器現在會回傳索引跟值。
+- **[war3/equipment]** 重新設計。
 - **[war3/group]**
   - circleUnits的參數變成用table傳遞，比較清晰易懂。
   - 由於ej.H2I(unit)和unit在lua裡相同，因此所有ej.H2I(unit)都被替換為unit。

@@ -54,15 +54,16 @@ function cls:mount(id, level)
 
     local v = {id, data[1], data[2](level)}
     self._slot_:push_back(v)
-    return v[2], v[3]
+    return v
 end
 
 function cls:demount(index)
+    local data
     for i, node in self._slot_:iterator() do
         if i == index then
-            local id = node:getData()[1]
+            data = node:getData()
             self._slot_:delete(node)
-            return id
+            return data
         end
     end
 end

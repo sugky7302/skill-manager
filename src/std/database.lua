@@ -50,7 +50,8 @@ function cls:update(key, ...)
 end
 
 function cls:read(key)
-    return self:find(FixKey(key)).data_
+    local node = self:find(FixKey(key))
+    return node and node.data_ or nil
 end
 
 function cls:delete(key)
