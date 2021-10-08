@@ -130,7 +130,10 @@ GetDirection = function(args)
 end
 
 function Group:addUnit(unit)
-    self._units_:append(unit)
+    if not self._units_:exists(unit) then
+        self._units_:append(unit)
+    end
+
     return self
 end
 

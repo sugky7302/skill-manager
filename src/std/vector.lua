@@ -109,9 +109,9 @@ end
 function cls:__mul(m)
     if type(m) == 'number' then
         return ScalarMultiple(self,m)
-    elseif m.type == 'Vector' then
+    elseif m:isType("Vector") then
         return VectorMultiple(self, m)
-    elseif m.type == "Matrix" then
+    elseif m:isType("Matrix") then
         return MatrixMultiple(self, m)
     end
 end

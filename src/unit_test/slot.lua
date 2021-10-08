@@ -1,4 +1,4 @@
-local Rune = require 'war3.rune'
+local Rune = require 'war3.slot'
 
 local a = Rune:new('data.test.rune')
 

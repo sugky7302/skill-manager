@@ -4,11 +4,11 @@
 - Equipment重新設計
 - 重新分類script
 
-## 1.9.0.74 - 2021-10-06
+## 1.9.0.75 - 2021-10-07
 
 ### Added:
-- **[data/test]** 新增rune的測試資料庫。
-- **[lib]** 新增rune.lua，負責處理鑲嵌符文這一塊。
+- **[data/test]** 新增slot的測試資料庫。
+- **[lib]** 新增slot.lua，負責處理鑲嵌符文這一塊。
 - **[lib/attribute]** 新增sum函數，會回傳指定屬性的總值。
 - **[std]** 
   - 新增vector庫，處理向量的問題。此外，向量和矩陣可以相乘，以符合數學用法。
@@ -19,7 +19,7 @@
 - **[std/red_black_tree]** 添加說明文件。
 - **[unit_test]**
   - 新增vector單元測試腳本。
-  - 新增rune腳本。
+  - 新增slot腳本。
 - **[war3/group]**
   - 新增condition.lua，專職處理group的選取條件。
   - 新增region.lua，處理group的選取區域。
@@ -36,6 +36,7 @@
   - 重構寫法，刪除一些不必要的函數。特別是add函數，因為set已經有屬性名的判斷，所以add就不用再判斷。
   - 由於紅黑樹開銷太大，且這裡用途只有排序優先級，因此使用更簡易的table實作。
   - 調用設值函數時，會傳入索引參數，使裡頭可以知道value是加在哪個部份。
+- **[std/class]** type變成儲存一串類別名，記錄自己的類別名和父類名，並新增isType函數，可以判斷物件是不是屬於某個類別，從而實現像C++那樣，子類物件在宣告時也能以父類當作變數類型。
 - **[std/database]** 重新設計，將儲存結構從自創的多table變成RB樹，更符合資料庫引擎的需求。
 - **[std/math]** angle函數的回傳值從[-π, π] -> [0, 2π]。
 - **[std/red_black_tree]** 迭代器現在會回傳索引跟值。
@@ -47,10 +48,13 @@
 
 ### Fixed:
 - **[task.json]** 修正powershell無法啟動執行、配置等lua的任務的問題。
-- **[war3/group/__init__]** 修正GetDirection函數裡，GetUnitFacing的回傳值沒有從角度轉換到弧度的錯誤。
+- **[war3/group/__init__]**
+  - 修正GetDirection函數裡，GetUnitFacing的回傳值沒有從角度轉換到弧度的錯誤。
+  - 修正可以重複選取相同單位的問題。
 
 ### Removed:
 - **[std]** 刪除node.lua，把其功能移動到list.lua裡。
+- **[std/class]** 刪除_VERSION這個沒用的變數。
 
 ## 1.8.1.63 - 2021-09-21
 

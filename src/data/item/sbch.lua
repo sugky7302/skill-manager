@@ -1,5 +1,5 @@
 return {
-    obtain = function(self)
+    equip = function(self)
         print("obtain")
     end,
     drop = function(self)

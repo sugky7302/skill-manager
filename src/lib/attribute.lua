@@ -20,8 +20,21 @@
       self - attribute instance
       path - the package path
 
+    +(self, attr) - add all attributes of the attr into self
+      self - instance
+      attr - another attribute instance
+
+    -(self, attr) - subtract attributes which they both have from self
+      self - instance
+      attr - another attribute instance
+
     iterator(self) - Traverse all elements in _rank_ by Lua iterator
       self - attribute instance
+
+    has(self, name) - check whether the instance has the attribute of the name.
+      self - instance
+      name - attribute name
+      return - the summation of values of the attribute or nil if the name is not found
 
     getDescription(self, key) - get the attribute description by the key
       self - attribute instance
@@ -83,11 +96,41 @@ function cls:setPackage(path)
     return self
 end
 
+function cls:__add(attr)
+    if not attr:isType("Attribute") then
+        return self
+    end
+
+    for name, v in attr:iterator() do
+        self:add(name, v)
+    end
+
+    return self
+end
+
+function cls:__sub(attr)
+    if not attr:isType("Attribute")then
+        return self
+    end
+
+    for name, v in attr:iterator() do
+        if self[name] then
+            self:add(name, -v)
+        end
+    end
+
+    return self
+end
+
 function cls:iterator()
     local iter = function(t, i)
         return next(t, i)
     end
     return iter, self._rank_, nil
+end
+
+function cls:has(name)
+    return self[name] and self:sum(name)
 end
 
 -- 獲得外部資料庫的屬性

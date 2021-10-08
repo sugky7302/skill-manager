@@ -1,5 +1,5 @@
 --[[
-  Rune is an most important and complicated system and a powerful feature of the game.
+  Slot is an most important and complicated system and a powerful feature of the game.
 
   Required:
     red_black_tree
@@ -28,7 +28,7 @@
 --]]
 
 local require = require
-local cls = require 'std.class'("Rune")
+local cls = require 'std.class'("Slot")
 
 function cls:_new(path)
     local status, retval = pcall(require, path)  -- 搜不到會回傳 false

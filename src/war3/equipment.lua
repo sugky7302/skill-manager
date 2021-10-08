@@ -1,19 +1,26 @@
-local require = require
+local require, pcall, type = require, pcall, type
 local cls = require 'std.class'("Equipment")
 local RUNE, GEM = "符文", "珠寶"
 
-function cls:_new()
+function cls:_new(id, path)
     return {
+        _id_ = id,  -- item在遊戲裡的id
         _owner_ = nil,
         _name_ = nil,
         _level_ = 0,
         _prefix_ = nil,
         _enhanced_times_ = 0,
         _vitality_ = 0,
-        _attr_ = require 'lib.attribute':new(),
-        _rune_ = require 'war3.rune':new('data.test.rune'),
-        _gem_ = require 'war3.rune':new(),
+        _attr_ = require 'lib.attribute':new():setPackage('data.test.attribute'),
+        _rune_ = require 'war3.slot':new('data.test.rune'),
+        _gem_ = require 'war3.slot':new(),
+        _tick_ = require(path)  -- 自訂的obtain, drop, use
     }
+end
+
+function cls:setOwner(owner)
+    self._owner_ = owner
+    return self
 end
 
 function cls:getName()
@@ -36,10 +43,10 @@ function cls:show()
 end
 
 function cls:mount(material, level)
-    -- 利用Rune會自動搜尋資料庫的功能，先檢查它是不是符文
+    -- 利用Rune會自動搜尋資料庫，檢查它是不是符文
     local data = self._rune_:mount(material, level)
 
-    -- 再撿查是不是珠寶
+    -- 檢查是不是珠寶
     if not data then
         data = self._gem_:mount(material, level)
     end
@@ -67,12 +74,38 @@ function cls:demount(type, index)
 end
 
 function cls:equip()
+    if not self._owner_ then
+        return self
+    end
+
+    if type(self._owner_) == "table" and self._owner_:isType("Unit") then
+        self._owner_._attr_ = self._owner_._attr_ + self._attr_
+    end
+
+    pcall(self._tick_.equip, self)
+
+    return self
 end
 
 function cls:drop()
+    if not self._owner_ then
+        return self
+    end
+
+    if type(self._owner_) == "table" and self._owner_:isType("Unit") then
+        self._owner_._attr_ = self._owner_._attr_ - self._attr_
+    end
+
+    pcall(self._tick_.drop, self)
+
+    return self
 end
 
-function cls:use()
+function cls:use(target)
+    if self._owner_ then
+        pcall(self._tick_.use, self, target)
+    end
+    return self
 end
 
 return cls
