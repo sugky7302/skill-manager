@@ -14,6 +14,7 @@
     read(self, key) - search for datas corresponding to the key
       self - Database instance
       key - index or the data in the primary column
+      return - data or nil
  
     update(self, key, ...) - search datas corresponding to the key
       self - Database instance

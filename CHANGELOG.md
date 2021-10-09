@@ -1,10 +1,14 @@
 # 更新日誌
 
 ## TODO:
-- Equipment重新設計
+- Equipment新增recipe
+- Eq創建時搜尋資料庫，根據item type添加屬性。以下二擇一
+  - 寫addAtrribute來添加屬性
+  - 設計一個init函數可以讀取item type，然後去資料庫搜尋資料
 - 重新分類script
+  - 整合math、vector、matrix為一個math庫
 
-## 1.9.0.75 - 2021-10-07
+## 1.9.0.76 - 2021-10-09
 
 ### Added:
 - **[data/test]** 新增slot的測試資料庫。

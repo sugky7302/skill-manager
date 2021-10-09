@@ -1,6 +1,6 @@
 local Equipment = require 'war3.equipment'
 
-local a = Equipment:new(123, 'data.item.sbch')
+local a = Equipment:new{id=123, type='sbch', name="test", level=5}
 
 a:mount('crum', 3):mount('sde', 5)
 

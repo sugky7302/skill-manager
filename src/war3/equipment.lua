@@ -2,20 +2,38 @@ local require, pcall, type = require, pcall, type
 local cls = require 'std.class'("Equipment")
 local RUNE, GEM = "符文", "珠寶"
 
-function cls:_new(id, path)
-    return {
-        _id_ = id,  -- item在遊戲裡的id
+function cls:_new(t)
+    local instance = {
+        _id_ = t.id,  -- item在遊戲裡的id
+        _type_ = t.type, -- item在遊戲裡的type
         _owner_ = nil,
-        _name_ = nil,
-        _level_ = 0,
+        _name_ = t.name,
+        _level_ = t.level,
         _prefix_ = nil,
         _enhanced_times_ = 0,
         _vitality_ = 0,
         _attr_ = require 'lib.attribute':new():setPackage('data.test.attribute'),
         _rune_ = require 'war3.slot':new('data.test.rune'),
         _gem_ = require 'war3.slot':new(),
-        _tick_ = require(path)  -- 自訂的obtain, drop, use
+        _tick_ = require("data.item." .. type)  -- 自訂的obtain, drop, use
     }
+
+    return Init(instance)
+end
+
+Init = function(self)
+    local data = require('data.test.equipment'):read(self._type_)
+    if not data then
+        return self
+    end
+
+    for i, v in ipairs(data) do
+        if type(v) == 'string' then
+            self._attr_:set(v, data[i+1](self))
+        end
+    end
+
+    return self
 end
 
 function cls:setOwner(owner)
