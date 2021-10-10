@@ -449,6 +449,4 @@ local ej = {
     end,
 }
 
-setmetatable(ej, ej)
-
-return ej
+return setmetatable(ej, ej)

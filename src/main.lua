@@ -1,5 +1,5 @@
 local function Main()
-    require 'unit_test.vector'
+    require 'framework.test.group'
 end
 
 Main()
