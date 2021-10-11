@@ -22,6 +22,7 @@
 local require = require
 local cls = require 'std.class'("StarGraph")
 local MAX = 6
+local FindStar, SearchRecipe
 
 function cls:_new()
     return {
@@ -40,7 +41,34 @@ end
 function cls:addSatellite(index, satellite)
     if #self._satellites_ > MAX or self._satellites_[index] then return false end
     self._satellites_[index] = satellite
+
+    if #self._satellites_ == MAX then
+        FindStar(self)
+    end
+
     return true
+end
+
+FindStar = function(self)
+    local elements = {0,0,0,0,0,0}
+    local element_table = require 'framework.element_table'
+    local db_item = require 'framework.test.db.item'
+
+    local j, ele1, ele2
+    for i = 1 , 6 do
+        j = math.ceil(i/2)
+        ele1 = db_item:read(self._satellites_[j])[1]
+        ele2 = db_item:read(self._satellites_[j+1])[1]
+        ele1 = element_table[ele1][ele2]
+        elements[i] = element_table[db_item:read(self._planets_[i])[1]][ele1]
+    end
+
+    self._star_ = SearchRecipe(table.concat(elements))
+end
+
+SearchRecipe = function(recipe)
+  local effects = require 'framework.test.db.recipe':read(recipe)
+  return effects[Math.rand(1, #effects)]
 end
 
 return cls

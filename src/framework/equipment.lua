@@ -1,6 +1,12 @@
 local require, pcall, type = require, pcall, type
 local cls = require 'std.class'("Equipment")
 
+function cls.setPackage(db_attribute, db_item, db_attribute_value)
+    cls.item_path = db_item
+    cls.attribute_path = db_attribute
+    cls.attribute_value_path = db_attribute_value
+end
+
 function cls:_new(t)
     local instance = {
         _id_ = t.id,  -- item在遊戲裡的id
@@ -11,22 +17,23 @@ function cls:_new(t)
         _prefix_ = nil,
         _enhanced_times_ = 0,
         _vitality_ = 0,
-        _attr_ = require 'lib.attribute':new():setPackage('data.test.attribute'),
-        _stargraph_ = require 'war3.stargraph':new(),
-        _tick_ = require("data.item." .. type)  -- 自訂的obtain, drop, use
+        _attr_ = require 'framework.attribute':new():setPackage(cls.attribute_path),
+        _stargraph_ = require 'framework.stargraph':new(),
+        _tick_ = require("framework.test.db." .. t.type)  -- 自訂的obtain, drop, use
     }
 
     return Init(instance)
 end
 
 Init = function(self)
-    local data = require('data.test.equipment'):read(self._type_)
+    local data = require(cls.item_path):read(self._type_)
     if not data then
         return self
     end
 
     for _, attr in ipairs(data) do
-        self._attr_:set(attr, require '':read(attr)[2](self.level))
+        print(attr)
+        self._attr_:set(attr, require(cls.attribute_value_path):read(attr)[1](self._level_))
         self._stargraph_:addPlanet(attr)
     end
 
@@ -58,20 +65,23 @@ function cls:show()
 end
 
 -- rune = item type
-function cls:mount(rune, level)
-    local data = require '':read(rune)
+function cls:mount(rune, level, i)
+    local data = require(cls.item_path):read(rune)
 
     if not data then
         return false
     elseif data[1] == "符文" and not self._stargraph_:addPlanet(rune) then
         return false
-    elseif data[1] == "次級符文" and self._stargraph_:addSatellite(rune) then
+    elseif data[1] == "次級符文" and not self._stargraph_:addSatellite(i, rune) then
         return false
     end
-    
-    for i, v in ipairs(data) do
-        if type(v) == 'string' then
-            self._attr_:add(v, data[i+1](level))
+
+    local values, v1 = require(cls.attribute_value_path)
+
+    for _, v in ipairs(data) do
+        v1 = values:read(v)
+        if v1 then
+            self._attr_:add(v, v1[1](level))
         end
     end
 
