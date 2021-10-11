@@ -1,4 +1,4 @@
-local Group = require 'war3.group'
+local Group = require 'framework.group'
 local ej = require 'war3.enhanced_jass'
 
 local a = Group:new()

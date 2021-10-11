@@ -1,6 +1,5 @@
 local require, pcall, type = require, pcall, type
 local cls = require 'std.class'("Equipment")
-local RUNE, GEM = "符文", "珠寶"
 
 function cls:_new(t)
     local instance = {
@@ -13,8 +12,7 @@ function cls:_new(t)
         _enhanced_times_ = 0,
         _vitality_ = 0,
         _attr_ = require 'lib.attribute':new():setPackage('data.test.attribute'),
-        _rune_ = require 'war3.slot':new('data.test.rune'),
-        _gem_ = require 'war3.slot':new(),
+        _stargraph_ = require 'war3.stargraph':new(),
         _tick_ = require("data.item." .. type)  -- 自訂的obtain, drop, use
     }
 
@@ -27,10 +25,9 @@ Init = function(self)
         return self
     end
 
-    for i, v in ipairs(data) do
-        if type(v) == 'string' then
-            self._attr_:set(v, data[i+1](self))
-        end
+    for _, attr in ipairs(data) do
+        self._attr_:set(attr, require '':read(attr)[2](self.level))
+        self._stargraph_:addPlanet(attr)
     end
 
     return self
@@ -60,35 +57,25 @@ function cls:show()
     return table.concat(str, "\n")
 end
 
-function cls:mount(material, level)
-    -- 利用Rune會自動搜尋資料庫，檢查它是不是符文
-    local data = self._rune_:mount(material, level)
+-- rune = item type
+function cls:mount(rune, level)
+    local data = require '':read(rune)
 
-    -- 檢查是不是珠寶
     if not data then
-        data = self._gem_:mount(material, level)
+        return false
+    elseif data[1] == "符文" and not self._stargraph_:addPlanet(rune) then
+        return false
+    elseif data[1] == "次級符文" and self._stargraph_:addSatellite(rune) then
+        return false
+    end
+    
+    for i, v in ipairs(data) do
+        if type(v) == 'string' then
+            self._attr_:add(v, data[i+1](level))
+        end
     end
 
-    if not data then return self end
-
-    self._attr_:add(data[2], data[3])
-
-    return self
-end
-
-function cls:demount(type, index)
-    local data
-    if type == RUNE then
-        data = self._rune_:demount(index)
-    elseif type == GEM then
-        data = self._gem_:demount(index)
-    end
-
-    if data then
-        self._attr_:add(data[2], -data[3])
-    end
-
-    return nil
+    return true
 end
 
 function cls:equip()

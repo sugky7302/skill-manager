@@ -85,8 +85,8 @@ end
 function Group:circleUnits(args)
     InitArgs(args)
 
-    require('war3.group.manager').traverse(
-        require 'war3.group.region'[args.type](args.p, args.vars, GetDirection(args)),
+    require('framework.group.manager').traverse(
+        require 'framework.group.region'[args.type](args.p, args.vars, GetDirection(args)),
         function(unit)
             return args.cnd(unit) and (not self._blacklist_[unit]) and unit ~= args.filter
         end,
@@ -106,7 +106,7 @@ InitArgs = function(args)
         -- NOTE: 如果直接在匿名函數裡使用args.cnd加上讓 args.cnd 等於匿名函數，在函數被調用時，會因為args.cnd已經變成函數而造成內部調用args.cnd時發生錯誤。
         local cnd = args.cnd
         args.cnd = function(unit)
-            return require('war3.group.condition')[cnd](unit, args.filter)
+            return require('framework.group.condition')[cnd](unit, args.filter)
         end
     else
         args.cnd = function() return true end
@@ -130,7 +130,7 @@ GetDirection = function(args)
 end
 
 function Group:addUnit(unit)
-    if not self._units_:exists(unit) then
+    if not self._units_:exist(unit) then
         self._units_:append(unit)
     end
 

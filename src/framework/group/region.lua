@@ -1,6 +1,6 @@
 local require = require
 local ej = require 'war3.enhanced_jass'
-local gj = require 'war3.group.manager'
+local gj = require 'framework.group.manager'
 local Math = require 'std.math'
 local unpack = table.unpack
 
