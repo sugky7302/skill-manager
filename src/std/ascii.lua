@@ -1,9 +1,9 @@
 local string = string
 local math = math
 local type = type
-local ASCII = {}
 
-function ASCII.encode(num)
+return {
+    encode = function(num)
     if not num then
         return ""
     end
@@ -21,9 +21,9 @@ function ASCII.encode(num)
     end
 
     return string.char(table.unpack(chars))
-end
+end,
 
-function ASCII.decode(str)
+decode = function(str)
     if not str then
         return 0
     end
@@ -41,5 +41,4 @@ function ASCII.decode(str)
 
     return sum
 end
-
-return ASCII
+}

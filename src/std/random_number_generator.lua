@@ -1,6 +1,29 @@
--- 生成以《超幾何分配》為原理的隨機數牌組，在一定次數下必生效。
--- 解決 ex: rand() < 0.3 有可能都不會生效的問題。
--- 一開始創建要給name_、probability_(小於等於100的整數)。
+--[[
+  生成以《超幾何分配》為原理的隨機數牌組，在一定次數下必生效。
+  解決 ex: rand() < 0.3 有可能都不會生效的問題。
+  一開始創建要給name_、probability_(小於等於100的整數)。
+
+  Memeber:
+    (private) used_card_count - 使用過的牌數
+    (private) valid_card_count - rand() < p 的牌數
+    (private) total_card_count - 總牌數
+
+  Function:
+    new(probability, cards_label) - create an instance of RNG
+      probability - 條件
+      cards_label - 名字
+
+    __call(cards_label) - get an existed instance of RNG
+      cards_label - 名字
+
+    draw() - 抽牌
+      return - 成功或失敗
+
+    reset() - 重置牌組
+
+    count() - 回傳總牌數
+      return - total count
+--]]
 
 local require = require
 local Math = require 'std.math'
@@ -22,7 +45,7 @@ function RNG:_new(probability, cards_label)
     GenerateValidCards(instance)
 
     if cards_label then
-        RNG:setInstance(cards_label, instance)
+        self[cards_label] = instance
     end
 
     return instance
@@ -44,6 +67,10 @@ GenerateDeck = function(self, probability)
     self._used_card_count_ = 0
     self._valid_card_count_ = valid_card_count
     self._total_card_count_ = total_card_count
+end
+
+function RNG:__call(cards_label)
+    return self[cards_label]
 end
 
 -- 抽牌
