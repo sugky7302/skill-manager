@@ -3,6 +3,20 @@
   Thus, we can expand, modify and reuse easily.
 
   Required:
+    Node
+
+  Member:
+    _root_ - 根節點
+    skill_ - 技能
+    params_ - 樹裡面所有節點都可以讀取的參數列表
+    period_ - 計時器的週期
+
+  Function:
+    new(skill_id, script) - create a new instance of skill tree
+      skill_id - skill id in war3
+      script - skill action script
+
+    run() - run all nodes
 --]]
 local require = require
 local Node = require 'framework.skill.node.__init__'
@@ -20,10 +34,9 @@ local COMPOSITE = {
 function cls:_new(skill_id, script)
     local this = self:super():new()
 
-    this._root_ = Parse(self, script)
+    this._root_ = Parse(this, script)
     this.skill_ = skill_id
     this.params_ = {}
-    this._is_finished_ = false
     this.period_ = 1  -- NOTE: 用來記錄外部計時器的週期，動作節點會用到。 - 2020-02-28
 
     return this
@@ -42,6 +55,7 @@ Parse = function(self, data)
         if not child.id or COMPOSITE[child.id] then  -- 組合節點
             parent:append(Parse(child))
         else  -- 葉節點
+            print(0)
             node = Node(child.id):new(child.args)
             node.tree_ = self
             parent:append(node)
@@ -60,14 +74,6 @@ function cls:_remove()
     end
 
     self._params_ = nil
-end
-
-function cls:__tostring()
-    if not self._root_ then
-        return ""
-    end
-
-    
 end
 
 function cls:run()

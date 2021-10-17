@@ -4,6 +4,7 @@ local node_table = {}
 
 
 function cls:_new(args)
+    print(1)
     return {
         _args_ = args,
         parent_ = nil,
@@ -15,7 +16,7 @@ function cls:__call(name, parent)
     if type(name) ~= 'string' then
         return false
     end
-
+    print(2)
     if not node_table[name] then
         parent = parent or ''  -- 這樣容易處理，不需要考慮太多條件
         node_table[name] = class('ActionNode', node_table[parent] or pcall(require, parent) or self)

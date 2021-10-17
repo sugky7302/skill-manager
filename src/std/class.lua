@@ -14,7 +14,7 @@
     新增isType函數，能夠檢查物件是不是屬於該類別以及所有原型鏈上的類別。 - 2021-10-08
 --]]
 local function Class(name, ...)
-    local setmetatable, pairs, getmetatable = setmetatable, pairs, getmetatable
+    local setmetatable, pairs, getmetatable, type = setmetatable, pairs, getmetatable, type
 
     local object = {
         _sets = {},
@@ -36,8 +36,7 @@ local function Class(name, ...)
         --       不像之前需要先require'xxx'，再xxx:__call - 2019-06-28
         -- NOTE: 當前類別支援單例模式 - 2019-11-10
         new = function(self, ...)
-            local instance = self:_new(...)
-            return setmetatable(instance, self)
+            return setmetatable(self:_new(...), self)
         end,
         -- 在self[key]找不到值時調用，如果沒有設定的話，self[key]是直接回傳nil。
         -- 搜索原型鏈，將對象委託給原型處理(function)或是返回原型的值(table、string、number、boolean)
@@ -103,8 +102,13 @@ local function Class(name, ...)
             self = nil
         end,
         -- 使用者自訂的建構函數
-        _new = function(self, this)
-            return this or {}
+        -- NOTE: 如果沒有寫的話，會提供一個預設的建構函數 - 2021-10-17
+        _new = function(self, ...)
+            if self:super() then
+                return self:super():new(...)
+            end
+
+            return type(...) == 'table' and ... or {...}
         end,
         -- 使用者自訂的解構函數
         _remove = function(self)
