@@ -1,4 +1,4 @@
-local attr = require 'lib.attribute':new():setPackage('data.test.attribute')
+local attr = require 'frame.attribute':new():setPackage('data.test.attribute')
 
 local function loop(a)
     for priority, name in a:iterator() do

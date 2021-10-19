@@ -6,11 +6,24 @@
   - 寫addAtrribute來添加屬性
   - 設計一個init函數可以讀取item type，然後去資料庫搜尋資料
 - 重新分類script
+- 部署CI/CD
+  - 如何讓w3x2lni裡有關jass的dll放入lua並成功執行。
+  - 測試Github能不能調用docker
+  - 撰寫部署腳本，確認lua能不能輸出錯誤到控制台
+  - 測試CI
+- SkillTree追加機制
+  - 任意位置新增節點機制
+  - 執行後會執行完所有節點，並可供外部檢查是否完成。
+  - 完成節點Condition、Timer、Wait。
 
-## 1.10.0.80 - 2021-10-17
-
+## 1.10.0.81 - 2021-10-19
+- 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。
 ### Added:
-- **[framework]** 將原本的skilltree框架重構後，重新命名為skill。此外，原本skill_manager、skill_decorator都會歸入此框架。
+- 添加一個shell script執行所有測試模組。
+- **[.vscode/launch.json]** 將Tasks套件刪除後，為了彌補原本的功能，新增一個除錯功能，讓使用者按下後可選擇Task執行，取代Tasks套件。
+- **[framework]**
+  - 將原本的skilltree框架重新定位為行為樹，適用於技能或AI策略。把原本內容重構後，重新命名為behavior。此外，原本skill_manager、skill_decorator都會進行調整後納入此框架。
+  - 加入中斷機制。
 
 ### Changed:
 - **[std/class]** 修改_new，提供一個預設建構函數。

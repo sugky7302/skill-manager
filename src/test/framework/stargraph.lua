@@ -1,4 +1,4 @@
-local StarGraph = require 'war3.stargraph'
+local StarGraph = require 'framework.stargraph'
 
 local a = StarGraph:new()
 print(a:addPlanet('crum'))

@@ -1,4 +1,4 @@
-local AN = require 'framework.skill.node.__init__'
+local AN = require 'framework.behavior.node'
 local cls = AN("test")
 
 function cls:_new()

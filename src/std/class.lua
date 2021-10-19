@@ -38,6 +38,19 @@ local function Class(name, ...)
         new = function(self, ...)
             return setmetatable(self:_new(...), self)
         end,
+        -- 使用者自訂的建構函數
+        -- NOTE: 如果沒有寫的話，會提供一個預設的建構函數 - 2021-10-17
+        _new = function(self, ...)
+            if self:super() then
+                return self:super():new(...)
+            end
+            
+            if not ... then
+                return {}
+            end
+
+            return type(...) == 'table' and ... or {...}
+        end,
         -- 在self[key]找不到值時調用，如果沒有設定的話，self[key]是直接回傳nil。
         -- 搜索原型鏈，將對象委託給原型處理(function)或是返回原型的值(table、string、number、boolean)
         -- 根據原型鏈的排列順序決定優先度
@@ -100,15 +113,6 @@ local function Class(name, ...)
             end
 
             self = nil
-        end,
-        -- 使用者自訂的建構函數
-        -- NOTE: 如果沒有寫的話，會提供一個預設的建構函數 - 2021-10-17
-        _new = function(self, ...)
-            if self:super() then
-                return self:super():new(...)
-            end
-
-            return type(...) == 'table' and ... or {...}
         end,
         -- 使用者自訂的解構函數
         _remove = function(self)

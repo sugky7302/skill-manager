@@ -28,7 +28,8 @@ local COMPOSITE = {
     Sequence = require 'framework.skill.node.sequence',
     Selector = require 'framework.skill.node.selector',
     Random = require 'framework.skill.node.random',
-    Parallel = require 'framework.skill.node.parallel'}
+    Parallel = require 'framework.skill.node.parallel',
+    Condition = require 'framework.skill.node.condition'}
 
 
 function cls:_new(skill_id, script)
@@ -37,7 +38,8 @@ function cls:_new(skill_id, script)
     this._root_ = Parse(this, script)
     this.skill_ = skill_id
     this.params_ = {}
-    this.period_ = 1  -- NOTE: 用來記錄外部計時器的週期，動作節點會用到。 - 2020-02-28
+    this.is_pause = false
+    -- this.period_ = 1  -- NOTE: 用來記錄外部計時器的週期，動作節點會用到。 - 2020-02-28
 
     return this
 end
@@ -55,7 +57,6 @@ Parse = function(self, data)
         if not child.id or COMPOSITE[child.id] then  -- 組合節點
             parent:append(Parse(child))
         else  -- 葉節點
-            print(0)
             node = Node(child.id):new(child.args)
             node.tree_ = self
             parent:append(node)
@@ -84,6 +85,16 @@ function cls:run()
     self._root_.parent_ = self
     self._root_:start()
     self._root_:run()
+    return self
+end
+
+function cls:pause()
+    self._is_pause_ = true
+    return self
+end
+
+function cls:restore()
+    self._is_pause_ = false
     return self
 end
 

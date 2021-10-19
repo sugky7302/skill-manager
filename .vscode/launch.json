@@ -1,43 +1,14 @@
 {
     "version": "0.2.0",
     "configurations": [
-        // {
-        //     "name": "Launch",
-        //     "type": "lua",
-        //     "request": "attach",
-        //     "stopOnEntry": false,
-        //     "ip": "127.0.0.1",
-        //     "port": 4278,
-        //     "preLaunchTask": "執行",
-        //     "sourceMaps": [
-        //         [
-        //             "src\\",
-        //             "${workspaceFolder}\\src\\"
-        //         ],
-        //         [
-        //             "lua\\",
-        //             "${workspaceFolder}\\map\\"
-        //         ]
-        //     ]
-        // },
-        // {
-        //     "name": "Attach",
-        //     "type": "lua",
-        //     "request": "attach",
-        //     "stopOnEntry": true,
-        //     "sourceCoding": "utf8",
-        //     "processName": "war3.exe",
-        //     "sourceMaps": [
-        //         [
-        //             "src\\",
-        //             "${workspaceFolder}\\src\\"
-        //         ],
-        //         [
-        //             "lua\\",
-        //             "${workspaceFolder}\\map\\"
-        //         ]
-        //     ]
-        // },
+        {
+            "name": "Launch",
+            "type": "lua",
+            "request": "attach",
+            "stopOnEntry": true,
+            "sourceCoding": "utf8",
+            "preLaunchTask":"${input:Module}"
+        },
         {
             "name": "Launch Script",
             "type": "lua",
@@ -45,10 +16,31 @@
             "stopOnEntry": false,
             "program": "${fileDirname}\\${fileBasenameNoExtension}.lua",
             "cwd": "${workspaceFolder}",
-            "path": "${workspaceFolder}\\src\\?.lua",
-            "cpath": "${workspaceFolder}\\?.dll",
+            "path": [
+                "${workspaceFolder}\\src\\?.lua",
+                "${workspaceFolder}\\src\\?\\__init__.lua",
+                "${workspaceFolder}\\tools\\w3x2lni\\script\\?.lua"
+            ],
+            "cpath": [
+                "${workspaceFolder}\\bin\\?.dll",
+                "${workspaceFolder}\\tools\\w3x2lni\\bin\\?.dll"
+            ],
             "arg": [],
             "consoleCoding": "utf8"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "Module",
+            "type": "pickString",
+            "description": "請選擇一個模組",
+            "options": [
+                "執行",
+                "配置",
+                "外部編輯格式(Lni)",
+                "WE編輯格式(Obj)",
+                "地圖發佈格式(Slk)"
+            ]
         }
     ]
 }

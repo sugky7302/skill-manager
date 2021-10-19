@@ -1,8 +1,8 @@
 local require = require
 local cls = require 'std.class'("ControlNode", require 'framework.skill.node.__init__')
 
-function cls:_new()
-    local instance = self:super():new()
+function cls:_new(args)
+    local instance = self:super():new(args)
 
     instance._children_ = {}
     instance._index_ = 1
@@ -32,6 +32,11 @@ end
 function cls:run()
     if self._index_ > #self._children_ then
         return true
+    end
+
+    -- 技能樹收到暫停命令
+    if self.tree_ and self.tree_._is_pause_ then
+        return false
     end
 
     if not self._is_child_running_ then
