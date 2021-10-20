@@ -1,5 +1,8 @@
 local function Main()
-    require 'framework.timer':new(1, 1, function() print("test") end):start()
+    local sleep = require 'ffi.sleep'
+    print(os.clock())
+    sleep(10)
+    print(os.clock())
 end
 
 Main()
