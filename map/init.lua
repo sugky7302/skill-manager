@@ -34,11 +34,14 @@ function Global.error_handle(msg)
     Runtime.error_handle(msg)
 end
 
-local abs_path = ';D:\\Program\\SkillManager\\src\\'
+local abs_path = ';D:\\Program\\SkillManager\\'
 
 -- 一定要絕對路徑，不然lua會找不到
-package.path = concat{package.path, abs_path, '?.lua'}
-package.path = concat{package.path, abs_path, '?\\__init__.lua'}
+package.path = concat{package.path, abs_path, 'src\\?.lua'}
+package.path = concat{package.path, abs_path, 'src\\?\\__init__.lua'}
+package.path = concat{package.path, abs_path, 'tools\\w3x2lni\\script\\?.lua'}
+package.cpath = concat{package.cpath, abs_path, 'bin\\?.dll'}
+package.cpath = concat{package.cpath, abs_path, 'tools\\w3x2lni\\bin\\?.dll'}
 
 -- 進入主函數
 require 'main'
