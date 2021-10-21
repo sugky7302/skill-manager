@@ -1,3 +1,37 @@
+--[[
+  Timer is an enhanced extension of jass timer.
+
+  Required:
+    math
+    enhanced_jass
+
+  Member:
+    frame - 幀數
+    count - 循環次數
+    end_stamp - 結束時間戳
+    pause_frame - 暫停時間戳
+    run_count - 已循環次數
+    run - 動作函數
+    args - 外部參數列表
+
+  Function:
+    new(timeout, count, action) - create a new timer object
+      timeout - 循環週期
+      count - 循環次數。如果次數有限，必須 >0；如果無窮次數，要設定為 -1。
+      action - 動作函數
+
+    start(...) - start timer
+    ... - 想要在動作函數裡執行的參數
+
+    stop() - stop timer
+
+    pause() - pause timer
+
+    resume() - resume timer
+
+    getRuntime() - get the time which the timer has been run.
+--]]
+
 local require = require
 local math = math
 local ej = require 'war3.enhanced_jass'

@@ -1,5 +1,5 @@
 local require = require
-local cls = require 'std.class'("ControlNode", require 'framework.skill.node.__init__')
+local cls = require 'std.class'("ControlNode", require 'framework.skill.node')
 
 function cls:_new(args)
     local instance = self:super():new(args)

@@ -1,25 +1,41 @@
--- Condition是條件節點成功會執行then節點，否則執行else節點
+--[[
+    Condition內部只儲存3個節點，第一個為條件節點，第二個為then節點，第三個為else節點。
+    如果條件節點調用success則會調用then節點；如果調用fail則調用else節點。
+    此外，Condition無視running狀態，確保能隨時切換狀態。
+--]]
+
 local require = require
-local cls = require 'std.class'("ConditionNode", require 'framework.skill.node.__init__')
+local cls = require 'std.class'("ConditionNode", require 'framework.skill.node.composite')
 
 function cls:_new()
     return self:super():new()
 end
 
 function cls:success()
-    self:super().success(self)
+    self:super().success(self)  -- 調用子節點的finish函數
 
-    self._index_ = self._index_ + 1
-    if self._index_ <= #self._children_ then
+    if self._index_ == 1 then
+        self._index_ = 2
         self:run()
     else
-        self:super():super().success(self)
+        self:super():super().success(self)  -- 回到父節點
     end
 end
 
 function cls:fail()
     self:super().fail(self)
-    self:super():super().fail(self)
+
+    if self._index_ == 1 then
+        self._index_ = 3
+        self:run()
+    else
+        self:super():super().fail(self)
+    end
+end
+
+function cls:running()
+    self._is_child_running_ = false
+    self:super():running()
 end
 
 return cls

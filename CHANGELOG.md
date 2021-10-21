@@ -14,9 +14,8 @@
 - SkillTree追加機制
   - 任意位置新增節點機制
   - 執行後會執行完所有節點，並可供外部檢查是否完成。
-  - 完成節點Condition、Timer、Wait。
 
-## 1.10.0.82 - 2021-10-20
+## 1.10.0.83 - 2021-10-21
 - 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。
 ### Added:
 - 添加一個shell script執行所有測試模組。
@@ -24,7 +23,7 @@
 - **[framework]**
   - 將原本的skilltree框架重新定位為行為樹，適用於技能或AI策略。把原本內容重構後，重新命名為behavior。此外，原本skill_manager、skill_decorator都會進行調整後納入此框架。
   - 加入中斷機制。
-  - 完成節點loop、not、wait。
+  - 完成節點loop、not、wait、condition。
 
 ### Changed:
 - **[std/class]** 修改_new，提供一個預設建構函數。
