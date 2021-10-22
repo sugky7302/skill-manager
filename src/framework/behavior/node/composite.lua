@@ -1,5 +1,6 @@
 local require = require
-local cls = require 'std.class'("ControlNode", require 'framework.skill.node')
+local Node = require 'framework.behavior.node'
+local cls = require 'std.class'("ControlNode", Node)
 
 function cls:_new(args)
     local instance = self:super():new(args)
@@ -11,6 +12,10 @@ function cls:_new(args)
     return instance
 end
 
+function cls:__call(name, type_name)
+    return Node(name, self, type_name or (name .. "Node"))
+end
+
 function cls:_remove()
     for i, node in ipairs(self._children_) do
         node:remove()
@@ -19,6 +24,10 @@ function cls:_remove()
 end
 
 function cls:append(child)
+    if not child then
+        return false
+    end
+
     self._children_[#self._children_+1] = child
     child.parent_ = self
 end

@@ -1,12 +1,11 @@
 -- Sequence是子節點調用success才會執行下一個節點，如果子節點調用fail則會回到root
-local require = require
-local Sequence = require 'std.class'("SequenceNode", require 'framework.skill.node.composite')
+local cls = require 'framework.behavior.node.composite'("Sequence")
 
-function Sequence:_new()
+function cls:_new()
     return self:super():new()
 end
 
-function Sequence:success()
+function cls:success()
     self:super().success(self)
 
     self._index_ = self._index_ + 1
@@ -17,9 +16,9 @@ function Sequence:success()
     end
 end
 
-function Sequence:fail()
+function cls:fail()
     self:super().fail(self)
     self:super():super().fail(self)
 end
 
-return Sequence
+return cls

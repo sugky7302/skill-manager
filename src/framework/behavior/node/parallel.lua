@@ -1,6 +1,5 @@
 -- Parallel是不管子節點調用success或fail都會執行下一個節點，遍歷後回到root
-local require = require
-local cls = require 'std.class'("ParallelNode", require 'framework.skill.node.composite')
+local cls = require 'framework.behavior.node.composite'("Parallel")
 
 function cls:_new()
     return self:super():new()

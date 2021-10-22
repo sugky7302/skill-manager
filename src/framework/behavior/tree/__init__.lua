@@ -19,26 +19,18 @@
     run() - run all nodes
 --]]
 local require = require
-local Node = require 'framework.skill.node.__init__'
-local cls = require 'std.class'('SkillTree', Node)
-local Parse
+local Node = require 'framework.behavior.node'
+local cls = require 'std.class'('BehaviorTree', Node)
+local Parse, Print
 
--- CONSTANT
-local COMPOSITE = {
-    Sequence = require 'framework.skill.node.sequence',
-    Selector = require 'framework.skill.node.selector',
-    Random = require 'framework.skill.node.random',
-    Parallel = require 'framework.skill.node.parallel',
-    Condition = require 'framework.skill.node.condition'}
-
-
-function cls:_new(skill_id, script)
+function cls:_new(obj, script)
     local this = self:super():new()
 
     this._root_ = Parse(this, script)
-    this.skill_ = skill_id
-    this.params_ = {}
-    this.is_pause = false
+    this.object_ = obj
+    this._params_ = {}
+    this._is_pause_ = false
+    this._is_running_ = false
     -- this.period_ = 1  -- NOTE: 用來記錄外部計時器的週期，動作節點會用到。 - 2020-02-28
 
     return this
@@ -49,18 +41,18 @@ Parse = function(self, data)
         return
     end
 
-    local parent = data.id and COMPOSITE[data.id]:new() or COMPOSITE.Sequence:new()
+    local parent = Node.exist(data.id) and Node.exist(data.id):new() or Node.exist("Sequence"):new()
     parent.tree_ = self
 
     local node
-    for _, child in ipairs(data.nodes or data) do
-        if not child.id or COMPOSITE[child.id] then  -- 組合節點
-            parent:append(Parse(child))
-        else  -- 葉節點
+    for _, child in pairs(data.nodes or data) do
+        if Node.exist(child.id) and Node.exist(child.id).type == "ActionNode" then  -- 葉節點
             node = Node(child.id):new(child.args)
             node.tree_ = self
             parent:append(node)
             -- TODO: 使用裝飾器包裝節點
+        elseif (not child.id) or Node.exist(child.id) then  -- 組合節點
+            parent:append(Parse(self, child))
         end
     end
 
@@ -77,14 +69,83 @@ function cls:_remove()
     self._params_ = nil
 end
 
+local rep, concat = string.rep, table.concat
+function cls:__tostring()
+    if not self._root_ then
+        return ""
+    end
+
+    return concat(Print({}, self._root_, 0), "\n")
+end
+
+Print = function(str, node, depth)
+    local s = {}
+    for i = 1, depth do
+        s[#s+1] = (i < depth) and "|  " or "├─ "
+    end
+    s[#s+1] = node:getName()
+    str[#str+1] = concat(s)
+
+    if node._children_ then
+        for _, child in ipairs(node._children_) do
+            Print(str, child, depth + 1)
+        end
+    end
+
+    return str
+end
+
+function cls:isRunning()
+    return self._is_running_
+end
+
+-- NOTE: 方便使用鏈式語法 - 2021-10-22
+function cls:setParam(key, value)
+    self._params_[key] = value
+    return self
+end
+
+-- NOTE: 方便使用鏈式語法 - 2021-10-22
+function cls:getParam(key)
+    return self._params_[key]
+end
+
 function cls:run()
+    if not self._root_ or self._is_running_ then
+        return self
+    end
+
+    self._is_running_ = true
+    self._root_.parent_ = self
+    self._root_:start()
+    self._root_:run()
+    return self
+end
+
+function cls:insert(pos, new_node)
     if not self._root_ then
         return self
     end
 
-    self._root_.parent_ = self
-    self._root_:start()
-    self._root_:run()
+    local t = {}
+    for s in string.gmatch(pos, "%d+") do
+        t[#t+1] = tonumber(s)
+    end
+
+    local node = self._root_
+    for i, v in ipairs(t) do
+        if i == #t then
+            table.insert(node._children_, v, new_node)
+            new_node.parent_ = node
+            new_node.tree_ = self
+        elseif node._children_ and v <= #node._children_ then
+            node = node._children_[v]
+        -- NOTE: 中途發現找不到節點就停止
+        else
+            break
+        end
+    end
+
     return self
 end
 
@@ -96,6 +157,18 @@ end
 function cls:restore()
     self._is_pause_ = false
     return self
+end
+
+function cls:success()
+    self._is_running_ = false
+end
+
+function cls:fail()
+    self._is_running_ = false
+end
+
+function cls:running()
+    self._is_running_ = false
 end
 
 return cls

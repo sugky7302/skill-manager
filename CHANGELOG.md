@@ -12,19 +12,35 @@
   - 撰寫部署腳本，確認lua能不能輸出錯誤到控制台
   - 測試CI
 - SkillTree追加機制
-  - 任意位置新增節點機制
   - 執行後會執行完所有節點，並可供外部檢查是否完成。
-## 1.10.0.84 - 2021-10-21
+
+## 1.10.0.85 - 2021-10-22
 - 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。
 ### Added:
 - 添加一個shell script執行所有測試模組。
 - **[.vscode/launch.json]** 將Tasks套件刪除後，為了彌補原本的功能，新增一個除錯功能，讓使用者按下後可選擇Task執行，取代Tasks套件。
-- **[framework]**
-  - 將原本的skilltree框架重新定位為行為樹，適用於技能或AI策略。把原本內容重構後，重新命名為behavior。此外，原本skill_manager、skill_decorator都會進行調整後納入此框架。
+- **[framework]** 將原本的skilltree框架重新定位為行為樹，適用於技能或AI策略。把原本內容重構後，重新命名為behavior。此外，原本skill_manager、skill_decorator都會進行調整後納入此框架。
+- **[framework/behavior]**
   - 加入中斷機制。
-  - 完成節點loop、not、wait、condition。
+  - 完成節點loop、not、wait、condition、none。
+  - 新增load.lua，在調用behavior時會加載所有寫好的節點。
+- **[framework/behavior/node]**
+  - 新增exist函數，會檢查節點表裡有沒有該名字對應的節點。
+  - 新增name成員變數以及getName函數，使外部能夠獲取節點名稱。
+- **[framework/behavior/node/composite]** 新增__call函數，能夠生成一個子類別並登錄在節點表裡。
+- **[framework/behavior/tree]**
+  - 新增is_running成員變數，防止重複調用run函數導致tree執行錯誤。
+  - 新增success、fail、running函數設定is_running的狀態。
+  - 新增setParam、getParam函數存取樹的全域變數，並保持鏈式語法。
+  - 新增__tostring函數，利用Node的getName函數，以linux tree的格式顯示所有節點。
+  - 新增isRunning函數，會回傳行為樹是不是在執行。
+  - 新增insert函數，可以於指定位置添加節點。位置格式為(第一層)-(第二層)-...-(第N層)-(位置)。
 
 ### Changed:
+- **[framework/behavior/node]** __call函數現在可以接收parent = table的情況。
+- **[framework/behavior/tree]**
+  - 調整Parse函數的解析方式。
+  - skill成員變數改成object。
 - **[std/class]** 修改_new，提供一個預設建構函數。
 - **[tools/執行]** 修改讀取機制，現在會自動搜尋.w3x並執行。
 

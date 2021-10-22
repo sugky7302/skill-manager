@@ -4,8 +4,7 @@
     此外，Condition無視running狀態，確保能隨時切換狀態。
 --]]
 
-local require = require
-local cls = require 'std.class'("ConditionNode", require 'framework.skill.node.composite')
+local cls = require 'framework.behavior.node.composite'("Condition")
 
 function cls:_new()
     return self:super():new()

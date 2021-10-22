@@ -2,25 +2,42 @@ local class = require 'std.class'
 local cls = class('Node')
 local node_table = {}
 
+function cls.exist(name)
+    return name and node_table[name]
+end
 
 function cls:_new(args)
     return {
         _args_ = args,
+        _name_ = nil,
         parent_ = nil,
         tree_ = nil,
     }
 end
 
-function cls:__call(name, parent)
+function cls:__call(name, parent, type_name)
+    local type = type
     if type(name) ~= 'string' then
         return false
     end
+
     if not node_table[name] then
-        parent = parent or ''  -- 這樣容易處理，不需要考慮太多條件
-        node_table[name] = class('ActionNode', node_table[parent] or pcall(require, parent) or self)
+        if type(parent) == 'table' then
+            node_table[name] = class(type_name or 'ActionNode', parent)
+        elseif type(parent) == "string" then
+            node_table[name] = class(type_name or 'ActionNode', node_table[parent] or pcall(require, parent) or self)
+        else
+            node_table[name] = class(type_name or 'ActionNode', self)
+        end
+
+        node_table[name]._name_ = name
     end
 
     return node_table[name]
+end
+
+function cls:getName()
+    return self._name_
 end
 
 function cls:start()

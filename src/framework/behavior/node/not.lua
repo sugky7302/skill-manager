@@ -1,6 +1,5 @@
 -- Sequence是子節點調用success才會執行下一個節點，如果子節點調用fail則會回到root
-local require = require
-local cls = require 'std.class'("NotNode", require 'framework.skill.node.composite')
+local cls = require 'framework.behavior.node.composite'("Not")
 
 function cls:_new()
     return self:super():new()
