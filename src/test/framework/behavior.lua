@@ -4,16 +4,34 @@ local Rand = require 'std.math'.rand
 
 local patrol = Node("巡邏")
 
+function patrol:start()
+    self._stage_ = 1
+end
+
 function patrol:run()
-    print(table.concat{self.tree_:getParam("目標"), " is patroling."})
+    if self._stage_ == 1 then
+        self._cur_dis_ = 0
+        self._dis_ = Rand(50, 100)
+        self._stage_ = 2
+        print("patrol has set the distance.")
+    elseif self._cur_dis_ >= self._dis_ then
+        print("patrol is finished.")
+        return self:success()
+    else
+        self._cur_dis_ = self._cur_dis_ + Rand(10, 15)
+        print(table.concat{self.tree_:getParam("目標"), " is patroling."})
+    end
+
     self:running()
 end
 
 local b = Node("碰到敵人")
 function b:run()
     if Rand(1, 100) < 51 then
+        print("encounter an enemy.")
         self:success()
     else
+        print("It's safe.")
         self:fail()
     end
 end
@@ -22,8 +40,10 @@ local c = Node("生命值檢測")
 
 function c:run()
     if Rand(1, 100) < self._args_[1] then
+        print("可以攻擊")
         self:success()
     else
+        print("它太強了")
         self:fail()
     end
 end
@@ -71,8 +91,6 @@ function attack:run()
     self:running()
 end
 
--- TODO: 如果遇到節點需要while的狀況要怎麼處理
--- {id="計時器", args={0.3, -1}, nodes={
 local bt = BT:new(123, {id="Condition", nodes={
         {id="碰到敵人"},
         {id="Condition", nodes={
@@ -91,9 +109,25 @@ local bt = BT:new(123, {id="Condition", nodes={
         {id="巡邏"}
     }}):setParam("目標", "步兵123"):run()
 
-print(bt)
-bt:insert("2", Node("攻擊"):new())
-print(bt)
-bt:insert("3-3-3", Node("逃跑"):new())
-print(bt)
+-- print(bt)
+-- bt:insert("2", Node("攻擊"):new())
+-- print(bt)
+-- bt:insert("3-3-3", Node("逃跑"):new())
+-- print(bt)
+
+-- BT:new(1, {id="Loop", args={-1}, nodes={
+--     {id="Condition", nodes={
+--         {id="碰到敵人"},
+--         {id="Condition", nodes={
+--             {id="生命值檢測", args={30}},
+--             {id="逃跑"},
+--             {id="攻擊"}
+--         }},
+--         {id="巡邏"}
+--     }},
+--     {id="等待", args={1}}
+-- }}):setParam("目標", "工作人員"):run()
+print("a", os.clock())
+print(BT:new(1, {id="等待", args={1}}):run())
+print("b", os.clock())
 

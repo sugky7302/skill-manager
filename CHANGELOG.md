@@ -11,10 +11,8 @@
   - 測試Github能不能調用docker
   - 撰寫部署腳本，確認lua能不能輸出錯誤到控制台
   - 測試CI
-- SkillTree追加機制
-  - 執行後會執行完所有節點，並可供外部檢查是否完成。
 
-## 1.10.0.85 - 2021-10-22
+## 1.10.0.86 - 2021-10-23
 - 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。
 ### Added:
 - 添加一個shell script執行所有測試模組。
@@ -22,7 +20,7 @@
 - **[framework]** 將原本的skilltree框架重新定位為行為樹，適用於技能或AI策略。把原本內容重構後，重新命名為behavior。此外，原本skill_manager、skill_decorator都會進行調整後納入此框架。
 - **[framework/behavior]**
   - 加入中斷機制。
-  - 完成節點loop、not、wait、condition、none。
+  - 完成節點loop、not、wait、condition、none、timer。
   - 新增load.lua，在調用behavior時會加載所有寫好的節點。
 - **[framework/behavior/node]**
   - 新增exist函數，會檢查節點表裡有沒有該名字對應的節點。
@@ -35,14 +33,20 @@
   - 新增__tostring函數，利用Node的getName函數，以linux tree的格式顯示所有節點。
   - 新增isRunning函數，會回傳行為樹是不是在執行。
   - 新增insert函數，可以於指定位置添加節點。位置格式為(第一層)-(第二層)-...-(第N層)-(位置)。
+- **[map/init]** 覆載print函數為console.write，讓war3.exe開啟lua視窗時能夠顯示中文。
 
 ### Changed:
+- **[framework/behavior/timer]** 為了讓lua和war3都可以使用計時器，把原本的timer.lua拆分成UI跟中心計時器兩部份，並使UI在加載中心計時器會根據當前執行環境而選擇不同的lua。
 - **[framework/behavior/node]** __call函數現在可以接收parent = table的情況。
 - **[framework/behavior/tree]**
-  - 調整Parse函數的解析方式。
+  - 調整Parse函數的解析方式，設計更簡潔的遞迴邏輯。
   - skill成員變數改成object。
 - **[std/class]** 修改_new，提供一個預設建構函數。
 - **[tools/執行]** 修改讀取機制，現在會自動搜尋.w3x並執行。
+
+### Fixed:
+- **[framework/behavior/tree]** 修正Parse函數不會傳參args的問題。
+- **[framework/behavior/node/wait]** 修正建構函數創建timer失敗的問題。
 
 ## 1.9.0.78 - 2021-10-11
 - 調整軟體設計架構，從分層架構改為微服務架構，便於開發與測試，若某一服務錯誤能以最小限度修復程式。以下列出架構：

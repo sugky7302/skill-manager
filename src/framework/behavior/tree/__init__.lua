@@ -37,23 +37,20 @@ function cls:_new(obj, script)
 end
 
 Parse = function(self, data)
-    if type(data) ~= 'table' then
-        return
+    assert(type(data) == "table", "腳本內容錯誤，請重新檢查。")
+
+    local parent = Node.exist(data.id) and Node.exist(data.id):new(data.args) or Node.exist("Sequence"):new(data.args)
+    parent.tree_ = self
+    -- TODO: 使用裝飾器包裝節點
+    -- 如果只有單一節點表示沒有底下沒有節點了
+    if parent.type == "ActionNode" then
+        return parent
     end
 
-    local parent = Node.exist(data.id) and Node.exist(data.id):new() or Node.exist("Sequence"):new()
-    parent.tree_ = self
-
-    local node
+    -- 只有多節點的情況下才繼續
+    -- local node
     for _, child in pairs(data.nodes or data) do
-        if Node.exist(child.id) and Node.exist(child.id).type == "ActionNode" then  -- 葉節點
-            node = Node(child.id):new(child.args)
-            node.tree_ = self
-            parent:append(node)
-            -- TODO: 使用裝飾器包裝節點
-        elseif (not child.id) or Node.exist(child.id) then  -- 組合節點
-            parent:append(Parse(self, child))
-        end
+        parent:append(Parse(self, child))
     end
 
     return parent
@@ -81,7 +78,7 @@ end
 Print = function(str, node, depth)
     local s = {}
     for i = 1, depth do
-        s[#s+1] = (i < depth) and "|  " or "├─ "
+        s[#s+1] = (i < depth) and "|   " or "|-- "
     end
     s[#s+1] = node:getName()
     str[#str+1] = concat(s)

@@ -5,6 +5,7 @@ function cls:_new(args)
     local this = self:super():new(args)
     this._count_ = 0
     this._max_ = args[1]
+    return this
 end
 
 function cls:start()

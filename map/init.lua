@@ -4,16 +4,11 @@ local Runtime = require 'jass.runtime'
 local Console = require 'jass.console'
 local concat = table.concat
 
-Global = {}
-
--- Debug模式
-Global.debug_mode = true
-
 -- 打開控制台
-Runtime.console = Global.debug_mode and true or false
+Runtime.console = true
 
 -- 重載print，自動轉換編碼
-local print = Console.write
+print = Console.write
 
 -- 將handle等級設為0(地圖中所有的handle均使用table封裝)
 Runtime.handle_level = 0
@@ -30,9 +25,9 @@ function Runtime.error_handle(msg)
     print(debug.traceback())
 end
 
-function Global.error_handle(msg)
-    Runtime.error_handle(msg)
-end
+-- function Global.error_handle(msg)
+--     Runtime.error_handle(msg)
+-- end
 
 local abs_path = ';D:\\Program\\SkillManager\\'
 
