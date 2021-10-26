@@ -42,10 +42,10 @@ local function coresume(co, ...)
 end
 
 local function routine(fn)
-    local co = co_running()  -- 申請一個協程
+    local co = co_running()
     while true do
         fn()
-        co_pool[#co_pool + 1] = co
+        co_pool[#co_pool + 1] = co  -- 因為co_pool是kv，所以要一直添加co到co_pool裡
         fn = co_yield()  -- 等待resume
     end
 end
@@ -72,13 +72,18 @@ end
 
 ---coroutine style
 ---@param seconds integer @duration in seconds，decimal part means millseconds
--- 利用coroutine.yield會等待resume回傳的特性實現等待
--- 只能用在async裡
-function M.sleep(seconds)
-    local co = co_running()
+--[[
+  原理：
+    因為協程一次只能一個，所以利用 coroutine.running 獲得調用它的協程。
+    接著先添加復甦時間到時間隊列，再把當前協程掛起。
+    最後等到時間隊列執行到這個函數的時候就會恢復當前協程。
+--]]
+    function M.sleep(seconds)
+    local co, status = co_running()
     insert_timer(seconds, function()
         co_resume(co)
     end)
+    print(status)
     return co_yield()
 end
 
@@ -153,3 +158,5 @@ print("main thread noblock")
 while true do
     timer.update()
 end
+
+print("Completed!")

@@ -1,9 +1,12 @@
 -- Timer是子節點調用running會重複執行，調用success或fail則會前往下個子節點，直到所有子節點完成或收到break命令才會跳出。
+local require = require
 local cls = require 'framework.behavior.node.composite'("Timer")
+local Timer = require 'framework.timer'
 
 function cls:_new(args)
     local this = self:super():new()
-    this._timer_ = require 'framework.timer':new(args[1], 1, function(t) t.args[1]:run() end)
+    this._timeout_ = args[1]
+    return this
 end
 
 function cls:success()
@@ -23,7 +26,7 @@ end
 
 function cls:running()
     self._is_child_running_ = true
-    self._timer_:start(self)
+    Timer:new(self._timeout_, 1, function(this) this.args[1]:run() end):start(self)
 end
 
 function cls:Break()

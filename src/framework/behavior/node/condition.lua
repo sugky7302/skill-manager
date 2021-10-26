@@ -34,7 +34,8 @@ end
 
 function cls:running()
     self._is_child_running_ = false
-    self:super():running()
+    self._index_ = 1  -- 一定要檢查條件，所以必須每次都把index設回1。
+    self:super():super().running(self)
 end
 
 return cls

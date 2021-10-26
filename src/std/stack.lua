@@ -4,9 +4,12 @@
 
 local Stack = require 'std.class'("Stack")
 
--- default
-Stack._top_   = nil
-Stack._size_ = 0 
+function Stack:_new()
+    return {
+        _top_ = nil,
+        _size_ = 0
+    }
+end
 
 function Stack:__tostring()
     local print_str = {"[bot->"}
@@ -22,30 +25,34 @@ function Stack:__tostring()
 end
 
 function Stack:clear()
-    for i = 1, self._size_ do 
+    for i = 1, self._size_ do
         self[i] = nil
     end
 
     self._top_ = nil
     self._size_ = 0
+
+    return self
 end
 
 -- 索引從 1 開始，因此要先增加size
 function Stack:push(data)
     self._size_ = self._size_ + 1
-
     self[self._size_] = data
-
     self._top_ = data
+
+    return self
 end
 
 -- 先減少size再清空會無法清除末端元素
 function Stack:pop()
+    local v = self[self._size]
+
     self[self._size_] = nil
-
     self._size_ = self._size_ - 1
-
     self._top_ = self[self._size_] or nil
+
+    return v
 end
 
 function Stack:isEmpty()

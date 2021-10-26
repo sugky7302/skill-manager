@@ -76,7 +76,8 @@ function Timer:pause()
 end
 
 ComputeRemaining = function(self)
-    self.remaining_ = self.end_stamp_ - Now()
+    -- Solve end_stamp in lua timer will be negative
+    self.remaining_ = math.max(0, self.end_stamp_ - Now())
 
     -- NOTE: (循環計時器) 如果 remaining=0 表示pause是計時器動作內部調用的，
     --       這樣的含意即下一次執行要暫停，因此要計算下一次的時間戳記。
@@ -90,12 +91,13 @@ Now = function()
 end
 
 function Timer:resume()
-    if self.remaining_ > 0 then
-        core.Insert(self, self.remaining_)
-    end
-
+    local remaining = self.remaining_
     -- pause_frame要歸零，不然中心計時器會認為還在暫停中而不會將命令插到下個時序
     self.remaining_ = 0
+
+    if remaining > 0 then
+        core.Insert(self, remaining)
+    end
 
     return self
 end

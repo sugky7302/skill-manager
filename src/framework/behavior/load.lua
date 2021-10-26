@@ -20,4 +20,5 @@ Load("framework.behavior.node", {
     'sequence',
     'wait',
     'none',
+    'timer',
 })

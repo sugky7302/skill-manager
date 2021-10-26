@@ -12,7 +12,7 @@
   - 撰寫部署腳本，確認lua能不能輸出錯誤到控制台
   - 測試CI
 
-## 1.10.0.86 - 2021-10-23
+## 1.10.0.87 - 2021-10-26
 - 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。
 ### Added:
 - 添加一個shell script執行所有測試模組。
@@ -34,6 +34,7 @@
   - 新增isRunning函數，會回傳行為樹是不是在執行。
   - 新增insert函數，可以於指定位置添加節點。位置格式為(第一層)-(第二層)-...-(第N層)-(位置)。
 - **[map/init]** 覆載print函數為console.write，讓war3.exe開啟lua視窗時能夠顯示中文。
+- **[test/framework]** 新增Timer單元測試，確保lua的timer能夠執行。
 
 ### Changed:
 - **[framework/behavior/timer]** 為了讓lua和war3都可以使用計時器，把原本的timer.lua拆分成UI跟中心計時器兩部份，並使UI在加載中心計時器會根據當前執行環境而選擇不同的lua。
@@ -42,11 +43,15 @@
   - 調整Parse函數的解析方式，設計更簡潔的遞迴邏輯。
   - skill成員變數改成object。
 - **[std/class]** 修改_new，提供一個預設建構函數。
+- **[std/stack]** 調整stack的建構函數。
 - **[tools/執行]** 修改讀取機制，現在會自動搜尋.w3x並執行。
 
 ### Fixed:
-- **[framework/behavior/tree]** 修正Parse函數不會傳參args的問題。
+- **[framework/behavior/node/condition]**
+  - 修正running函數調用錯誤的父類函數，導致無法將running狀態回傳到上層。
+  - 修正不會每次檢查條件的問題。
 - **[framework/behavior/node/wait]** 修正建構函數創建timer失敗的問題。
+- **[framework/behavior/tree]** 修正Parse函數不會傳參args的問題。
 
 ## 1.9.0.78 - 2021-10-11
 - 調整軟體設計架構，從分層架構改為微服務架構，便於開發與測試，若某一服務錯誤能以最小限度修復程式。以下列出架構：
