@@ -11,6 +11,17 @@
   - 測試Github能不能調用docker
   - 撰寫部署腳本，確認lua能不能輸出錯誤到控制台
   - 測試CI
+- Behavior
+  - 裝飾器
+  - 封裝behavior成一個接口
+
+## 1.11.0.88 - 2021-10-26
+
+### Added:
+- **[framework/behavior/tree]**
+  - 新增get函數，能夠取得該位置的節點。
+  - 新增decorator，能夠裝飾指定節點。
+- **[test/framework/]** 新增decorator單元測試。
 
 ## 1.10.0.87 - 2021-10-26
 - 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。

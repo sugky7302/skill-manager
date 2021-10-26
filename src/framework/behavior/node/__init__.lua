@@ -32,7 +32,6 @@ function cls:__call(name, parent, type_name)
 
         node_table[name]._name_ = name
     end
-
     return node_table[name]
 end
 

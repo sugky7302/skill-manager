@@ -93,46 +93,46 @@ function attack:run()
     self:running()
 end
 
--- local bt = BT:new(123, {id="Condition", nodes={
---         {id="碰到敵人"},
---         {id="Condition", nodes={
---             {id="生命值檢測", args={30}},
---             {id="Condition", nodes={
---                 {id="距離檢測", args={100}},
---                 {id="None"},
---                 {id="逃跑"}
---             }},
---             {id="Condition", nodes={
---                 {id="死亡"},
-                -- {id="None"},
-                -- {id="攻擊"}
---             }}
---         }},
---         {id="巡邏"}
---     }}):setParam("目標", "步兵123"):run()
+local bt = BT:new(123, {id="Condition", nodes={
+        {id="碰到敵人"},
+        {id="Condition", nodes={
+            {id="生命值檢測", args={30}},
+            {id="Condition", nodes={
+                {id="距離檢測", args={100}},
+                {id="None"},
+                {id="逃跑"}
+            }},
+            {id="Condition", nodes={
+                {id="死亡"},
+                {id="None"},
+                {id="攻擊"}
+            }}
+        }},
+        {id="巡邏"}
+    }}):setParam("目標", "步兵123"):run()
 
--- print(bt)
--- bt:insert("2", Node("攻擊"):new())
--- print(bt)
--- bt:insert("3-3-3", Node("逃跑"):new())
--- print(bt)
+print(bt)
+bt:insert("2", Node("攻擊"):new())
+print(bt)
+bt:insert("3-3-3", Node("逃跑"):new())
+print(bt)
 
--- BT:new(1, {id="Loop", args={-1}, nodes={
---     {id="Condition", nodes={
---         {id="碰到敵人"},
---         {id="Condition", nodes={
---             {id="生命值檢測", args={30}},
---             {id="逃跑"},
---             {id="攻擊"}
---         }},
---         {id="巡邏"}
---     }},
---     {id="等待", args={1}}
--- }}):setParam("目標", "工作人員"):run()
+BT:new(1, {id="Loop", args={-1}, nodes={
+    {id="Condition", nodes={
+        {id="碰到敵人"},
+        {id="Condition", nodes={
+            {id="生命值檢測", args={30}},
+            {id="逃跑"},
+            {id="攻擊"}
+        }},
+        {id="巡邏"}
+    }},
+    {id="等待", args={1}}
+}}):setParam("目標", "工作人員"):run()
 
--- print("a", os.clock())
--- print(BT:new(1, {id="等待", args={1}}):run())
--- print("b", os.clock())
+print("a", os.clock())
+print(BT:new(1, {id="等待", args={1}}):run())
+print("b", os.clock())
 
 print(BT:new(1, {id="Timer", args={0.5}, nodes={
     {id="逃跑"},

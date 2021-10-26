@@ -16,7 +16,24 @@
       skill_id - skill id in war3
       script - skill action script
 
+    isRunning() - check whether the tree is running.
+      return - true / false
+    
+    setParam(key, value) - save a key-value pair into the parameter list.
+    
+    getParam(key) - get the pair with the key from the parameter list.
+      return - value
+    
     run() - run all nodes
+
+    get(pos) - get the node in the position of the tree.
+      return - tree node
+
+    insert(pos, new_node) - insert a new_node into the position of the tree.
+
+    pause() - pause the action of the tree
+
+    restore() - restore the action of the tree
 --]]
 local require = require
 local Node = require 'framework.behavior.node'
@@ -117,6 +134,23 @@ function cls:run()
     self._root_:start()
     self._root_:run()
     return self
+end
+
+function cls:get(pos)
+    if not self._root_ then
+        return self
+    end
+
+    local node, v = self._root_
+    for s in string.gmatch(pos, "%d+") do
+        v = tonumber(s)
+        if node._children_ and v <= #node._children_ then
+            node = node._children_[v]
+        else break
+        end
+    end
+
+    return node
 end
 
 function cls:insert(pos, new_node)
