@@ -1,16 +1,41 @@
-local table_insert, type, ipairs, pairs, gmatch = table.insert, type, ipairs, pairs, string.gmatch
+--[[
+    Decorator is a plug-in of behavior that can decorate the assigned node.
+    The most important function is extending functions of the node, which can realize many special effects.
+
+    Function:
+      new(name, fn) - create an instance and record decorators.
+
+      print() - print the decorators
+
+      wrap(node, list) - wrap the node with all decorators in the list.
+        node - Behavior Node
+        list - decorators list
+
+      add(name, fn) - add a decorator into the queue and update to the database.
+        name - decorator name
+        fn - decorator function
+
+      has(name) - find whether the instance has the decorator.
+        name - decorator name
+        return - true if the instance has the decorator
+--]]
+
+local type, ipairs, pairs, gmatch, concat = type, ipairs, pairs, string.gmatch, table.concat
 local cls = require 'std.class'("BehaviorDecorator")
 local DATABASE = {}
-local Save
+local UpdateDataBase, AddDecorator, ParseName
 
-function cls:_new(script)
+function cls:_new(name, fn)
     local this = {}
-    self.add(this, script)
+    
+    if name then
+        self.add(this, name, fn)
+    end
+
     return this
 end
 
 function cls:__tostring()
-    local rep, concat = string.rep, table.concat
     local str = {}
 
     for name, list in pairs(self) do
@@ -23,25 +48,32 @@ function cls:__tostring()
     return concat(str, '\n')
 end
 
--- BUG: 遇到相同的裝飾器會重複包裝
 function cls:wrap(node, list)
     local node_name = node:getName()
     if not self[node_name] then
         return self
     end
 
-    if not list then
-        for _, name in ipairs(self[node_name]) do
-            DATABASE[node_name][name](node)  -- 調用資料庫裡的函數
-        end
-    else  -- 只對節點裝飾指定的裝飾器
-        for _, name in ipairs(list) do
-            -- 透過正則表達式取得裝飾名
-            for s in gmatch(name, '[^-]+') do
-                name = s
-            end
+    -- 針對單一裝飾名進行包裝，好讓迭代器執行
+    if type(list) == 'string' then
+        list = {list}
+    end
 
-            DATABASE[node_name][name](node)  -- 調用資料庫裡的函數
+    local t
+    for _, name in ipairs(list or self[node_name]) do
+        -- 透過正則表達式取得裝飾名
+        -- NOTE: list的名字跟self[node_name]會有差別，因此要解析。 - 2021-10-27
+        t = ParseName(name)
+
+        if #t == 1 then
+            t[2] = t[1]
+            t[1] = node_name
+        end
+
+        -- 添加裝飾器到節點，如果成功則調用資料庫裡的函數
+        -- NOTE: Node儲存的只有裝飾名，不需要節點名 - 2021-10-27
+        if DATABASE[t[1]][t[2]] and (t[1] == node_name) and node:addDecorator(t[2]) then
+            DATABASE[t[1]][t[2]](node)
         end
     end
 
@@ -49,47 +81,107 @@ function cls:wrap(node, list)
 end
 
 --[[
-    NOTE: 支援 2 種寫法，第一種是(名字, 函數)
-          第二種是{(名字1, 函數1), (名字2, 函數2)} - 2021-10-26
+    NOTE: 此函數有兩種用途，一種是添加裝飾函數到裝飾器以及更新資料庫，另一種是添加裝飾名到裝飾器。
+          格式為 name(string/table)、fn(function/table)。
+          這裡會透過遞迴的方式處理單一元素以及元素陣列 - 2021-10-27
 --]]
-function cls:add(list)
-    if type(list) ~= 'table' then
-        return {}
-    end
-
-    local names = {}
-    if type(list[1]) == 'table' then -- 有多個裝飾函數
-        for _, t in ipairs(list) do
-            table_insert(names, Save(self, t))
+function cls:add(name, fn)
+    if type(name) == 'string' then
+        if type(fn) == 'function' then
+            UpdateDataBase(self, name, fn)
         end
-    else  -- 單一裝飾函數
-        table_insert(names, Save(self, list))
-    end
 
-    return names
+        return AddDecorator(self, name)
+    elseif type(name) == 'table' then
+        local decorators = {}
+        if type(fn) == 'table' and #name == #fn then
+            for i, v in ipairs(name) do
+                decorators[#decorators+1] = cls.add(self, v, fn[i])
+            end
+        else
+            for _, v in ipairs(name) do
+                decorators[#decorators+1] = cls.add(self, v)
+            end
+        end
+
+        return decorators
+    end
 end
 
-Save = function(self, list)
-    local name = {}
-    for s in gmatch(list[1], '[^-]+') do
-        name[#name+1] = s
+UpdateDataBase = function(self, name, fn)
+    if type(name) ~= 'string' and type(fn) ~= 'function' then
+        return
+    end
+    
+    local t = ParseName(name)
+    if #t ~= 2 then
+        return
     end
 
-    -- 更新資料庫
-    if not DATABASE[name[1]] then
-        DATABASE[name[1]] = {}
+    if not DATABASE[t[1]] then
+        DATABASE[t[1]] = {}
     end
 
-    DATABASE[name[1]][name[2]] = list[2]
+    if not DATABASE[t[1]][t[2]] then
+        DATABASE[t[1]][t[2]] = fn
 
-    -- 更新裝飾器
-    if not self[name[1]] then
-        self[name[1]] = {}
+    end
+end
+
+AddDecorator = function(self, name)
+    if type(name) ~= 'string' then
+        return
     end
 
-    table_insert(self[name[1]], name[2])
+    local t = ParseName(name)
+    if #t ~= 2 then
+        return
+    end
 
-    return list[1]
+    -- 檢查資料庫有無此裝飾函數
+    if not (DATABASE[t[1]] and DATABASE[t[1]][t[2]]) then
+        return
+    end
+
+    if not self[t[1]] then
+        self[t[1]] = {}
+    end
+
+    local is_exist = false
+    for _, dcr_name in ipairs(self[t[1]]) do
+        if dcr_name == t[2] then
+            is_exist = true
+        end
+    end
+
+    if is_exist then
+        return
+    end
+
+    self[t[1]][ #self[t[1]] + 1] = t[2]
+
+    return name
+end
+
+ParseName = function(name)
+    local t = {}
+    for s in gmatch(name, '[^-]+') do
+        t[#t+1] = s
+    end
+
+    return t
+end
+
+function cls:has(name)
+    for _, node_name in pairs(self) do
+        for _, dcr_name in ipairs(node_name) do
+            if dcr_name == name or concat{node_name, "-", dcr_name} == name then
+                return true
+            end
+        end
+    end
+
+    return false
 end
 
 return cls

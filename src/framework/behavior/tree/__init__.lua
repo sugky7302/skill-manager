@@ -16,6 +16,8 @@
       skill_id - skill id in war3
       script - skill action script
 
+    iterator() - traverser all nodes
+
     isRunning() - check whether the tree is running.
       return - true / false
     
@@ -107,6 +109,42 @@ Print = function(str, node, depth)
     end
 
     return str
+end
+
+function cls:iterator()
+    local index = require "std.stack":new()
+    local node = self._root_
+    while node._children_ do
+        node = node._children_[1]
+        index:push(1)
+    end
+    return function()
+        if index:isEmpty() then
+            index:remove()
+            return nil
+        end
+
+        local pos = {}
+        for i = 1, index:size() do
+            pos[#pos+1] = index[i]
+        end
+
+        local ret = node
+        local i = index:top() + 1
+        index:pop()
+        if i > #node.parent_._children_ then
+            node = node.parent_
+        else
+            index:push(i)
+            node = node.parent_._children_[i]
+
+            while node._children_ do
+                node = node._children_[1]
+                index:push(1)
+            end
+        end
+        return table.concat(pos, "-"), ret
+    end
 end
 
 function cls:isRunning()

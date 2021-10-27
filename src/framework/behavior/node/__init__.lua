@@ -12,6 +12,7 @@ function cls:_new(args)
         _name_ = nil,
         parent_ = nil,
         tree_ = nil,
+        _decorator_ = {},
     }
 end
 
@@ -37,6 +38,25 @@ end
 
 function cls:getName()
     return self._name_
+end
+
+function cls:addDecorator(name)
+    if not self:hasDecorator(name) then
+        self._decorator_[#self._decorator_+1] = name
+        return true
+    end
+
+    return false
+end
+
+function cls:hasDecorator(name)
+    for _, dcr in ipairs(self._decorator_) do
+        if dcr == name then
+            return true
+        end
+    end
+
+    return false
 end
 
 function cls:start()

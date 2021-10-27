@@ -22,7 +22,7 @@
 ### 進入創建好的container
 - docker ps -a : 查看container名稱
 - docker exec -it {container名稱或ID} bash
-- docker container start -it {container名稱或ID}：啟動已經關閉的container
+- docker container start {container名稱或ID}：啟動已經關閉的container
 
 ### 刪除
 - docker rm {container名稱或ID}

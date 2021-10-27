@@ -111,13 +111,17 @@ local bt = BT:new(123, {id="Condition", nodes={
         {id="巡邏"}
     }}):setParam("目標", "步兵123"):run()
 
+for i, node in bt._tree_:iterator() do
+    print(i, node:getName())
+end
+
 print(bt)
 bt:insert("2", Node("攻擊"):new())
 print(bt)
 bt:insert("3-3-3", Node("逃跑"):new())
 print(bt)
 
-BT:new(1, {id="Loop", args={-1}, nodes={
+local qw = BT:new(1, {id="Loop", args={-1}, nodes={
     {id="Condition", nodes={
         {id="碰到敵人"},
         {id="Condition", nodes={
@@ -134,7 +138,7 @@ print("a", os.clock())
 print(BT:new(1, {id="等待", args={1}}):run())
 print("b", os.clock())
 
-print(BT:new(1, {id="Timer", args={0.5}, nodes={
+local k = BT:new(1, {id="Timer", args={0.5}, nodes={
     {id="逃跑"},
     {id="Condition", nodes={
         {id="死亡"},
@@ -142,5 +146,28 @@ print(BT:new(1, {id="Timer", args={0.5}, nodes={
         {id="攻擊"}
     }},
     {id="巡邏"}
-}}):setParam("目標", "工作人員"):run())
+}}):setParam("目標", "工作人員"):run()
+print(k)
+
+-- 裝飾器測試
+local function a(node)
+    local run = node.run
+    node.run = function(self)
+        print("攻擊測試")
+        run(self)
+    end
+end
+
+local function b(node)
+    local start = node.start
+    node.start = function(self)
+        print("測試...")
+        start(self)
+    end
+end
+
+print(k:decorate{{"攻擊-a", a}, {"巡邏-b", b}}:run())
+print(BT:new(1, {{id="逃跑"}, {id="攻擊"}}):decorate({"攻擊-a", "逃跑-a"}, {a, b}):run())
+
+
 

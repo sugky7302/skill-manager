@@ -1,4 +1,4 @@
-local attr = require 'frame.attribute':new():setPackage('data.test.attribute')
+local attr = require 'framework.attribute':new():setPackage('data.test.attribute')
 
 local function loop(a)
     for priority, name in a:iterator() do
@@ -21,11 +21,11 @@ print(attr:getProperty("c", "res"))  -- nil(no this attribute)
 print(attr:getProperty("b", "res"))  -- nil(no this property)
 print(attr:getProperty("a", "res"))  -- hello world
 
-local b = require 'lib.attribute':new()
+local b = require 'framework.attribute':new()
 print(b:get('a'))
 b:set('c', 15):add('c%', 7):set('b*', 100):add('a', 12)
 
 loop(b)
 
-local c = require 'lib.attribute':new():setPackage('data.test.rune')
+local c = require 'framework.attribute':new():setPackage('data.test.rune')
 c:set('cruw', 3)

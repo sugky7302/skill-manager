@@ -15,13 +15,20 @@
   - 裝飾器
   - 封裝behavior成一個接口
 
-## 1.11.0.88 - 2021-10-26
+## 1.11.0.89 - 2021-10-27 - Behavior完成
 
 ### Added:
+- **[framework/behavior]** 完成behavior的管理器，將tree以及decorator包裝成一個物件供外部使用。
+- **[framework/behavior/node]** 新增變數 decorator 和函數 hasDecorator、addDecorator，記錄此node使用過的裝飾器，防止重複裝飾。
 - **[framework/behavior/tree]**
   - 新增get函數，能夠取得該位置的節點。
+  - 新增iterator函數，能夠遍歷所有節點。
   - 新增decorator，能夠裝飾指定節點。
 - **[test/framework/]** 新增decorator單元測試。
+- **[test/framework/behavior]** 新增裝飾器聯動測試。
+
+### Fixed:
+- **[test/framework/attribute]** 修正require錯誤。
 
 ## 1.10.0.87 - 2021-10-26
 - 把所有單元測試集中在一個資料夾內，方便docker統一複製跟執行。
