@@ -35,12 +35,16 @@
 - Behavior
   - 新增import以及父類參數繼承等功能，使劇本能夠更模組化。
 - Event
-  - 將原本的Event、EventManager、Listener整合成一個功能，讓使用者操作方便。
+  - 測試war3的監聽功能。
 
-## 1.12.0.90 - 2021-10-28
+## 1.12.0.91 - 2021-10-28
 
 ### Added:
-- **[framework]** 新增listener功能，將原本的Event、EventManager以及Listener整合在一起，並解決原本設計上的問題。現在事件源會調用兩種不同的事件，一種是原本的監聽功能，另一種是事件對象的監聽器的事件隊列，從而解決有些事件對象明明沒有註冊事件，但卻能夠觸發事件的問題。
+- **[framework]** 新增監聽框架，以監聽者模式來原本的Event、EventManager以及Listener重新設計。目前有以下3種功能：Listener獨自調用指定事件的隊列、事件源會針對事件對象執行其監聽器的事件隊列，從而達到差異化、事件可封裝成模板，減少重複撰寫。
+- **[framework/listener]** 新增template資料夾，放置事件模板。
+
+### Changed:
+- **[framework/behavior]** 把load.lua抽象成所有腳本都可以使用並移動到framework下，原本的load變成調用它。
 
 ## 1.11.0.89 - 2021-10-27 - Behavior完成
 

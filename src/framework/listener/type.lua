@@ -19,9 +19,9 @@ local ID = {
     ['單位-改變所有者'] = ej.EVENT_UNIT_CHANGE_OWNER, -- GetChangingUnit
     ['單位-注意到攻擊目標'] = ej.EVENT_UNIT_ACQUIRED_TARGET, -- GetEventTargetUnit
     ['單位-獲得攻擊目標'] = ej.EVENT_UNIT_TARGET_IN_RANGE, -- GetEventTargetUnit
-    ['單位-開始製造'] = ej.EVENT_UNIT_TRAIN_START, -- GetTrainedUnit
-    ['單位-取消製造'] = ej.EVENT_UNIT_TRAIN_CANCEL, -- GetTrainedUnit
-    ['單位-完成製造'] = ej.EVENT_UNIT_TRAIN_FINISH, -- GetTrainedUnit
+    ['建築-開始製造'] = ej.EVENT_UNIT_TRAIN_START, -- GetTrainedUnit
+    ['建築-取消製造'] = ej.EVENT_UNIT_TRAIN_CANCEL, -- GetTrainedUnit
+    ['建築-完成製造'] = ej.EVENT_UNIT_TRAIN_FINISH, -- GetTrainedUnit
     ['建築-開始升級'] = ej.EVENT_UNIT_UPGRADE_START,  -- GetConstructingStructure
     ['建築-取消升級'] = ej.EVENT_UNIT_UPGRADE_CANCEL,  -- GetCancelledStructure
     ['建築-完成升級'] = ej.EVENT_UNIT_UPGRADE_FINISH, -- GetConstructedStructure
@@ -52,7 +52,18 @@ local function Register(trg, event_name, event_source)
     end
 end
 
+local OBJECT = {
+    ["單位"] = "GetTriggerUnit",
+    ["建築"] = "GetTriggerUnit",
+    ["科技"] = "GetTriggerUnit",
+    ["英雄"] = "GetTriggerUnit",
+    ["對話框"] = "GetClickedDialog",
+    ["玩家"] = "GetTriggerPlayer",
+    ["破壞物"] = "GetTriggerDestructable",
+}
+
 return {
     ID = ID,
     Register = Register,
+    OBJECT = OBJECT,
 }

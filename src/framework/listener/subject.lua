@@ -55,87 +55,68 @@ end
 
 
 --# 主題
-local subject = require 'framework.listener.event':new()
-subject._listeners_ = {}  -- 記錄監聽器
-subject._registry_ = {}  -- 記錄已註冊事件，避免重複
+local string = string
+local EVENT = require 'framework.event.type'
 
-local Condition, Register
+local event = {}
+local Condition, Register, AddArg, NotifyListener
 
-function subject:addListener(listener)
-    self._listeners_[listener:object()] = listener
-    return self
-end
-
--- NOTE: 因為觸發傳來的第一個參數一定是object，所以可以拿來讀取監聽器
-function subject:notifyListener(name, event_obj, ...)
-    if self._listeners_[event_obj] then
-        self._listeners_[event_obj]:onTick(name, event_obj, ...)
+local function Add(self, name, arg)
+    if not EVENT.ID(name) then
+        return true  -- 讓listener記錄這個事件被註冊過，下一次就不會調用這個函數了。
     end
 
-    return self
+    AddArg(name, arg)
+    return Register(self, name)
 end
 
-local AddEvent, AddArg = subject.addEvent
-function subject:addEvent(name, obj, arg, callback)
-    AddEvent(self, name, callback)
-    AddArg(self._event_[name], arg)
-    Register(self._registry_, name, obj)
-    return self
-end
-
-AddArg = function(list, arg)
-    local string = string
-
+AddArg = function(name, arg)
     if not arg or string.len(arg) == 0 then
         return false
     end
 
-    if not list[0] then
-        list[0] = arg
+    if not event[name] then
+        event[name] = arg
         return true
     end
 
-    local str = {list[0]}
+    local str = {event[name]}
     for s in string.gmatch(arg, "%w+") do
-        if not string.match(list[0], s) then
+        if not string.match(event[name], s) then
             str[#str+1] = s
         end
     end
 
-    list[0] = table.concat(str)
+    event[name] = table.concat(str)
 
     return true
 end
 
-local EVENT = require 'framework.event.type'
+
 local MAIN_TRG = Trigger:new(Condition)
 
-Register = function(event_source, event_name, event_obj)
-    local string = string
-
+Register = function(self, name)
     -- 用正則表達式篩選事件是否為一次性
     local trg = MAIN_TRG
-    if string.match(event_name, '*') then
+    if string.match(name, '*') then
         trg = Trigger:new()
         trg:setAction(function()
             Condition()
             trg:remove()
             return true
         end)
-    -- NOTE: 已經註冊過的事件對象就跳過
-    elseif event_source[event_name .. event_obj] then
+    -- NOTE: 監聽器不得重複註冊事件
+    elseif self:isRegistered(name) then
         return false
     end
 
-    -- 記錄事件對象，防止重複註冊，使觸發器多重觸發
-    event_source[event_name .. event_obj] = true
-
     -- NOTE: 因為event name不一定有*，所以要用gsub去搜尋加取代
-    EVENT.Register(trg:object(), string.gsub(event_name, "*", ""), event_obj)
+    EVENT.Register(trg:object(), string.gsub(name, "*", ""), self:object())
+
+    return true
 end
 
 -- 觸發器的動作函數，獨立出來是因為一次性觸發器也會用到。
--- BUG: 尚未解決像 「受到傷害」事件的兇手的監聽器觸發
 Condition = function()
     -- NOTE: 可以用print(ej.GetTriggerEventId)獲得本次觸發的事件編號
     local event_name
@@ -153,19 +134,46 @@ Condition = function()
 
     -- 將參數名轉成真正的參數
     local args = {}
-    for arg in string.gmatch(subject._event_[event_name][0], "%w+") do
-        args[#args + 1] = ej[arg]()
+    for arg in string.gmatch(event[event_name], "%w+") do
+        args[arg] = ej[arg]()
     end
-    args = table.unpack(args)
 
     -- 執行broadcast以及listener的tick
     -- NOTE: args第一個參數通常都會是觸發者，因此我們可以把它當作參數讀取對應的監聽器
-    subject:onTick(event_name, args)
-    subject:notifyListener(event_name, args)
+    NotifyListener(event_name, EVENT.OBJECT[string.match(event_name, '[^-]+')], args)
 
     return true
 end
 
-return subject
+local listeners = {}  -- 記錄監聽器
+
+NotifyListener = function(name, obj, args)
+    local this = listeners[obj]
+
+    if this then
+        local unpack, vars = table.unpack
+
+        for arg, callback in this:iterator(name) do
+            vars = {}
+            for s in string.gmatch(arg, "%w+") do
+                if args[s] then
+                    vars[#vars+1] = args[s]
+                end
+            end
+            vars[#vars+1] = this
+
+            callback(unpack(vars))
+        end
+    end
+end
+
+local function AddListener(listener)
+    listeners[listener:object()] = listener
+end
+
+return {
+    addListener = AddListener,
+    add = Add,
+}
 
 
