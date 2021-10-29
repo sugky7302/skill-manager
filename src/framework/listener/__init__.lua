@@ -109,7 +109,7 @@ end
 
 function cls:iterator(name)
     if not self._event_[name] then
-        return
+        return function() return nil end  -- 防止for iterator報錯
     end
 
     local i = 1

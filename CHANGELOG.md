@@ -34,10 +34,8 @@
   - 法術體：法術場、彈道、buff/debuff。透過設計特殊的節點，能夠與行為樹兼容。
 - Behavior
   - 新增import以及父類參數繼承等功能，使劇本能夠更模組化。
-- Event
-  - 測試war3的監聽功能。
 
-## 1.12.0.91 - 2021-10-28
+## 1.12.0.92 - 2021-10-29
 
 ### Added:
 - **[framework]** 新增監聽框架，以監聽者模式來原本的Event、EventManager以及Listener重新設計。目前有以下3種功能：Listener獨自調用指定事件的隊列、事件源會針對事件對象執行其監聽器的事件隊列，從而達到差異化、事件可封裝成模板，減少重複撰寫。
@@ -45,6 +43,17 @@
 
 ### Changed:
 - **[framework/behavior]** 把load.lua抽象成所有腳本都可以使用並移動到framework下，原本的load變成調用它。
+- **[framework/listener/subject]** 如果遇到沒有事件對象的觸發事件，將會執行廣播模式，對所有監聽器調用一遍該事件的回調隊列。
+
+### Fixed:
+- **[framework/listener/__init__]**
+  - 修正subject讀不到的問題。
+  - 修正iterator搜尋不到事件而直接回傳nil，導致for-iterator報錯的問題。
+- **[framework/listener/subject]**
+  - 修正listener.type讀取錯誤的問題。
+  - 修正事件參數沒有分隔的問題。
+  - 修正因為Condition在MAIN_TRG前面，導致註冊失敗的問題。
+  - 修正監聽器新增失敗的問題。
 
 ## 1.11.0.89 - 2021-10-27 - Behavior完成
 

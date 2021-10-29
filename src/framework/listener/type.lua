@@ -40,7 +40,7 @@ local ID = {
 
 local function Register(trg, event_name, event_source)
     local event_type = string.match(event_name, '[^-]+')
-
+    
     -- NOTE: 請在這加入該類型事件的註冊方法函數！！
     if event_type == '單位' or event_type == '建築' or event_type == "商店" or
        event_type == '科技' or event_type == "英雄"  then

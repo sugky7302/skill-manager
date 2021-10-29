@@ -56,13 +56,13 @@ end
 
 --# 主題
 local string = string
-local EVENT = require 'framework.event.type'
+local EVENT = require 'framework.listener.type'
 
 local event = {}
-local Condition, Register, AddArg, NotifyListener
+local Register, AddArg, Dispatch, NotifyListener
 
 local function Add(self, name, arg)
-    if not EVENT.ID(name) then
+    if not EVENT.ID[name] then
         return true  -- 讓listener記錄這個事件被註冊過，下一次就不會調用這個函數了。
     end
 
@@ -87,11 +87,41 @@ AddArg = function(name, arg)
         end
     end
 
-    event[name] = table.concat(str)
-
+    event[name] = table.concat(str, " ")
+    
     return true
 end
 
+-- 觸發器的動作函數，獨立出來是因為一次性觸發器也會用到。
+-- NOTE: 因為MAIN_TRG馬上要用到，所以沒辦法先宣告再實作
+local function Condition()
+    -- NOTE: 可以用print(ej.GetTriggerEventId)獲得本次觸發的事件編號
+    local event_name
+    for k, v in pairs(EVENT.ID) do
+        if v == ej.GetTriggerEventId() then
+            event_name = k
+            break
+        end
+    end
+
+    -- 搜尋不到就跳出
+    if not event_name then
+        return false
+    end
+
+    -- 將參數名轉成真正的參數。如果找不到就設定空字串，防止gmatch報錯
+    local args = {}
+    for arg in string.gmatch(event[event_name] or "", "%w+") do
+        args[arg] = ej[arg]()
+    end
+
+    -- 執行broadcast以及listener的tick
+    -- NOTE: 有時候事件沒有事件對象，因此會回傳nil，而ej讀到nil會直接I/O Error
+    local obj = EVENT.OBJECT[string.match(event_name, '[^-]+')]
+    NotifyListener(event_name, obj and ej[obj](), args)
+
+    return true
+end
 
 local MAIN_TRG = Trigger:new(Condition)
 
@@ -116,59 +146,36 @@ Register = function(self, name)
     return true
 end
 
--- 觸發器的動作函數，獨立出來是因為一次性觸發器也會用到。
-Condition = function()
-    -- NOTE: 可以用print(ej.GetTriggerEventId)獲得本次觸發的事件編號
-    local event_name
-    for k, v in pairs(EVENT.ID) do
-        if v == ej.GetTriggerEventId() then
-            event_name = k
-            break
-        end
-    end
-
-    -- 搜尋不到就跳出
-    if not event_name then
-        return false
-    end
-
-    -- 將參數名轉成真正的參數
-    local args = {}
-    for arg in string.gmatch(event[event_name], "%w+") do
-        args[arg] = ej[arg]()
-    end
-
-    -- 執行broadcast以及listener的tick
-    -- NOTE: args第一個參數通常都會是觸發者，因此我們可以把它當作參數讀取對應的監聽器
-    NotifyListener(event_name, EVENT.OBJECT[string.match(event_name, '[^-]+')], args)
-
-    return true
-end
-
 local listeners = {}  -- 記錄監聽器
 
 NotifyListener = function(name, obj, args)
-    local this = listeners[obj]
-
-    if this then
-        local unpack, vars = table.unpack
-
-        for arg, callback in this:iterator(name) do
-            vars = {}
-            for s in string.gmatch(arg, "%w+") do
-                if args[s] then
-                    vars[#vars+1] = args[s]
-                end
-            end
-            vars[#vars+1] = this
-
-            callback(unpack(vars))
+    -- 沒有obj表示是廣播事件
+    if not obj then
+        for _, listener in pairs(listeners) do
+            Dispatch(listener, name, args)
         end
+    elseif listeners[obj] then
+        Dispatch(listeners[obj], name, args)
     end
 end
 
+Dispatch = function(self, name, args)
+    local unpack, vars = table.unpack
+    for arg, callback in self:iterator(name) do
+        vars = {}
+        for s in string.gmatch(arg or "", "%w+") do
+            if args[s] then
+                vars[#vars+1] = args[s]
+            end
+        end
+        vars[#vars+1] = self
+        callback(unpack(vars))
+    end
+end
+
+
 local function AddListener(listener)
-    listeners[listener:object()] = listener
+    listeners[listener._object_] = listener
 end
 
 return {
