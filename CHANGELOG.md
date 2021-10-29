@@ -1,19 +1,5 @@
 # 更新日誌
 
-## Structure
-  - std：標準函數庫，類似C++/Python內建的常用模組庫。std內所有模組的測試檔會從unit_test移動到此資料夾內。
-  - war3：魔獸函數庫。放置由YDWE提供的jass2lua的模組。
-  - framework：遊戲內會使用到的物件類別，如單位、物品等等。這些框架都是使用stl和war3提供的模組組合而成，因此改動時要非常注意。因為部份模組含有資料庫，怕各自引用會讓之後模組維護有問題，所以會有一個類似目錄的.lua統一管理、引用模組。
-  - share：存放服務間會共用的服務模版，防止有害的重複。
-  - profession：職業模板服務。
-  - magic_furnace：魔導爐服務。
-  - knowledge：知識＆專精服務。
-  - talent：種族特性服務。
-  - skill：施法技巧服務。
-  - quest：任務服務。
-  - achievement：成就服務。
-  - loot：戰利品服務。
-
 ## TODO:
 - Equipment新增recipe
 - Eq創建時搜尋資料庫，根據item type添加屬性。以下二擇一
@@ -34,8 +20,13 @@
   - 法術體：法術場、彈道、buff/debuff。透過設計特殊的節點，能夠與行為樹兼容。
 - Behavior
   - 新增import以及父類參數繼承等功能，使劇本能夠更模組化。
+- Loader
+  - 把原本的load.lua擴展成可任意讀取路徑檔案的讀取器，不要只限制在一個，方便之後skill、effect多個地方讀取。
+- Effect
+  - 把原本的effect、status、effect_manager整合在一起，並且重新分配effect和effect_manager的職責。
+  - effect會分成原子狀態（狀態和狀態的關係）、靜態屬性（一些定值）、動態屬性（可自由調整），管理器只能添加動態屬性。
 
-## 1.12.0.92 - 2021-10-29
+## 1.12.0.93 - 2021-10-29 - Listener完成
 
 ### Added:
 - **[framework]** 新增監聽框架，以監聽者模式來原本的Event、EventManager以及Listener重新設計。目前有以下3種功能：Listener獨自調用指定事件的隊列、事件源會針對事件對象執行其監聽器的事件隊列，從而達到差異化、事件可封裝成模板，減少重複撰寫。
@@ -46,6 +37,9 @@
 - **[framework/listener/subject]** 如果遇到沒有事件對象的觸發事件，將會執行廣播模式，對所有監聽器調用一遍該事件的回調隊列。
 
 ### Fixed:
+- **[framework/attribute]**
+  - 修正敘述與數值不符的問題。
+  - 修正ParseKey截取最後一個字符時截取錯誤的問題。
 - **[framework/listener/__init__]**
   - 修正subject讀不到的問題。
   - 修正iterator搜尋不到事件而直接回傳nil，導致for-iterator報錯的問題。

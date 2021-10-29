@@ -15,6 +15,7 @@ print(attr:get "a", attr:get "a*", attr:get "a@")
 
 attr:delete("a")
 
+attr:add("攻擊力%", 10):add("攻擊力", 20):add("攻擊力*", 10)
 loop(attr)
 
 print(attr:getProperty("c", "res"))  -- nil(no this attribute)

@@ -1,5 +1,5 @@
 local function Main()
-    require 'test.framework.listener'
+    -- require 'test.framework.listener'
 end
 
 Main()

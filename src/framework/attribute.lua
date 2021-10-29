@@ -151,7 +151,7 @@ function cls:getDescription(key)
 
     -- NOTE: gsub會返回兩個值，一個是替換後的字串，另一個是替換後的次數。
     --   如果在外面加一層，便只回傳替換後的字串，使用select(1, ...)沒辦法達到這樣的效果。
-    return (string.gsub(GetFormat(self, name), 'N', self:get(name)))
+    return (string.gsub(GetFormat(self, name), 'N', self:sum(name)))
 end
 
 GetFormat = function(self, name)
@@ -268,8 +268,9 @@ function cls:delete(key)
 end
 
 ParseKey = function(key)
-    local string = string
-    return string.match(key, table.concat{'[^%',PERCENT,FIX,TOTAL,']+'}), string.sub(key, -1, -1)
+    local match, concat = string.match, table.concat
+    local signs = concat{"%", PERCENT, FIX, TOTAL}
+    return match(key, concat{'[^', signs,']+'}), match(key, concat{'[', signs, ']'})
 end
 
 return cls
