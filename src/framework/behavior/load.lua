@@ -1,4 +1,4 @@
-require 'framework.load'("framework.behavior.node", {
+return require 'framework.loader'.loadFolder('framework.behavior.node', {
     'condition',
     'loop',
     'not',
@@ -9,4 +9,5 @@ require 'framework.load'("framework.behavior.node", {
     'wait',
     'none',
     'timer',
+    'test.json'
 })

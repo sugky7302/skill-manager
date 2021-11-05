@@ -2,7 +2,6 @@
 local require = require
 local Runtime = require 'jass.runtime'
 local Console = require 'jass.console'
-local concat = table.concat
 
 -- 打開控制台
 Runtime.console = true
@@ -20,23 +19,23 @@ Runtime.debugger = 4278
 Runtime.sleep = false
 
 -- 錯誤匯報
+
+
 function Runtime.error_handle(msg)
-    print(string.format("[Error] %s", msg))
+    print("[Error] ".. msg)
     print(debug.traceback())
 end
 
--- function Global.error_handle(msg)
---     Runtime.error_handle(msg)
--- end
+-- 設定require路徑
+-- NOTE: 一定要絕對路徑，不然lua會找不到
+local concat = table.concat
 
-local abs_path = ';D:\\Program\\SkillManager\\'
-
--- 一定要絕對路徑，不然lua會找不到
-package.path = concat{package.path, abs_path, 'src\\?.lua'}
-package.path = concat{package.path, abs_path, 'src\\?\\__init__.lua'}
-package.path = concat{package.path, abs_path, 'tools\\w3x2lni\\script\\?.lua'}
-package.cpath = concat{package.cpath, abs_path, 'bin\\?.dll'}
-package.cpath = concat{package.cpath, abs_path, 'tools\\w3x2lni\\bin\\?.dll'}
+local WORK_DIR = ';' .. string.match(debug.getinfo(1, "S").source, "@(.+)map")
+package.path = concat{package.path, WORK_DIR, 'src\\?.lua'}
+package.path = concat{package.path, WORK_DIR, 'src\\?\\__init__.lua'}
+package.path = concat{package.path, WORK_DIR, 'tools\\w3x2lni\\script\\?.lua'}
+package.cpath = concat{package.cpath, WORK_DIR, 'bin\\?.dll'}
+package.cpath = concat{package.cpath, WORK_DIR, 'tools\\w3x2lni\\bin\\?.dll'}
 
 -- 進入主函數
 require 'main'

@@ -26,6 +26,17 @@
   - 把原本的effect、status、effect_manager整合在一起，並且重新分配effect和effect_manager的職責。
   - effect會分成原子狀態（狀態和狀態的關係）、靜態屬性（一些定值）、動態屬性（可自由調整），管理器只能添加動態屬性。
 
+## 1.13.0.94 - 2021-10-31
+### Added:
+- **[shared]** 新增數值公式，在計算傷害等效果時會用到。
+- **[std]** 新增json.lua，處理之後一些模組的靜態數值。
+
+### Changed:
+- **[framework/loader]** 優化讀取機制並能以遞迴方式重複讀取後存入同一張表。
+
+### Fixed:
+- **[map/init.lua]** 修正lua path和cpath因不同電腦存放位置不同導致路徑錯誤的問題。
+
 ## 1.12.0.93 - 2021-10-29 - Listener完成
 
 ### Added:
