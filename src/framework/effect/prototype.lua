@@ -1,5 +1,10 @@
+--[[
+    EffectType is used to define a variaty of effects.
+    Besides, dealing with a relationship of other's Effect Types is its another important task.
+--]]
+
 local require = require
-local cls = require 'std.class'("EffectPrototype")
+local cls = require 'std.class'("EffectType")
 
 function cls:_new(type)
     return {
@@ -21,7 +26,7 @@ function cls:type()
     return self._type_
 end
 
-function cls:a()
+function cls:compare()
 end
 
 return cls
