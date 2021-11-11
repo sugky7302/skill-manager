@@ -12,7 +12,8 @@ function cls:_new(data)
     return {
         _tasks_ = require 'std.list':new(),
         _name_ = data.name,
-        _type_ = data.type,
+        _type_ = require 'framework.effect.atom':new(data.type),
+        _priority_ = data.priority,
         _mode_ = data.mode,
         _max_ = data.max,
         _keep_after_death_ = data._keep_after_death_,
@@ -29,7 +30,12 @@ function cls:_remove()
 end
 
 function cls:type()
-    return self._type_
+    return self._type_:name()
+end
+
+function cls:link(effect_type)
+    self._type_:add(effect_type)
+    return self
 end
 
 function cls:compare()
