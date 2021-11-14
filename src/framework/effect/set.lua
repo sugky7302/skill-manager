@@ -6,23 +6,17 @@
 local require = require
 local cls = require 'std.class'("EffectSet")
 
-local function None() return true end
--- BUG: type和set耦合度太高，導致做狀態比對時出現問題
 function cls:_new(data)
     return {
+        _object_ = nil,
         _tasks_ = require 'std.list':new(),
         _name_ = data.name,
-        _type_ = require 'framework.effect.atom':new(data.type),
+        _type_ = data.type,
         _priority_ = data.priority,
         _mode_ = data.mode,
         _max_ = data.max,
         _keep_after_death_ = data._keep_after_death_,
-        -- TODO: 用listener取代
-        on_add = data.on_add or None,
-        on_delete = data.on_delete or None,
-        on_finish = data.on_finish or None,
-        on_cover = data.on_cover or None,
-        on_pulse = data.on_pulse or None,
+        _listener_ = require 'framework.listener':new(),
     }
 end
 
@@ -31,23 +25,31 @@ function cls:_remove()
 end
 
 function cls:type()
-    return self._type_:name()
-end
-
-function cls:bind(effect_type)
-    self._type_:add(effect_type)
-    return self
+    return self._type_
 end
 
 function cls:add(effect)
     self._tasks_:push_back(effect)
-    effect:on_add()
+    self._listener_:onTick("效果-新增", self._object_, effect.value, effect.source)
+    effect.timer_ = require 'framework.timer':new(
+        effect.time,
+        effect.time/effect.period,
+        function(t)
+            local this = t.args[0]
+            this._listener_:onTick("效果-觸發", this._object_, effect.value, effect.source)
+
+            if t.count == 1 then
+                this._listener_:onTick("效果-完成", this._object_, effect.value, effect.source)
+            end
+        end
+    ):start(self)
     return self
 end
 
-function cls:compareRelation(set)
-    self._types_:compare(set._type_)
-    return self
+function cls:clear()
+    for _, node in self._tasks_:iterator() do
+        node:getData()._timer_:stop()
+    end
 end
 
 return cls

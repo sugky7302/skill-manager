@@ -7,7 +7,7 @@ local Template
 function cls:_new(object)
     return {
         _object_ = object,
-        _types_ = {},  -- 收集所有效果類型
+        _state_ = require 'framework.effect.state':new(),
         _sets_ = {},  -- 收集所有效果集
     }
 end
@@ -37,36 +37,16 @@ AddEffect = function(self, effect)
 
     if not self._sets_[effect.name] then
         -- 新建模板
-        local atom = Template[effect.name]:new()
-        self._sets_[effect.name] = atom
-        
-        -- 記錄效果類型
-        local type_name = atom:getType()
-        if not self.types_[type_name] then
-            self.types_[type_name] = atom
+        self._sets_[effect.name] = Template[effect.name]:new(self._object_)
 
-        -- 如果已經有記錄類型了，就搜尋末端，與其建立繫結，方便原子狀態比較時搜尋
-        else
-            local effect_type = self.types_[type_name]
-            while(effect_type.next_ ~= nil) do effect_type = effect_type.next_ end
-            effect_type:bind(atom)
-        end
+        -- 註冊原子狀態
+        self._state_:add(self._sets_[effect.name])
     end
 
     -- 根據狀態關係表，比對所有效果類型之間的狀態
-    if IsTypeAllow(self._types_, self._sets_[effect.name]) then
+    if self._state_:compare(self._sets_[effect.name]) then
         self._sets_[effect.name]:add(effect)
     end
-end
-
-IsTypeAllow = function(types, set)
-    for _, v in ipairs(types) do
-        if not set:compareRelation(v) then
-            return false
-        end
-    end
-
-    return true
 end
 
 function cls:pause(name)
