@@ -4,10 +4,10 @@
 --]]
 
 local require = require
-local cls = require 'std.class'("EffectType")
+local cls = require 'std.class'("EffectSet")
 
 local function None() return true end
-
+-- BUG: type和set耦合度太高，導致做狀態比對時出現問題
 function cls:_new(data)
     return {
         _tasks_ = require 'std.list':new(),
@@ -17,6 +17,7 @@ function cls:_new(data)
         _mode_ = data.mode,
         _max_ = data.max,
         _keep_after_death_ = data._keep_after_death_,
+        -- TODO: 用listener取代
         on_add = data.on_add or None,
         on_delete = data.on_delete or None,
         on_finish = data.on_finish or None,
@@ -33,12 +34,20 @@ function cls:type()
     return self._type_:name()
 end
 
-function cls:link(effect_type)
+function cls:bind(effect_type)
     self._type_:add(effect_type)
     return self
 end
 
-function cls:compare()
+function cls:add(effect)
+    self._tasks_:push_back(effect)
+    effect:on_add()
+    return self
+end
+
+function cls:compareRelation(set)
+    self._types_:compare(set._type_)
+    return self
 end
 
 return cls
