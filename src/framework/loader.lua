@@ -41,7 +41,7 @@ local function LoadFolder(folder, file_names)
             -- 讀取成功且有資料才儲存
             if data then
                 -- 如果回傳的是table就合併
-                if type(data) == 'table' then
+                if type(data) == 'table' and not data.type then
                     require 'std.table'.merge(files, data)
                 else
                     files[data.name or file_name] = data

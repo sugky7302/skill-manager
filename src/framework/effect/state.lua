@@ -1,21 +1,19 @@
 local require = require
+local ipairs = ipairs
 local cls = require 'std.class'("EffectState")
 local TABLE = require 'framework.effect.table'
-local Clear
+local Stop
 
 function cls:add(set)
-    if not(set:isType("EffectSet") and set:type()) then
+    if not set:isType("EffectSet") then
         return self
     end
 
-    local last
-    for _, tp in ipairs(set:getType()) do
-        if not self[tp] then
-            self[tp] = set
+    for _, state in ipairs(set:states()) do
+        if not self[state] then
+            self[state] = {set}
         else
-            last = self[tp]
-            while(last.next_ ~= nil) do last = last.next_ end
-            last.next_ = set
+            self[state][#self[state]+1] = set
         end
     end
 
@@ -30,21 +28,21 @@ end
     抵銷(2):兩者都被移除
     共存(3):兩種狀態無關
 --]]
-function cls:compare(set)
-    if not(set:isType("EffectSet") and set:type()) then
+function cls:isAllow(set)
+    if not set:isType("EffectSet") then
         return false
     end
 
-    for _, tp in pairs(set:getType()) do
-        for k, state in ipairs(TABLE[tp]) do
-            if state == 0 then
-                Clear(self[k])
-            elseif state == 1 then
-                Clear(set)
+    for _, state in pairs(set:states()) do
+        for k, v in ipairs(TABLE[state] or {}) do
+            if v == 0 then
+                Stop(self[k])
+            elseif v == 1 then
+                Stop(set)
                 return false
-            elseif state == 2 then
-                Clear(self[k])
-                Clear(set)
+            elseif v == 2 then
+                Stop(self[k])
+                Stop(set)
                 return false
             end
         end
@@ -53,10 +51,13 @@ function cls:compare(set)
     return true
 end
 
-Clear = function(set)
-    while(set ~= nil) do
-        set:clear()
-        set = set.next_
+Stop = function(sets)
+    if not sets then
+        return
+    end
+
+    for _, set in ipairs(sets) do
+        set:stop()
     end
 end
 

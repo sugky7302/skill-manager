@@ -64,6 +64,10 @@ function Timer:stop()
 end
 
 function Timer:pause()
+    if not self.remaining_ then
+        return self
+    end
+
     -- 處在正常狀態才能執行以下動作
     if self.remaining_ == 0 then
         ComputeRemaining(self)
@@ -91,7 +95,7 @@ Now = function()
 end
 
 function Timer:resume()
-    local remaining = self.remaining_
+    local remaining = self.remaining_ or 0
     -- pause_frame要歸零，不然中心計時器會認為還在暫停中而不會將命令插到下個時序
     self.remaining_ = 0
 
