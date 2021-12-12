@@ -19,14 +19,16 @@
 --   remove(self) - remove ths group instance
 --     self - group instance
 --
---   circleUnits(self, args) - select all matched units in a assigned region
+--   select(self, args) - select all matched units with args
 --     self - group instance
 --     args - {
---       p:{x, y} 中心點的座標
---       vars: 額外參數。如果有多個參數，會以table方式儲存。
---       type: 選取區域的類型
---       (optional) cnd: 選取單位的條件，有IsEnemy、IsAlly、IsHero、IsUnit
---       (optional) filter: 比較對象
+--       (optional) selector: {
+--         選取區域的類型(string)
+--         p:{x, y} 中心點的座標
+--         vars: 額外參數。如果有多個參數，會以table方式儲存。
+--       } 單一選取器直接寫就好，多個選取器用table再包
+--       (optional) filter: { } 選取單位的條件
+--       (optional) sorter: { } 排序單位
 --     }
 --
 --   addUnit(self, unit) - add a unit into the group
@@ -71,7 +73,7 @@ local require = require
 local ej = require 'war3.enhanced_jass'
 
 local Group = require 'std.class'('Group')
-Group._VERION = '1.2.0'
+Group._VERION = '1.3.0'
 
 local InitArgs, GetDirection
 
