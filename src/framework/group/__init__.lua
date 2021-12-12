@@ -21,14 +21,18 @@
 --
 --   select(self, args) - select all matched units with args
 --     self - group instance
---     args - {
+--     args - { 單個直接寫在表裡，多個用table包住
 --       (optional) selector: {
 --         選取區域的類型(string)
 --         p:{x, y} 中心點的座標
 --         vars: 額外參數。如果有多個參數，會以table方式儲存。
---       } 單一選取器直接寫就好，多個選取器用table再包
---       (optional) filter: { } 選取單位的條件
---       (optional) sorter: { } 排序單位
+--         comparser 比對單位
+--       } 選取器
+--       (optional) filter: {
+--         name: 條件名
+--         comparer: 比對單位
+--       } 選取單位的條件
+--       (optional) sorter: { name } 排序單位
 --     }
 --
 --   addUnit(self, unit) - add a unit into the group
@@ -70,6 +74,7 @@
 ------
 
 local require = require
+local type, ipairs = type, ipairs
 local ej = require 'war3.enhanced_jass'
 
 local Group = require 'std.class'('Group')
@@ -84,50 +89,96 @@ function Group:_new()
     }
 end
 
-function Group:circleUnits(args)
+function Group:select(args)
     InitArgs(args)
 
-    require('framework.group.manager').traverse(
-        require 'framework.group.region'[args.type](args.p, args.vars, GetDirection(args)),
-        function(unit)
-            return args.cnd(unit) and (not self._blacklist_[unit]) and unit ~= args.filter
-        end,
-        function(unit)
-            self:addUnit(unit)
+    local manager = require 'framework.group.manager'
+    local region = require 'framework.group.region'
+
+    if args.selector then
+        if type(args.selector[1]) == 'string' then
+            manager.traverse(
+                region[args.selector[1]](args.selector[3], args.selector[2], GetDirection(args.selector[3], args.selector[4])),
+                function(unit)
+                    return (not self._blacklist_[unit]) and unit ~= args.selector[4]
+                end,
+                function(unit)
+                    self:addUnit(unit)
+                end
+            )
+        elseif type(args.selector[1]) == 'table' then
+            for _, selector in ipairs(args.selector) do
+                manager.traverse(
+                    region[selector[1]](selector[3], selector[2], GetDirection(selector[3], selector[4])),
+                    function(unit)
+                        return (not self._blacklist_[unit]) and unit ~= args.selector[4]
+                    end,
+                    function(unit)
+                        self:addUnit(unit)
+                    end
+                )
+            end
+        end
+    end
+
+    if args.filter then
+        self:loop(function(unit)
+            if type(args.filter[1]) == 'function' then
+                if (not args.filter[1](unit)) or self._blacklist_[unit] or unit == args.filter[2] then
+                    self:removeUnit(unit)
+                end
+            elseif type(args.filter[1]) == 'table' then
+                for _, filter in ipairs(args.filter) do
+                    if (not filter[1](unit)) or self._blacklist_[unit] or unit == filter[2] then
+                        self:removeUnit(unit)
+                    end
+                end
+            end
         end)
+    end
+
+    if args.sorter then
+        local sort = table.sort
+        for _, sorter in ipairs(args.sorter) do
+            sort(self._units_, sorter)
+        end
+    end
 
     return self
 end
 
 InitArgs = function(args)
-    -- NOTE: 因為condtion會檢查filter，所以不能讓filter=nil
-    args.filter = args.filter or 0
-
     -- 如果有條件，就生成條件表達式，沒有就直接生成一個真值的匿名函數
-    if args.cnd then
-        -- NOTE: 如果直接在匿名函數裡使用args.cnd加上讓 args.cnd 等於匿名函數，在函數被調用時，會因為args.cnd已經變成函數而造成內部調用args.cnd時發生錯誤。
-        local cnd = args.cnd
-        args.cnd = function(unit)
-            return require('framework.group.condition')[cnd](unit, args.filter)
+    if args.filter then
+        local cnd
+        if type(args.filter[1]) == "string" then
+            cnd = args.filter[1]
+            args.filter[1] = function(unit)
+                return require('framework.group.condition')[cnd](unit, args.filter[2])
+            end
+        elseif type(args.filter[1]) == "table" then
+            for i, filter in ipairs(args.filter) do
+                args.filter[i][1] = function(unit)
+                    return require('framework.group.condition')[filter[1]](unit, filter[2])
+                end
+            end
         end
-    else
-        args.cnd = function() return true end
     end
 end
 
-GetDirection = function(args)
+GetDirection = function(p, comparser)
     local Math = require 'std.math'
 
-    if args.filter == 0 then
+    if not comparser or comparser == 0 then
         return Math.pi / 2
     end
 
     -- NOTE: 如果目標點跟匹配源同個座標，認定為原地施法，因此角度會取匹配源的朝向
     -- NOTE: Facing出來是角度，因此要轉成弧度
-    if args.p.x == ej.GetUnitX(args.filter) and args.p.y == ej.GetUnitY(args.filter) then
-        return Math.pi * ej.GetUnitFacing(args.filter) / 180
+    if p.x == ej.GetUnitX(comparser) and p.y == ej.GetUnitY(comparser) then
+        return Math.pi * ej.GetUnitFacing(comparser) / 180
     else
-        return Math.angle(ej.GetUnitX(args.filter), ej.GetUnitY(args.filter), args.p.x, args.p.y)
+        return Math.angle(ej.GetUnitX(comparser), ej.GetUnitY(comparser), p.x, p.y)
     end
 end
 
