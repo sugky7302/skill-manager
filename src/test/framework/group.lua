@@ -3,47 +3,39 @@ local ej = require 'war3.enhanced_jass'
 
 local a = Group:new()
 
-a:circleUnits{
-    p = {x=0, y=0},
-    vars = 999999,
-    type = "circle"
-}
+a:select{"circle", {x=0, y=0}, 999999}
 
-a:loop(function(self, unit)
+for unit in a:iterator() do
     print("I'm " .. ej.U2S(unit))
-    local b = Group:new():circleUnits{
-        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
-        vars = {1000, 268},
-        type = 'rectangle',
-        cnd = 'IsEnemy',
-        filter = unit
-    }
-    print("Rectangle selected " .. b:getCount() .. " enemies")
+    local b = Group:new():select({
+        'rectangle',
+        {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        {1000, 268},
+        unit
+    }):filter{"IsEnemy", unit}
+    print("Rectangle selected " .. b:size() .. " enemies")
 
-    b = Group:new():circleUnits{
-        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
-        vars = {1000, 134},
-        type = 'line',
-        cnd = 'IsEnemy',
-        filter = unit
-    }
-    print("Line selected " .. b:getCount() .. " enemies")
+    b = Group:new():select({
+        'line',
+        {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        {1000, 134},
+        unit
+    }):filter{"IsEnemy", unit}
+    print("Line selected " .. b:size() .. " enemies")
 
-    b = Group:new():circleUnits{
-        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
-        vars = {134, -15, 60},
-        type = 'sector',
-        cnd = 'IsEnemy',
-        filter = unit
-    }
-    print("Sector selected " .. b:getCount() .. " enemies")
+    b = Group:new():select({
+        'sector',
+        {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        {134, -15, 60},
+        unit
+    }):filter{"IsEnemy", unit}
+    print("Sector selected " .. b:size() .. " enemies")
 
-    b = Group:new():circleUnits{
-        p = {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
-        vars = {134, 30},
-        type = 'fix_sector',
-        cnd = 'IsEnemy',
-        filter = unit
-    }
-    print("Fixed sector selected " .. b:getCount() .. " enemies")
-end)
+    b = Group:new():select({
+        'fix_sector',
+        {x=ej.GetUnitX(unit), y=ej.GetUnitY(unit)},
+        {134, 30},
+        unit
+    }):filter{"IsEnemy", unit}
+    print("Fixed sector selected " .. b:size() .. " enemies")
+end

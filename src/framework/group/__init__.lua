@@ -1,5 +1,5 @@
 ------
--- Group is an extension of jass group, it integrates the most jass group features
+-- cls is an extension of jass group, it integrates the most jass group features
 -- and enhances the user experience.
 --
 -- Required:
@@ -14,26 +14,29 @@
 --
 -- Function:
 --   new(self) - create a new group instance
---     self - class Group
+--     self - class cls
 --
 --   remove(self) - remove ths group instance
 --     self - group instance
 --
---   select(self, args) - select all matched units with args
+--   select(self, selector) - select all matched units with specified selectors
 --     self - group instance
---     args - { 單個直接寫在表裡，多個用table包住
---       (optional) selector: {
---         選取區域的類型(string)
---         p:{x, y} 中心點的座標
---         vars: 額外參數。如果有多個參數，會以table方式儲存。
---         comparser 比對單位
---       } 選取器
---       (optional) filter: {
---         name: 條件名
---         comparer: 比對單位
---       } 選取單位的條件
---       (optional) sorter: { name } 排序單位
+--     selector - { 多個以table包住
+--       選取區域的類型(string)
+--       p:{x, y} 中心點的座標
+--       vars: 額外參數。如果有多個參數，會以table方式儲存。
+--       comparser 比對單位
 --     }
+--   filter(self, filter) - filter unmatached units with specified filter
+--     self - group instance
+--     filter - {
+--       name: 條件名
+--       comparer: 比對單位
+--     }
+-- 
+--   sort(self, sorter) - sort units with specified sorter
+--     self - group instance
+--     sorter: { name } 排序單位
 --
 --   addUnit(self, unit) - add a unit into the group
 --     self - group instance
@@ -56,9 +59,9 @@
 --     unit - a jass unit
 --     return - exists or not
 --
---   getCount(self) - get the count of the units in the group
+--   size(self) - get the number of the units in the group
 --     self - group instance
---     return - the count of the units
+--     return - the number of the units
 --
 --   isEmpty(self) - check whether the group has no unit or not
 --     self - group instance
@@ -77,93 +80,37 @@ local require = require
 local type, ipairs = type, ipairs
 local ej = require 'war3.enhanced_jass'
 
-local Group = require 'std.class'('Group')
-Group._VERION = '1.3.0'
+local cls = require 'std.class'('Group')
+cls._VERION = '1.3.0'
 
-local InitArgs, GetDirection
+local GetDirection
 
-function Group:_new()
+function cls:_new()
     return {
         _blacklist_ = {},
         _units_ = require 'std.array':new(),
     }
 end
 
-function Group:select(args)
-    InitArgs(args)
-
-    local manager = require 'framework.group.manager'
-    local region = require 'framework.group.region'
-
-    if args.selector then
-        if type(args.selector[1]) == 'string' then
-            manager.traverse(
-                region[args.selector[1]](args.selector[3], args.selector[2], GetDirection(args.selector[3], args.selector[4])),
-                function(unit)
-                    return (not self._blacklist_[unit]) and unit ~= args.selector[4]
-                end,
-                function(unit)
-                    self:addUnit(unit)
-                end
-            )
-        elseif type(args.selector[1]) == 'table' then
-            for _, selector in ipairs(args.selector) do
-                manager.traverse(
-                    region[selector[1]](selector[3], selector[2], GetDirection(selector[3], selector[4])),
-                    function(unit)
-                        return (not self._blacklist_[unit]) and unit ~= args.selector[4]
-                    end,
-                    function(unit)
-                        self:addUnit(unit)
-                    end
-                )
-            end
-        end
+function cls:select(selector)
+    if type(selector[1]) == 'string' then
+        selector = {selector}
     end
 
-    if args.filter then
-        self:loop(function(unit)
-            if type(args.filter[1]) == 'function' then
-                if (not args.filter[1](unit)) or self._blacklist_[unit] or unit == args.filter[2] then
-                    self:removeUnit(unit)
-                end
-            elseif type(args.filter[1]) == 'table' then
-                for _, filter in ipairs(args.filter) do
-                    if (not filter[1](unit)) or self._blacklist_[unit] or unit == filter[2] then
-                        self:removeUnit(unit)
-                    end
-                end
+    local manager, region = require 'framework.group.manager', require 'framework.group.region'
+    for _, args in ipairs(selector) do
+        manager.traverse(
+            region[args[1]](args[2], args[3], GetDirection(args[2], args[4])),
+            function(unit)
+                return not (self._blacklist_[unit] or unit == (args[4] or 0))
+            end,
+            function(unit)
+                self:addUnit(unit)
             end
-        end)
-    end
-
-    if args.sorter then
-        local sort = table.sort
-        for _, sorter in ipairs(args.sorter) do
-            sort(self._units_, sorter)
-        end
+        )
     end
 
     return self
-end
-
-InitArgs = function(args)
-    -- 如果有條件，就生成條件表達式，沒有就直接生成一個真值的匿名函數
-    if args.filter then
-        local cnd
-        if type(args.filter[1]) == "string" then
-            cnd = args.filter[1]
-            args.filter[1] = function(unit)
-                return require('framework.group.condition')[cnd](unit, args.filter[2])
-            end
-        elseif type(args.filter[1]) == "table" then
-            for i, filter in ipairs(args.filter) do
-                args.filter[i][1] = function(unit)
-                    return require('framework.group.condition')[filter[1]](unit, filter[2])
-                end
-            end
-        end
-    end
 end
 
 GetDirection = function(p, comparser)
@@ -182,7 +129,34 @@ GetDirection = function(p, comparser)
     end
 end
 
-function Group:addUnit(unit)
+function cls:filter(filter)
+    if type(filter[1]) == "string" then
+        filter = {filter}
+    end
+
+    local Cnd = require('framework.group.condition')
+    for unit in self:iterator() do
+        for _, args in ipairs(filter) do
+            if (not Cnd[args[1]](unit)) or  self._blacklist_[unit] or unit == (args[2] or 0) then
+                self:removeUnit(unit)
+                break
+            end
+        end
+    end
+
+    return self
+end
+
+function cls:sort(sorter)
+    local sort = table.sort
+    for _, fn in ipairs(sorter) do
+        sort(self._units_, fn)
+    end
+
+    return self
+end
+
+function cls:addUnit(unit)
     if not self._units_:exist(unit) then
         self._units_:append(unit)
     end
@@ -190,38 +164,23 @@ function Group:addUnit(unit)
     return self
 end
 
-function Group:removeUnit(unit)
+function cls:removeUnit(unit)
     self._units_:erase(unit)
     return self
 end
 
-function Group:_remove()
+function cls:_remove()
     self:clear()
     self._units_:remove()
 end
 
-function Group:clear()
+function cls:clear()
     self._blacklist_ = {}
     self._units_:clear()
     return self
 end
 
--- action的格式要是
--- function(self, unit, ...)
---     body
--- end
--- 順序循環在執行改變array長度的動作時，由於最後一個元素會補到空位，而導致順序不正確
--- 只有2個元素的array，如果delete array[1]刪掉，會讀不到array[2]
--- 使用倒序循環就不會出現這樣的問題
-function Group:loop(action, ...)
-    for i = self._units_:size(), 1, -1 do
-        action(self, self._units_[i], ...)
-    end
-
-    return self
-end
-
-function Group:iterator()
+function cls:iterator()
     local i = self._units_:size() + 1
     local iter = function(t)
         i = i - 1
@@ -231,26 +190,26 @@ function Group:iterator()
     return iter, self._units_, 0
 end
 
-function Group:In(unit)
+function cls:In(unit)
     return self._units_:exist(unit)
 end
 
-function Group:getCount()
+function cls:size()
     return self._units_:size()
 end
 
-function Group:isEmpty()
+function cls:isEmpty()
     return self._units_:isEmpty()
 end
 
-function Group:mark(unit)
+function cls:mark(unit)
     self._blacklist_[unit] = true
     return self
 end
 
-function Group:unmark(unit)
+function cls:unmark(unit)
     self._blacklist_[unit] = nil
     return self
 end
 
-return Group
+return cls

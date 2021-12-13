@@ -1,5 +1,5 @@
 local function Main()
-    require 'test.framework.effect'
+    require 'test.framework.group'
 end
 
 Main()

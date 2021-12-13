@@ -15,6 +15,7 @@ function PassThrough(p, r, cnd)
     return enumers
 end
 
+-- vars = {長度, 寬度}
 function Rectangle(p, vars, angle)
     -- 旋轉矩陣
     -- | cosθ -sinθ |
@@ -32,6 +33,7 @@ function Rectangle(p, vars, angle)
     end)
 end
 
+-- vars = {長度, 寬度}
 function Line(p, vars, angle)
     local _, width = unpack(vars)
 
@@ -62,6 +64,7 @@ function Circle(p, r)
 end
 
 -- 以面向角左右各撐開 n 度（利用向量夾角公式計算）
+-- vars = {半徑, 撐開角}
 function FixSector(p, vars, angle)
     -- 把角度轉成360度制，之後再轉成弧度
     local theta = Math.rad(vars[2] % 360)
@@ -78,6 +81,7 @@ function FixSector(p, vars, angle)
 end
 
 -- NOTE: 角度記得要用弧度
+-- vars = {半徑, 起始角, 終止角}
 function Sector(p, vars)
     -- 把角度轉成360度制
     -- NOTE: 因為vars[3] mod 360一定落在[0, 360]之間，所以利用fmod向零取整的特性，讓vars[2]恆小於vars[3]
