@@ -5,10 +5,6 @@ local cls = require "std.class"("EffectManager")
 local Template = require 'framework.effect.template'
 local Init
 
-for k, v in pairs(Template) do
-    print(k,v)
-end
-
 function cls:_new(object)
     return {
         _object_ = object,
@@ -23,22 +19,19 @@ function cls:add(new_effect)
     Init(new_effect, self._object_)
 
     if not Template[new_effect.name] then
-        print(1)
         return false
     end
 
     if not self._sets_[new_effect.name] then
-        print(2)
         self._sets_[new_effect.name] = Template[new_effect.name]:new()
         self._state_:add(self._sets_[new_effect.name])  -- 加入到原子狀態
     end
 
     -- 狀態不允許
     if not self._state_:isAllow(self._sets_[new_effect.name]) then
-        print(3)
         return false
     end
-    print(4)
+    
     return self._sets_[new_effect.name]:add(new_effect)
 end
 
