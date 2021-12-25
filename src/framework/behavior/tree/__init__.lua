@@ -38,7 +38,7 @@
 
     restore() - restore the action of the tree
 --]]
-local require = require
+local require, assert = require, assert
 local Script = require 'framework.behavior.script'
 local Node = require 'framework.behavior.node'
 local cls = require 'std.class'('BehaviorTree', Node)
@@ -47,7 +47,7 @@ local Parse, Print
 function cls:_new(obj, script)
     local this = self:super():new()
 
-    this._root_ = Parse(this, script)
+    this._root_ = Parse(this, script, {})
     this.object_ = obj
     this._params_ = {}
     this._is_pause_ = false
@@ -57,11 +57,25 @@ function cls:_new(obj, script)
     return this
 end
 
-Parse = function(self, data)
+Parse = function(self, data, parent_args)
     assert(type(data) == "table", "腳本內容錯誤，請重新檢查。")
 
+    -- 匯入腳本
     if data.import then
         data = Script.export(data.import)
+    end
+
+    -- 如果節點的參數是以 $%d+ 組成，將繼承父類參數
+    if data.args then
+        local match, type = string.match, type
+        local n
+        for i, v in ipairs(data.args) do
+            if type(v) == 'string' and match(v, '$(%d+)') then
+                n = tonumber(match(v, '$(%d+)'))
+                assert(#parent_args >= n, "此索引超出父類參數的數量，請重新檢查。")
+                data.args[i] = parent_args[n]
+            end
+        end
     end
 
     local parent = Node.exist(data.id) and Node.exist(data.id):new(data.args) or Node.exist("Sequence"):new(data.args)
@@ -75,7 +89,7 @@ Parse = function(self, data)
     -- 只有多節點的情況下才繼續
     -- local node
     for _, child in pairs(data.nodes or data) do
-        parent:append(Parse(self, child))
+        parent:append(Parse(self, child, data.args))
     end
 
     return parent
