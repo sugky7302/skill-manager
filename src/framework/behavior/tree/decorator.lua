@@ -7,9 +7,9 @@
 
       print() - print the decorators
 
-      wrap(node, list) - wrap the node with all decorators in the list.
+      wrap(node, list?) - wrap the node with all decorators in the list.
         node - Behavior Node
-        list - decorators list
+        list? - decorators list. If not list, all decorateors would wrap the node.
 
       add(name, fn) - add a decorator into the queue and update to the database.
         name - decorator name
@@ -81,14 +81,14 @@ function cls:wrap(node, list)
 end
 
 --[[
-    NOTE: 此函數有兩種用途，一種是添加裝飾函數到裝飾器以及更新資料庫，另一種是添加裝飾名到裝飾器。
+    NOTE: 此函數會檢測有無此裝飾名，沒有的話會添加至裝飾器，然後再添加裝飾函數到裝飾器以及更新資料庫。
           格式為 name(string/table)、fn(function/table)。
           這裡會透過遞迴的方式處理單一元素以及元素陣列 - 2021-10-27
 --]]
 function cls:add(name, fn)
     if type(name) == 'string' then
         if type(fn) == 'function' then
-            UpdateDataBase(self, name, fn)
+            UpdateDataBase(name, fn)
         end
 
         return AddDecorator(self, name)
@@ -108,7 +108,7 @@ function cls:add(name, fn)
     end
 end
 
-UpdateDataBase = function(self, name, fn)
+UpdateDataBase = function(name, fn)
     if type(name) ~= 'string' and type(fn) ~= 'function' then
         return
     end

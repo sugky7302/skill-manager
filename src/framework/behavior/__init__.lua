@@ -30,10 +30,15 @@
       decorate(list, fn) - add a decorator to the tree
         list - a list of decorators
         fn - functions of decorators
+
+      import(name, script) - import scripts into the SCRIPT DATABASE
+        name: string / table - script name
+        script: table - script
 --]]
 
 local require = require
 require 'framework.behavior.load'
+local Script = require 'framework.behavior.script'
 local Tree = require 'framework.behavior.tree'
 local Decorator = require 'framework.behavior.tree.decorator'
 
@@ -113,6 +118,11 @@ Sort = function(list, fn)
             return t1, t2
         end
     end
+end
+
+function cls:import(name, script)
+    Script.import(name, script)
+    return self
 end
 
 return cls

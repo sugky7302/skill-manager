@@ -1,5 +1,5 @@
 local function Main()
-    require 'test.framework.group'
+    require 'framework.behavior.script'
 end
 
 Main()

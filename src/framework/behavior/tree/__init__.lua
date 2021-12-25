@@ -1,5 +1,5 @@
 --[[
-  SkillTree is a powerful framework to run the process of a skill. It has similiar structures of programming language.
+  BehaviorTree is a powerful framework to run the process of specified behavior. It has similiar structures of programming language.
   Thus, we can expand, modify and reuse easily.
 
   Required:
@@ -7,13 +7,14 @@
 
   Member:
     _root_ - 根節點
-    skill_ - 技能
-    params_ - 樹裡面所有節點都可以讀取的參數列表
-    period_ - 計時器的週期
+    object_ - 對象
+    _params_ - 樹裡面所有節點都可以讀取的參數列表
+    _is_pause_ - 是否處於暫停
+    _is_running_ - 是否正在執行
 
   Function:
-    new(skill_id, script) - create a new instance of skill tree
-      skill_id - skill id in war3
+    new(obj, script) - create a new instance of behavior tree
+      obj - object in war3
       script - skill action script
 
     iterator() - traverser all nodes
@@ -38,6 +39,7 @@
     restore() - restore the action of the tree
 --]]
 local require = require
+local Script = require 'framework.behavior.script'
 local Node = require 'framework.behavior.node'
 local cls = require 'std.class'('BehaviorTree', Node)
 local Parse, Print
@@ -58,9 +60,13 @@ end
 Parse = function(self, data)
     assert(type(data) == "table", "腳本內容錯誤，請重新檢查。")
 
+    if data.import then
+        data = Script.export(data.import)
+    end
+
     local parent = Node.exist(data.id) and Node.exist(data.id):new(data.args) or Node.exist("Sequence"):new(data.args)
     parent.tree_ = self
-    -- TODO: 使用裝飾器包裝節點
+    
     -- 如果只有單一節點表示沒有底下沒有節點了
     if parent.type == "ActionNode" then
         return parent
