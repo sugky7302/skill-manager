@@ -65,7 +65,8 @@ Parse = function(self, data, parent_args)
         data = Script.export(data.import)
     end
 
-    -- 如果節點的參數是以 $%d+ 組成，將繼承父類參數
+    -- 如果節點的參數是以「$ + 數字」組成，系統會讀取父類參數於該索引的值。
+    -- NOTE: 數字必須從 1 開始。
     if data.args then
         local match, type = string.match, type
         local n
