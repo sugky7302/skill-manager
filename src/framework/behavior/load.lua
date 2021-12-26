@@ -9,5 +9,4 @@ return require 'framework.loader'.loadFolder('framework.behavior.node', {
     'wait',
     'none',
     'timer',
-    'test.json'
 })

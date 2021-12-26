@@ -95,8 +95,8 @@ end
 
 local bt = BT:new(123, {id="Condition", nodes={
         {id="碰到敵人"},
-        {id="Condition", nodes={
-            {id="生命值檢測", args={30}},
+        {id="Condition", args={30}, nodes={
+            {id="生命值檢測", args={"$1"}},
             {id="Condition", nodes={
                 {id="距離檢測", args={100}},
                 {id="None"},

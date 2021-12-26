@@ -1,5 +1,5 @@
 --[[
-  SkillTree is a powerful framework to run the process of a skill. It has similiar structures of programming language.
+  BehaviorTree is a powerful framework to run the process of specified behavior. It has similiar structures of programming language.
   Thus, we can expand, modify and reuse easily.
 
   Required:
@@ -7,13 +7,14 @@
 
   Member:
     _root_ - 根節點
-    skill_ - 技能
-    params_ - 樹裡面所有節點都可以讀取的參數列表
-    period_ - 計時器的週期
+    object_ - 對象
+    _params_ - 樹裡面所有節點都可以讀取的參數列表
+    _is_pause_ - 是否處於暫停
+    _is_running_ - 是否正在執行
 
   Function:
-    new(skill_id, script) - create a new instance of skill tree
-      skill_id - skill id in war3
+    new(obj, script) - create a new instance of behavior tree
+      obj - object in war3
       script - skill action script
 
     iterator() - traverser all nodes
@@ -37,7 +38,8 @@
 
     restore() - restore the action of the tree
 --]]
-local require = require
+local require, assert = require, assert
+local Script = require 'framework.behavior.script'
 local Node = require 'framework.behavior.node'
 local cls = require 'std.class'('BehaviorTree', Node)
 local Parse, Print
@@ -45,7 +47,7 @@ local Parse, Print
 function cls:_new(obj, script)
     local this = self:super():new()
 
-    this._root_ = Parse(this, script)
+    this._root_ = Parse(this, script, {})
     this.object_ = obj
     this._params_ = {}
     this._is_pause_ = false
@@ -55,12 +57,31 @@ function cls:_new(obj, script)
     return this
 end
 
-Parse = function(self, data)
+Parse = function(self, data, parent_args)
     assert(type(data) == "table", "腳本內容錯誤，請重新檢查。")
+
+    -- 匯入腳本
+    if data.import then
+        data = Script.export(data.import)
+    end
+
+    -- 如果節點的參數是以「$ + 數字」組成，系統會讀取父類參數於該索引的值。
+    -- NOTE: 數字必須從 1 開始。
+    if data.args then
+        local match, type = string.match, type
+        local n
+        for i, v in ipairs(data.args) do
+            if type(v) == 'string' and match(v, '$(%d+)') then
+                n = tonumber(match(v, '$(%d+)'))
+                assert(#parent_args >= n, "此索引超出父類參數的數量，請重新檢查。")
+                data.args[i] = parent_args[n]
+            end
+        end
+    end
 
     local parent = Node.exist(data.id) and Node.exist(data.id):new(data.args) or Node.exist("Sequence"):new(data.args)
     parent.tree_ = self
-    -- TODO: 使用裝飾器包裝節點
+    
     -- 如果只有單一節點表示沒有底下沒有節點了
     if parent.type == "ActionNode" then
         return parent
@@ -69,7 +90,7 @@ Parse = function(self, data)
     -- 只有多節點的情況下才繼續
     -- local node
     for _, child in pairs(data.nodes or data) do
-        parent:append(Parse(self, child))
+        parent:append(Parse(self, child, data.args))
     end
 
     return parent
