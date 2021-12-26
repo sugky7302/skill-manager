@@ -130,14 +130,15 @@ GetDirection = function(p, comparser)
 end
 
 function cls:filter(filter)
-    if type(filter[1]) == "string" then
+    if type(filter[1]) == "string" or type(filter[1]) == "function" then
         filter = {filter}
     end
 
-    local Cnd = require('framework.group.condition')
+    local Cnd
     for unit in self:iterator() do
         for _, args in ipairs(filter) do
-            if (not Cnd[args[1]](unit)) or  self._blacklist_[unit] or unit == (args[2] or 0) then
+            Cnd = type(args[1]) == "function" and args[1] or require('framework.group.condition')[args[1]]
+            if (not Cnd(unit, self._units_)) or  self._blacklist_[unit] or unit == (args[2] or 0) then
                 self:removeUnit(unit)
                 break
             end

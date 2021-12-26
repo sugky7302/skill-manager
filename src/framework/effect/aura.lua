@@ -1,14 +1,20 @@
 local require = require
 local cls = require 'std.class'("AuraEffect")
 
-function cls:_new(data, selector)
-    local this = {
-        _units_ = require 'framework.group':new(),
-        _effects_ = require 'framework.effect.set':new(data)
-    }
+-- selector{region, range, condition}
+function cls:_new(data, args)
+    assert(args, "請添加參數")
+    local selector = {
+        args.region or "circle",
+        {x=0, y=0},
+        args.range or 100,
+        data.target}
 
-    if selector.range then
-        this._units_:select()
-    end
-    return this
+    local filter = {args.filter, data.target}
+
+    return {
+        _units_ = require 'framework.group':new():select(selector):filter(filter),
+        _effects_ = require 'framework.effect.set':new(data),
+        _timer_ = require 'framework.timer':new(1, -1, function() end),
+    }
 end
