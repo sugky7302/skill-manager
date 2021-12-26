@@ -1,5 +1,5 @@
 local function Main()
-    require 'framework.behavior.script'
+    require 'framework.skill':new('AHbz')
 end
 
 Main()
